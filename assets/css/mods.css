@@ -1,0 +1,42 @@
+@media only screen and (min-width: 768px) {
+    .navbar-light {
+        background-color: #ffffff;
+    }
+    .navbar-light .navbar-toggler {
+        color: rgba(51,51,51,.85);
+    }
+}
+@media only screen and (max-width: 768px) {
+    .navbar-light {
+        background-color: #0096be;
+    }
+    .navbar-brand img {
+        margin-top: -10px;
+    }
+    .navbar-light .navbar-toggler {
+        color: #ffffff;
+        margin-top: -10px;
+    }
+}
+.navbar-brand img {
+	height: 2rem;
+	display: block;
+}
+.navbar-dark {
+	color: rgba(255,255,255,.9);
+	background-color: #0096be;
+	border-bottom-color: rgba(255,255,255,.1);
+}
+.navbar {
+   height: 48px;
+}
+.sidebar-dark {
+	background-color: #00A2CF;
+}
+.sidebar-dark .nav-sidebar .nav-item-header, .sidebar-light .card[class*="bg-"]:not(.bg-light):not(.bg-white):not(.bg-transparent) .nav-sidebar .nav-item-header {
+	color: rgba(255,255,255,1);
+}
+.sidebar-dark .nav-sidebar > .nav-item-open > .nav-link:not(.disabled), .sidebar-dark .nav-sidebar > .nav-item > .nav-link.active, .sidebar-light .card[class*="bg-"]:not(.bg-light):not(.bg-white):not(.bg-transparent) .nav-sidebar > .nav-item-open > .nav-link:not(.disabled), .sidebar-light .card[class*="bg-"]:not(.bg-light):not(.bg-white):not(.bg-transparent) .nav-sidebar > .nav-item > .nav-link.active {
+    background-color: #51CBED;
+    color: #fff;
+}

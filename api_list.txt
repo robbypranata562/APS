@@ -1,0 +1,352 @@
+https://development.autopilotstore.co.id/api_all.php
+
+KETERANGAN: semua jenis input harus kirim jg variabel tipe (kemudian baru ditambahkan input lainnya yang diperlukan)
+
+*******************************************************************************
+tipe    : GET_OUTLETMASTERPRODUK
+fungsi  : - mengambil seluruh data produk dari suatu outlet beserta varian dan subvarian nya
+					- data yang diambil bisa diambil berdasarkan pencarian berupa namabarang atau barcode
+					- data dapat diambil menggunakan paginasi (jumlah barang yang diambil, beserta halaman pengambilan)
+					- produk yang diambil hanya produk yang memiliki stok (jika stok nya 0 maka tidak akan diambil/ditampilkan)
+input   : idoutlet, search, limit(jumlah perhalaman), page( halaman ke-0 sampai ... ),
+          idkategori ('' untuk semua), statusproduk (''= semua; PROMO= produk promo; KONSINYASI= produk konsinyasi; NONKONSINYASI= produk non kosinyasi;
+                                                     'FAVORIT'= produk favorit, favoritpelanggan; 'PAKET'= lom aktif),
+          stokoption ('' untuk semua, 'MINIMALSTOK' untuk minimalstok)
+
+output  : errcode (OK jika berhasil),
+					daftarproduk (idproduk, namaproduk, simbolmatauang, hargamaxproduk, hargaminproduk, jumlahvarian, tipe,
+												idkategoriproduk, idsatuanproduk, berat, deskripsiproduk, fotoprodukutama,
+												jumlahstokproduk, idpemasok, iskonsinyasi, isfavorit, isfavoritpelanggan, ispromokonsinyasi,
+												varian (array:	idvarian, jumlahstokvarian, simbolmatauang, hargaminvarian, hargamaxvarian,
+																				varian1, jumlahsubvarian,
+																				subvarian (array:	idproduk_var, simbolmatauang, hargajual, jumlahstok, varian1,
+																													varian2, minstok, barcode)
+															)
+											)
+                      
+*******************************************************************************
+tipe    : GET_CATATAN
+fungsi  : - mengambil seluruh data catatan
+          - data yang diambil bisa diambil berdasarkan tipecatatan (''= semua catatan; 1 = catatan pembelian)
+					- data yang diambil bisa berdasarkan search parameter
+input   : tipecatatan, search
+
+output  : errcode (OK jika berhasil),
+          daftarcatatan (array: IDCATATAN, TIPECATATAN, NAMACATATAN, ISICATATAN, STATUSKEAKTIFAN )
+
+*******************************************************************************
+tipe    : UPDATE_CATATAN
+fungsi  : - mengupdate data dari kategori pelanggan
+					
+input   : idcatatan, tipecatatan, namacatatan, isicatatan, statuskeaktifan
+
+output  : errcode (OK jika berhasil)
+					
+*******************************************************************************
+tipe    : ADD_CATATAN
+fungsi  : - menambah data dari catatan baru
+					
+input   : namacatatan, isicatatan, tipecatatan (tipe catatan=1)
+
+output  : errcode (OK jika berhasil)
+					
+*******************************************************************************
+tipe    : DELETE_CATATAN
+fungsi  : - menghapus catatan
+					
+input   : listidcatatan(array: idcatatan)
+
+output  : errcode (OK jika berhasil)
+					
+contoh  : {
+            "tipe":"DELETE_CATATAN",
+            "listidcatatan":[ 3, 1 ]
+          }
+
+*******************************************************************************
+tipe    : GET_KATEGORIPELANGGAN
+fungsi  : - mengambil seluruh kategori pelanggan
+input   : N/A
+
+output  : errcode (OK),
+          daftarkategoripelanggan (array: IDKATEGORIPELANGGAN, NAMAKATEGORIPELANGGAN )
+
+*******************************************************************************
+tipe    : UPDATE_KATEGORIPELANGGAN
+fungsi  : - mengupdate data dari kategori pelanggan (kecuali idkategoripelanggan=1, tidak bisa diupdate)
+					
+input   : idkategoripelanggan, namakategoripelanggan
+
+output  : errcode (OK jika berhasil)
+					
+*******************************************************************************
+tipe    : ADD_KATEGORIPELANGGAN
+fungsi  : - menambah data dari kategoripelanggan baru
+					
+input   : namakategoripelanggan
+
+output  : errcode (OK jika berhasil)
+					
+*******************************************************************************
+tipe    : GET_KATEGORIPRODUK
+fungsi  : - mengambil seluruh kategori produk
+input   : N/A
+
+output  : errcode (OK),
+          daftarkategoriproduk (array: IDKATEGORIPRODUK, NAMAKATEGORIPRODUK )
+
+*******************************************************************************
+tipe    : UPDATE_KATEGORIPRODUK
+fungsi  : - mengupdate data dari kategori produk
+					
+input   : idkategoriproduk, namakategoriproduk
+
+output  : errcode (OK jika berhasil)
+
+*******************************************************************************
+tipe    : ADD_KATEGORIPRODUK
+fungsi  : - menambah data dari kategoriproduk baru
+					
+input   : namakategoriproduk
+
+output  : errcode (OK jika berhasil)
+					
+*******************************************************************************
+tipe    : GET_KONTRAKPENJUALAN
+fungsi  : - mengambil seluruh data kontrak penjualan
+					- data yang diambil bisa diambil berdasarkan statuskeaktifan dari kontrak penjualan ('' = tampil semua; 0 = batal; 1 = aktif; 2 = selesai)
+input   : statuskontrak, idoutlet
+
+output  : errcode (OK jika berhasil),
+          daftarkontrakpenjualan (array:  NOKONTRAKPENJUALAN, IDOUTLET, TANGGAL, IDPELANGGAN, NAMAPELANGGAN, IDSALES, NAMASALES, KURS, IDSATUANHARGA,
+                                          SUBTOTAL, USESERVIS, BIAYASERVIS, SERVISWITHTAX, TOTALSERVIS, USETAX, PERSENTASEPAJAK, TOTALTAX, TOTALHARGA,
+                                          STATUSKEAKTIFAN,
+                                          daftarproduk (array:  IDPRODUK_VAR, JUMLAH, JUMLAH_KIRIM, JUMLAH_RETUR, HARGAJUAL, CATATAN )
+											    )
+        
+*******************************************************************************
+tipe    : GET_PELANGGAN
+fungsi  : - mengambil seluruh data pelanggan
+					- data yang diambil bisa diambil berdasarkan pencarian berupa nama pelanggan, no hp(HP1), atau email
+input   : search ('' untuk semua pelanggan), isactive (jika isactive = 0, maka ambil seluruh pelanggan; jika 1 maka ambil yang statuskeaktifan = 1)
+
+output  : errcode (OK jika berhasil),
+					daftarpelanggan (array:	IDPELANGGAN, NAMAPELANGGAN, IDBADANUSAHA, IDKATEGORIPELANGGAN,  CP, TELEPON1, TELEPON2, FAX, HP1, HP2,
+                                  EMAIL, ALAMAT, KODEPOS, IDNEGARA, PROPINSI, KOTA, KECAMATAN, STATUSKEAKTIFANPIUTANG, LIMITPIUTANG,
+                                  TEMPOPIUTANG, IDBANK, NOREKENING, NAMAREKENING, KABUPATENBANK, IDNEGARABANK, SISASALDODP, SISAPIUTANG,
+                                  SISAPROMOPOIN, KODEKONFIRMASI, STATUSKONFIRMASI, STATUSKEAKTIFAN
+											    )
+
+*******************************************************************************
+tipe    : UPDATE_PELANGGAN
+fungsi  : - mengupdate data dari pelanggan( idbadanusaha, idkategoripelanggan, namapelanggan, cp, telepon1, telepon2, fax, hp1, hp2, email,
+                                            alamat, kodepos, idnegara, propinsi, kota, kecamatan, idbank, norekening, namamarketing,
+                                            kabupatenbank, idnegarabank, statuskeaktifan)
+					
+input   : idpelanggan, idbadanusaha, idkategoripelanggan, namapelanggan, cp, telepon1, telepon2, fax, hp1, hp2, email, alamat,
+          kodepos, idnegara, propinsi, kota, kecamatan, idbank, norekening, namamarketing, kabupatenbank, idnegarabank,
+          idpelanggan, statuskeaktifan
+
+output  : errcode (OK jika berhasil)
+					
+*******************************************************************************
+tipe    : ADD_PELANGGAN
+fungsi  : - menambah data dari pelanggan baru (idbadanusaha, idkategoripelanggan, namapelanggan, cp, telepon1,
+                                              telepon2, fax, hp1, hp2, email, alamat, kodepos, idnegara, propinsi,
+                                              kota, kecamatan, idbank, norekening, namamarketing, kabupatenbank, idnegarabank)
+					
+input   : idbadanusaha, idkategoripelanggan, namapelanggan, cp, telepon1, telepon2, fax, hp1, hp2, email, alamat,
+          kodepos, idnegara, propinsi, kota, kecamatan, idbank, norekening, namamarketing, kabupatenbank, idnegarabank
+
+output  : errcode (OK jika berhasil)
+					
+*******************************************************************************
+tipe    : UPDATE_PELANGGANSTATUSKEAKTIFAN
+fungsi  : - hanya update statuskeaktifan dari pelanggan tertentu
+					
+input   : idpelanggan, statuskeaktifan
+
+output  : errcode(OK jika berhasil)
+          
+*******************************************************************************
+tipe    : GET_LOGISTIK
+fungsi  : - mengambil seluruh jasa logistik
+input   : isactive (jika 0 = ambil seluruh data logistik; jika 1 ambil logistik STATUSKEAKTIFAN=1)
+
+output  : errcode (OK),
+					daftarlogistik (array:	IDLOGISTIK, NAMALOGISTIK, STATUSKEAKTIFAN
+											    )
+
+*******************************************************************************
+tipe    : UPDATE_LOGISTIK
+fungsi  : - mengupdate data dari logistik (statuskeaktifan)
+					
+input   : statuskeaktifan, idlogistik
+
+output  : errcode (OK jika berhasil)
+					
+*******************************************************************************
+tipe    : GET_PEMASOK
+fungsi  : - mengambil seluruh jasa pemasok
+input   : isactive (jika 0 = ambil seluruh data pemasok; jika 1 ambil pemasok STATUSKEAKTIFAN=1)
+
+output  : errcode (OK),
+          daftarpemasok (array: IDPEMASOK, NAMAPEMASOK, IDBADANUSAHA, CP, TELEPON1, TELEPON2, FAX, HP1, HP2, EMAIL, ALAMAT, KODEPOS,
+                                IDNEGARA, PROPINSI, KOTA, KECAMATAN, TEMPOHUTANG, IDBANK, NOREKENING, NAMAREKENING, KABUPATENBANK,
+                                IDNEGARABANK, STATUSKEAKTIFAN
+											  )
+
+*******************************************************************************
+tipe    : UPDATE_PEMASOK
+fungsi  : - mengupdate data dari pemasok
+					
+input   : idpemasok, namapemasok, idbadanusaha, cp, telepon1, telepon2, fax, hp1, hp2, email, alamat, kodepos,
+          idnegara, propinsi, kota, kecamatan, tempohutang, idbank, norekening, namarekening, kabupatenbank,
+          idnegarabank, statuskeaktifan
+
+output  : errcode (OK jika berhasil)
+
+*******************************************************************************
+tipe    : ADD_PEMASOK
+fungsi  : - menambah data dari pemasok baru
+					
+input   : namapemasok, idbadanusaha, cp, telepon1, telepon2, fax, hp1, hp2, email, alamat, kodepos,
+          idnegara, propinsi, kota, kecamatan, tempohutang, idbank, norekening, namarekening, kabupatenbank, idnegarabank
+
+output  : errcode (OK jika berhasil)
+					
+*******************************************************************************
+tipe    : UPDATE_PEMASOKSTATUSKEAKTIFAN
+fungsi  : - hanya update statuskeaktifan dari pemasok tertentu
+					
+input   : idpemasok, statuskeaktifan
+
+output  : errcode(OK jika berhasil)
+          
+*******************************************************************************
+tipe    : GET_USEROUTLET
+fungsi  : - menampilkan outlet yang bisa dipilih oleh user tersebut
+					
+input   : N/A
+
+output  : errcode(OK jika berhasil),
+          listoutlet (array: IDOUTLET, NAMAOUTLET)          
+					
+*******************************************************************************
+tipe    : GET_OUTLET
+fungsi  : - mengambil seluruh data outlet
+					- data yang diambil bisa berdasarkan idoutlet
+input   : idoutlet ('' untuk tampilkan semua outlet)
+
+output  : errcode (OK jika berhasil),
+          daftaroutlet (array:  IDOUTLET, KODEOUTLET, NAMAOUTLET, LOKASI, LOGOOUTLET, TELEPON1, TELEPON2, FAX, EMAIL 	USESERVIS, BIAYASERVIS,
+                                SERVISWITHTAX, USETAX, PERSENTASEPAJAK, USECHARGE, PERSENTASECHARGE, NOMINALCHARGE, USEDONASI, TIPEDONASI,
+                                CETAKKEBIJAKANRETUR, CETAKCATATAN, ALAMAT, KODEPOS, IDNEGARA, PROPINSI, KOTA, KECAMATAN, URLFB, URLYOUTUBE,
+                                URLINSTAGRAM, URLTWITTER, STATUSKEAKTIFAN 
+											    )
+*******************************************************************************
+tipe    : ADD_PRODUKFAVORIT
+fungsi  : - menambah data produk favorit di outlet tertentu
+input   : idoutlet,
+          listidproduk (array: idproduk)
+
+output  : errcode (OK jika berhasil)
+
+contoh  : {
+            "tipe":"ADD_PRODUKFAVORIT",
+            "idoutlet":1,
+            "listidproduk":[ 3, 1 ]
+          }
+
+*******************************************************************************
+tipe    : DELETE_PRODUKFAVORIT
+fungsi  : - menghapus data produk favorit di outlet tertentu
+input   : idoutlet,
+          listidproduk (array: idproduk)
+
+output  : errcode (OK jika berhasil)
+
+contoh  : {
+            "tipe":"DELETE_PRODUKFAVORIT",
+            "idoutlet":1,
+            "listidproduk":[ 3, 1 ]
+          }
+
+*******************************************************************************
+tipe    : ADD_PRODUKFAVORITPELANGGAN
+fungsi  : - menambah data produk favorit dari pelanggan tertentu
+input   : idpelanggan,
+          listidproduk (array: idproduk)
+
+output  : errcode (OK jika berhasil)
+
+contoh  : {
+            "tipe":"ADD_PRODUKFAVORITPELANGGAN",
+            "idpelanggan":1,
+            "listidproduk":[ 3, 1 ]
+          }
+
+*******************************************************************************
+tipe    : DELETE_PRODUKFAVORITPELANGGAN
+fungsi  : - menghapus data produk favorit dari pelanggan tertentu
+input   : idpelanggan,
+          listidproduk (array: idproduk)
+
+output  : errcode (OK jika berhasil)
+
+contoh  : {
+            "tipe":"DELETE_PRODUKFAVORITPELANGGAN",
+            "idpelanggan":1,
+            "listidproduk":[ 3, 1 ]
+          }
+
+*******************************************************************************
+tipe    : GET_LOGINUSERDATA
+fungsi  : - mengambil keterangan user yang login
+input   : 
+
+output  : errcode (OK jika berhasil),
+          namapengguna, email, idkategoripengguna, jabatan, foto, jeniskelamin, nik
+
+*******************************************************************************
+tipe    : POST_MASTERPRODUK
+fungsi  : - menambah/mengedit produk
+input   : tipestok(0= kelola stok, 1= non kelola stok), idkategoriproduk, namaproduk (nama produk TIDAK BOLEH 'custom produk' karena sudah reserved),
+          idsatuanproduk, berat, deskripsiproduk, fotoprodukutama,
+          listvarian  (array: varian1, varian2, barcode,
+                               liststokharga (array: idoutlet, jumlahstok, hpp, hargajual, notifikasiminimalstok, notifikasimaksimalstok)
+                      )
+
+output  : errcode (OK jika berhasil)
+
+*******************************************************************************
+tipe    : CEK_MASTERPRODUKNAME
+fungsi  : - memeriksa apakah ada produk dengan nama tertentu
+input   : namaproduk
+
+output  : errcode (OK / NOT_OK)
+
+*******************************************************************************
+tipe    : GET_MASTERPRODUKSUM
+fungsi  : - mengambil jumlah stok dari produk tertentu
+          - juga berguna saat hendak hapus produk, diperiksa dulu apa stok sudah 0 atau belum
+input   : listidproduk  (array: idproduk)
+
+output  : errcode (OK),
+          liststatusproduk (array: (produkid, statusdelete (NOT_OK jika lebih dari 0, OK jika 0)))
+
+*******************************************************************************
+tipe    : DELETE_MASTERPRODUK
+fungsi  : - menonaktifkan produk
+input   : listidproduk  (array: idproduk)
+
+output  : errcode (OK)
+
+*******************************************************************************
+tipe    : GET_MASTERSATUAN
+fungsi  : - mengambil daftar satuan produk dari klien
+input   : N/A
+
+output  : errcode (OK)
+
+*******************************************************************************

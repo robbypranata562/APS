@@ -1,0 +1,22 @@
+{
+	"tipe":"POST_MASTERPRODUK",
+	"idproduk":"",
+	"tipestok":0,
+	"idkategoriproduk": 1,
+	"namaproduk":"test 1",
+	"idsatuanproduk":1,
+	"berat": 0.45,
+	"deskripsiproduk":"test desc 1",
+	"fotoprodukutama":"1.jpg",
+	"listvarian": [	{"varian1":"merah", "varian2": "40", "barcode":"", "liststokharga": [	{"idoutlet": 1, "jumlahstok":10, "hpp":100, "hargajual": 1000, "notifikasiminimalstok": 0, "notifikasimaksimalstok": 10},
+																							{"idoutlet": 2, "jumlahstok":20, "hpp":200, "hargajual": 2000, "notifikasiminimalstok": 0, "notifikasimaksimalstok": 20}] },
+					{"varian1":"merah", "varian2": "41", "barcode":"", "liststokharga":[	{"idoutlet": 1, "jumlahstok":10, "hpp":100, "hargajual": 1000, "notifikasiminimalstok": 0, "notifikasimaksimalstok": 10},
+																							{"idoutlet": 2, "jumlahstok":20, "hpp":200, "hargajual": 2000, "notifikasiminimalstok": 0, "notifikasimaksimalstok": 20}] },
+					{"varian1":"biru", "varian2": "41", "barcode":"", "liststokharga": [	{"idoutlet": 1, "jumlahstok":10, "hpp":100, "hargajual": 1000, "notifikasiminimalstok": 0, "notifikasimaksimalstok": 10},
+																							{"idoutlet": 2, "jumlahstok":20, "hpp":200, "hargajual": 2000, "notifikasiminimalstok": 0, "notifikasimaksimalstok": 20}] },
+					{"varian1":"kuning", "varian2": "39", "barcode":"", "liststokharga": [	{"idoutlet": 1, "jumlahstok":10, "hpp":1000, "hargajual": 11000, "notifikasiminimalstok": 0, "notifikasimaksimalstok": 100},
+																							{"idoutlet": 2, "jumlahstok":20, "hpp":2000, "hargajual": 22000, "notifikasiminimalstok": 0, "notifikasimaksimalstok": 200}] },
+					{"varian1":"kuning", "varian2": "40", "barcode":"", "liststokharga": [	{"idoutlet": 1, "jumlahstok":10, "hpp":100, "hargajual": 1000, "notifikasiminimalstok": 0, "notifikasimaksimalstok": 10},
+																							{"idoutlet": 2, "jumlahstok":20, "hpp":200, "hargajual": 2000, "notifikasiminimalstok": 0, "notifikasimaksimalstok": 20}] }
+	]
+}

@@ -1,0 +1,2 @@
+1. Penamaan file harus di sesuaikan dengan fasilitas yang di buat, misalnya:
+	Fasilitas Laporan penjualan, maka nama file utama nya adalah laporan_penjualan.php
