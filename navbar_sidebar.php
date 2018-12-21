@@ -57,7 +57,7 @@
 				<li class="nav-item dropdown dropdown-user">
 					<a href="#" class="navbar-nav-link dropdown-toggle" data-toggle="dropdown">
 						<img src="<?php echo $fotopengguna_main; ?>" class="rounded-circle" alt="">
-						<span><?php echo $namapengguna; ?></span>
+						<span><?php //echo $namapengguna; ?></span>
 					</a>
 
 					<div class="dropdown-menu dropdown-menu-right">
@@ -104,7 +104,7 @@
 							</div>
 
 							<div class="media-body">
-								<div class="media-title font-weight-semibold"><?php echo $namapengguna; ?></div>
+								<div class="media-title font-weight-semibold"><?php //echo $namapengguna; ?></div>
 							</div>
 
 						</div>
@@ -119,7 +119,7 @@
 
 						<!-- Main -->
 						<li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-xs"></div> <i class="icon-menu" title="Main"></i></li>
-						<?php echo get_bo_menus(0,'welcome.php'); ?>
+						<?php //echo get_bo_menus(0,'welcome.php'); ?>
 						<!-- /Main -->	
 					</ul>
 				</div>
