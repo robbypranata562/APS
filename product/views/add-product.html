@@ -15,51 +15,102 @@
 		<div class="row">
 			<div class="col-xl-auto">
 				<div class="card card-body pb-sm-0 pt-sm-0">
-					<ul class="nav nav-tabs nav-tabs-bottom mb-sm-0">
+					<ul class="nav nav-tabs nav-tabs-bottom mb-sm-0" data-uk-producttab>
 						<li class="nav-item">
-							<a href="#bottom-tab1" class="nav-link text-left" data-toggle="tab">Deskripsi</a>
+							<a href="#produk-deskripsi" class="nav-link active text-left" data-toggle="tab" data-step="1">Deskripsi</a>
 						</li>
 						<li class="nav-item">
-							<a href="#bottom-tab2" class="nav-link text-left" data-toggle="tab">Varian</a>
+							<a href="#produk-varian" class="nav-link text-left" data-toggle="tab" data-step="2">Varian</a>
 						</li>
 						<li class="nav-item">
-							<a href="#bottom-tab2" class="nav-link text-left" data-toggle="tab">Stock &amp; Harga</a>
+							<a href="#bottom-tab2" class="nav-link text-left" data-toggle="tab" data-step="3">Stock &amp; Harga</a>
 						</li>
 						<li class="nav-item">
-							<a href="#bottom-tab2" class="nav-link text-left" data-toggle="tab">Foto</a>
+							<a href="#bottom-tab2" class="nav-link text-left" data-toggle="tab" data-step="4">Foto</a>
 						</li>
 					</ul>
 				</div>
 			</div>
 		</div>
-		
-		<div class="row">
-			<div class="col-md-6">
-				<div class="card card-body">
-					<form action="#">
-						<div class="form-group">
-							<label>Nama Produk:</label>
-							<input type="text" class="form-control" placeholder="Nama Produk">
+		<form action="#" data-uk-productform="step:1;">
+			<div class="tab-content">
+				<div class="tab-pane fade show active" id="produk-deskripsi">
+					<div class="row">
+						<div class="col-md-6">
+							<div class="card card-body">
+								<div class="form-group">
+									<label>Nama Produk:</label>
+									<input type="text" class="form-control" placeholder="Nama Produk">
+								</div>
+								<div class="form-check form-check-switchery form-check-switchery-double">
+									<label class="form-check-label">
+										<p class="font-size-lg d-block">Kelola Stock <span class="font-size-sm d-block">Jumlah stock terupdate otomatis</span></p>
+										<input type="checkbox" class="form-check-input-switchery" checked data-fouc data-uk-switchery>
+										<p class="font-size-lg d-block">Non Kelola Stock <span class="font-size-sm d-block">Contoh : Produk Jasa</span></p>
+									</label>
+								</div>
+								<div class="form-group">
+									<label>Kategory:</label>
+									<select class="form-control select" data-uk-selectproductcategory></select>
+								</div>
+								<div class="form-group">
+									<label>Satuan Produk:</label>
+									<select class="form-control select" data-uk-selectproductuom></select>
+								</div>
+								<div class="form-group">
+									<label>Berat Produk (KG):</label>
+									<input type="text" class="form-control" placeholder="Berat Produk">
+								</div>
+								<div class="form-group">
+									<label>Deskripsi:</label>
+									<textarea rows="3" cols="3" class="form-control" placeholder="Deskripsi"></textarea>
+								</div>
+							</div>
 						</div>
-						<div class="form-check form-check-switchery form-check-switchery-double">
-							<label class="form-check-label">
-								<p class="font-size-lg d-block">Kelola Stock <span class="font-size-sm d-block">Jumlah stock terupdate otomatis</span></p>
-								<input type="checkbox" class="form-check-input-switchery" checked data-fouc data-uk-switchery>
-								<p class="font-size-lg d-block">Non Kelola Stock <span class="font-size-sm d-block">Contoh : Produk Jasa</span></p>
-							</label>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="produk-varian" data-uk-produkvarian>
+					<div class="row">
+						<div class="col-md-3">
+							<div class="card card-body">
+								<h5>Varian</h5>
+								<div data-uk-varianitems>
+									<div class="produk-varian-items"></div>
+									<button type="submit" class="form-control btn btn-primary add-varian"><i class="icon-plus22 mr-2"></i> Varian</button>
+								</div>
+							</div>
 						</div>
-						<div class="form-group">
-							<label>Kategory:</label>
-							<select class="form-control select" data-uk-selectproductcategory></select>
+						<div class="col-md-3">
+							<div class="card card-body">
+								<h5>Subvarian</h5>
+								<div data-uk-subvarianitems>
+									<div class="produk-subvarian-items"></div>
+									<button type="submit" class="form-control btn btn-primary add-subvarian"><i class="icon-plus22 mr-2"></i> Subvarian</button>
+								</div>
+							</div>
 						</div>
-						<div class="text-right">
-							<button type="submit" class="btn btn-primary">Submit form <i class="icon-paperplane ml-2"></i></button>
+						<div class="col-md-6">
+							<div class="card card-body">
+								<div class="form-group">
+									<label>Kombinasi Produk Yang Dihasilkan</label>
+									<div data-uk-kombinasivarian>
+										<div class="produk-kombinasi-varian"></div>
+									</div>
+								</div>
+							</div>
 						</div>
-					</form>
+					</div>
 				</div>
 			</div>
-		</div>
-		<!-- /dashboard content -->
+			<div class="text-right">
+				<button type="submit" class="btn btn-danger product-form-cancel">Cancel</button>
+				<button type="submit" class="btn btn-primary product-form-next">Next</button>
+			</div>
+		</form>
+	</div>
+</div>
+</div>
+<!-- /dashboard content -->
 
 	</div>
 </script>
