@@ -12,6 +12,16 @@
 		alert( message );
 	};
 	
+	aps.cartesian = function() {
+		return _.reduce(arguments, function(a, b) {
+			return _.flatten(_.map(a, function(x) {
+				return _.map(b, function(y) {
+					return x.concat([y]);
+				});
+			}), true);
+		}, [ [] ]);
+	};
+	//console.log( aps.cartesian.apply( null, [ [1,2,3], [1,2,3], [1,2,3] ] ) )
 	aps.req = function( params ){
 		var dataString = JSON.stringify( params );
 		return new util.Promise( function(resolve, reject){
@@ -34,8 +44,15 @@
 			});
 		});
 	};
+	
+	var Class = {
+		connected:function(){
+			!util.hasClass(this.$el, this.$name) && addClass(this.$el, this.$name);
+		},
+	};
 
 	apsCore.component( 'productpage', {
+		mixins:[Class],
 		connected:function(){
 			this.init();
 		},
@@ -68,6 +85,7 @@
 	});
 	
 	apsCore.component( 'switchery', {
+		mixins:[Class],
 		connected:function(){
 			this.init();
 		},
@@ -79,6 +97,7 @@
 	});
 	
 	apsCore.component( 'selectproductcategory', {
+		mixins:[Class],
 		connected:function(){
 			this.init();
 		},
@@ -104,6 +123,7 @@
 	});
 	
 	apsCore.component( 'selectproductuom', {
+		mixins:[Class],
 		connected:function(){
 			this.init();
 		},
@@ -129,6 +149,7 @@
 	});
 	
 	apsCore.component( 'producttab', {
+		mixins:[Class],
 		events:[
 			{
 				name: 'click',
@@ -141,13 +162,13 @@
 		methods:{
 			clickTab:function(e){
 				var that = e.current;
-				console.log($( $( that ).attr("href") ))
 				util.trigger( $( $( that ).attr("href") ), 'tab_show', [ $( that ).attr("href") ] );
 			},
 		}
 	});
 	
 	apsCore.component( 'productform', {
+		mixins:[Class],
 		connected:function(){
 			!util.hasClass(this.$el, this.$name) && addClass(this.$el, this.$name);
 		},
@@ -191,8 +212,15 @@
 		methods:{
 		}
 	});
-	
+		
 	apsCore.component( 'varianitems', {
+		mixins:[Class],
+		props:{
+			varians:Array,
+		},
+		data:{
+			varians:[],
+		},
 		events:[
 			{
 				name:'click',
@@ -201,11 +229,17 @@
 					e.preventDefault();
 					var _this = this;
 					this.addVarian().then(function(){
-						var form = util.parents( $u( _this.$el ), '.uk-productform' );
-						util.trigger( $u( '.uk-kombinasivarian', $u( form ) ), 'add_kombinasi' );
+						_this.changeKombinasi();
 					});
 				}
-			}
+			},
+			{
+				name:'change',
+				delegate:'.produk-varian-item-value',
+				handler:function(e){
+					this.changeKombinasi();
+				}
+			},
 		],
 		connected:function(){
 			this.init();
@@ -213,51 +247,67 @@
 		methods:{
 			init:function(){
 			},
-			addVarian:function(){
+			addVarian:function( id ){
 				var tmp = _.template( $( '#tmpl-varian-input' ).html() ),
 					_this = this;
+				id = id || _.uniqueId( 'varian-' + _.now() + '-' );
 				return new util.Promise(function(resolve){
-					$( '.produk-varian-items', this.$el ).append( tmp( {} ) );
+					$( '.produk-varian-items', _this.$el ).append( 
+						tmp( 
+							{
+								itemid:id
+							} 
+						) 
+					);
 					resolve( _this );
 				});
 				
 			},
+			changeKombinasi:function(){
+				var _this = this,
+					form = util.parents( $u( _this.$el ), '.uk-productform' ),
+					items = util.toNodes( util.$$( '.produk-varian-item-value', _this.$el ) );
+					_this.varians = [];
+					items.map( function(el, i){
+						_this.varians.push( util.data( el, 'data-itemid' ) );
+					});
+				util.trigger( $u( '.uk-kombinasivarian', $u( form ) ), 'change_kombinasi' );
+			},
 		}
 	});
 	
-	apsCore.component( 'subvarianitems', {
+	apsCore.component( 'varianitemvalue', {
+		mixins:[Class],
+		props:{
+			itemid:String,
+			value:String,
+		},
+		data:{
+			itemid:'',
+			value:'',
+		},
 		events:[
-			{
-				name:'click',
-				delegate:'.add-subvarian',
-				handler:function(e){
-					e.preventDefault()
-					this.addSubvarian();
-				}
-			}
 		],
 		connected:function(){
 			this.init();
 		},
 		methods:{
 			init:function(){
-			},
-			addSubvarian:function(){
-				var tmp = _.template( $( '#tmpl-subvarian-input' ).html() );
-				$( '.produk-subvarian-items', this.$el ).append( tmp( {} ) );
-				
+				this.itemid = this.itemid || _.uniqueId( 'varian-' + _.now() + '-' );
+				!util.hasAttr( this.$el, 'data-itemid' ) && util.attr( this.$el, 'data-itemid', this.itemid );
 			},
 		}
 	});
 	
 	apsCore.component( 'kombinasivarian', {
+		mixins:[Class],
 		events:[
 			{
-				name:'add_kombinasi',
+				name:'change_kombinasi',
 				self:true,
 				handler:function(e){
 					e.preventDefault()
-					alert()
+					this.changeKombinasi(e);
 				}
 			}
 		],
@@ -265,8 +315,37 @@
 			!util.hasClass(this.$el, this.$name) && addClass(this.$el, this.$name);
 		},
 		methods:{
-			init:function(){
-			},
+			changeKombinasi:function(e){
+				
+				var _this = this,
+					form = util.parents( $u( _this.$el ), '.uk-productform' ),
+					varians = util.toNodes( util.$$( '.uk-varianitems', $u( form ) ) ),
+					cartesians = [];
+					kombinasi = [];
+					produkKombinasi = [];
+					// console.log( aps.cartesian( varian.varians, subvarian.varians ) );
+				$( '.produk-kombinasi-varian', _this.$el ).empty();
+				varians.map( function( $el, i ){
+					varian = apsCore.getComponent( $el, 'varianitems' );
+					cartesians.push( varian.varians );
+				} );
+				kombinasi = aps.cartesian.apply( null, cartesians );
+				
+				for( var i in kombinasi ){
+					produkKombinasi = [];
+					for( var j in kombinasi[i] ){
+						produkKombinasi.push( $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val() );
+					}
+					var tmp = _.template( $( '#tmpl-varian-kombinasi' ).html() );
+					$( '.produk-kombinasi-varian', _this.$el ).append( 
+						tmp( 
+							{
+								produk:produkKombinasi.join( ' - ' )
+							} 
+						) 
+					);
+				}
+			}
 		}
 	});
 	

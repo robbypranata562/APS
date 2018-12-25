@@ -57,6 +57,6 @@ include(__DIR__."/main_header.php");
 	<!-- /page content -->
 	<?php include(__DIR__."/product/views/add-product.html");?>
 	<?php include(__DIR__."/product/views/varian-input.html");?>
-	<?php include(__DIR__."/product/views/subvarian-input.html");?>
+	<?php include(__DIR__."/product/views/kombinasi.html");?>
 	</body>
 </html>
