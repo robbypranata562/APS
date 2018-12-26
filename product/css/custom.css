@@ -1,0 +1,12 @@
+.aps-discount {
+	background-image: "global_assets/css/images/icon/icon-status-diskon.svg";
+	background-position: center;
+}
+.aps-favorit {
+	background-image: "global_assets/css/images/icon/icon-favorit.svg";
+	background-position: center;
+}
+.aps-paket {
+	background-image: "global_assets/css/images/icon/icon-status-paket.svg";
+	background-position: center;
+}

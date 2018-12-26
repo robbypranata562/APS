@@ -1,7 +1,7 @@
 <?php
 session_start();
 include(__DIR__."/Functions.php");
-include(__DIR__."/cekUser.php");
+//include(__DIR__."/cekUser.php");
 include(__DIR__."/DBConnectPDOH.php");
 
 $page_title = 'Welcome Page';
