@@ -34,6 +34,7 @@ include(__DIR__."/main_header.php");
 							<div class="btn-toolbar justify-content-center">
 								<button type="button" class="btn btn-primary btn-md mr-2 aps-add-product"><i class="icon-plus22 mr-2"></i> Produk</button>
 								<button type="button" class="btn btn-primary btn-md aps-export-product">Ekspor</button>
+								<select data-uk-listoutlet></select>
 							</div>
 						</div>
 						<div class="card-body">
