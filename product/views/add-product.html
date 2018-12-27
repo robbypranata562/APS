@@ -23,7 +23,7 @@
 							<a href="#produk-varian" class="nav-link text-left" data-toggle="tab" data-step="2">Varian</a>
 						</li>
 						<li class="nav-item">
-							<a href="#bottom-tab2" class="nav-link text-left" data-toggle="tab" data-step="3">Stock &amp; Harga</a>
+							<a href="#produk-stok-harga" class="nav-link text-left" data-toggle="tab" data-step="3">Stock &amp; Harga</a>
 						</li>
 						<li class="nav-item">
 							<a href="#bottom-tab2" class="nav-link text-left" data-toggle="tab" data-step="4">Foto</a>
@@ -32,7 +32,7 @@
 				</div>
 			</div>
 		</div>
-		<form action="#" data-uk-productform="step:1;">
+		<form action="#" data-uk-productform="step:1;action:add;">
 			<div class="tab-content">
 				<div class="tab-pane fade show active" id="produk-deskripsi">
 					<div class="row">
@@ -40,30 +40,31 @@
 							<div class="card card-body">
 								<div class="form-group">
 									<label>Nama Produk:</label>
-									<input type="text" class="form-control" placeholder="Nama Produk">
+									<input type="hidden" class="form-control" placeholder="Nama Produk" name="idproduk">
+									<input type="text" class="form-control" placeholder="Nama Produk" name="namaproduk">
 								</div>
 								<div class="form-check form-check-switchery form-check-switchery-double">
 									<label class="form-check-label">
 										<p class="font-size-lg d-block">Kelola Stock <span class="font-size-sm d-block">Jumlah stock terupdate otomatis</span></p>
-										<input type="checkbox" class="form-check-input-switchery" checked data-fouc data-uk-switchery>
+										<input type="checkbox" class="form-check-input-switchery" checked data-fouc data-uk-switchery name="tipestok">
 										<p class="font-size-lg d-block">Non Kelola Stock <span class="font-size-sm d-block">Contoh : Produk Jasa</span></p>
 									</label>
 								</div>
 								<div class="form-group">
 									<label>Kategory:</label>
-									<select class="form-control select" data-uk-selectproductcategory></select>
+									<select class="form-control select" data-uk-selectproductcategory name="idkategoriproduk"></select>
 								</div>
 								<div class="form-group">
 									<label>Satuan Produk:</label>
-									<select class="form-control select" data-uk-selectproductuom></select>
+									<select class="form-control select" data-uk-selectproductuom name="idsatuanproduk"></select>
 								</div>
 								<div class="form-group">
 									<label>Berat Produk (KG):</label>
-									<input type="text" class="form-control" placeholder="Berat Produk">
+									<input type="text" class="form-control" placeholder="Berat Produk" name="berat">
 								</div>
 								<div class="form-group">
 									<label>Deskripsi:</label>
-									<textarea rows="3" cols="3" class="form-control" placeholder="Deskripsi"></textarea>
+									<textarea rows="3" cols="3" class="form-control" placeholder="Deskripsi" name="deskripsiproduk"></textarea>
 								</div>
 							</div>
 						</div>
@@ -102,6 +103,14 @@
 									</div>
 								</div>
 							</div>
+						</div>
+					</div>
+				</div>
+				<div class="tab-pane fade" id="produk-stok-harga" data-uk-produkstokharga>
+					<div class="row">
+						<div class="col-md-12">
+							<h3>Alokasi produk</h3>
+							<div class="produkstokharga-outlets"></div>
 						</div>
 					</div>
 				</div>

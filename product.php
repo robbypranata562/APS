@@ -14,6 +14,7 @@ include(__DIR__."/main_header.php");
 <!-- Custom Javascript -->
 <script src="product/js/underscores.min.js"></script>
 <script src="product/js/uikit.js"></script>
+<script src="global_assets/js/plugins/forms/styling/uniform.min.js"></script>
 <script src="global_assets/js/plugins/forms/styling/switchery.min.js"></script>
 <script src="global_assets/js/plugins/forms/selects/select2.min.js"></script>
 <script src="global_assets/js/plugins/notifications/noty.min.js"></script>
@@ -37,5 +38,6 @@ include(__DIR__."/main_header.php");
 	<?php include(__DIR__."/product/views/add-product.html");?>
 	<?php include(__DIR__."/product/views/varian-input.html");?>
 	<?php include(__DIR__."/product/views/kombinasi.html");?>
+	<?php include(__DIR__."/product/views/varian-per-outlet.html");?>
 	</body>
 </html>

@@ -1,6 +1,10 @@
 <script type="text/template" id="tmpl-varian-kombinasi">
-	<div class="row varian-kombinasi-item" data-kombinasi="<%= kombinasi %>">
-		<div class="col-md-6"><%= produk %></div>
-		<div class="col-md-6"><h6>Barcode</h6></div>
+	<div class="row varian-kombinasi-item" data-kombinasi="<%= kombinasi %>" 
+		<% for( var i in dataKombinasi ){%>
+			data-varian<%= ( parseInt( i ) + 1 )%>="<%= dataKombinasi[i]%>"
+		<% }%>
+	>
+		<div class="col-md-6 varian-kombinasi-item-nama"><%= produk %></div>
+		<div class="col-md-6 varian-kombinasi-item-barcode"><%= barcode %></div>
 	</div>
 </script>

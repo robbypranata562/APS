@@ -381,6 +381,18 @@
 		}
 	});
 	
+	apsCore.component( 'uniform', {
+		mixins:[Class],
+		connected:function(){
+			this.init();
+		},
+		methods:{
+			init:function(){
+				$( this.$el ).uniform();
+			},
+		}
+	});
+	
 	apsCore.component( 'selectproductcategory', {
 		mixins:[Class],
 		connected:function(){
@@ -447,7 +459,7 @@
 		methods:{
 			clickTab:function(e){
 				var that = e.current;
-				util.trigger( $( $( that ).attr("href") ), 'tab_show', [ $( that ).attr("href") ] );
+				util.trigger( $( $( that ).attr("href") ), 'tab_show', [ $( that ).attr("href"), $( that ).data("step") ] );
 			},
 		}
 	});
@@ -459,42 +471,131 @@
 		},
 		props:{
 			step:Number,
+			action:String,
 		},
 		data:{
 			step:1,
+			action:'add',
 		},
 		events:[
 			{
 				name: 'tab_show',
 				delegate:'.tab-pane',
-				handler:function(e, target){
-					if( target == '#produk-varian' ){
-						var notyConfirm = new Noty({
-							theme: 'limitless',
-							text: '<h4 class="mb-3">Gunakan Varian Produk?</h6>',
-							timeout: false,
-							modal: true,
-							layout: 'center',
-							closeWith: 'button',
-							type: 'confirm',
-							buttons: [
-								Noty.button('Tidak', 'btn btn-danger', function () {
-									notyConfirm.close();
-								}),
-
-								Noty.button('Ya', 'btn bg-blue ml-1', function () {
-										alert('Submitted!');
-										notyConfirm.close();
-									},
-									{id: 'button1', 'data-status': 'ok'}
-								)
-							]
-						}).show();
+				handler:function(e, target, step){
+					var _this = this;
+					switch( step ){
+						case 2:
+							this.step2();
+							break;
+						case 3:
+							this.step3();
+							break;
 					}
+					this.step = step;
 				}
+				
+			},
+			{
+				name: 'click',
+				delegate:'.product-form-next',
+				handler:function(e, target){
+					e.preventDefault();
+					this.next();
+				}
+				
 			}
 		],
 		methods:{
+			tabShow:function( e, target ){
+				
+			},
+			next: function(){
+				if( this.step >= 4 ){return;}
+				if( this.step == 1 && this.action == 'add' ){
+					this.save( this.step );
+				}
+				this.step++;
+				util.trigger( $u( '.nav-item a[data-toggle="tab"][data-step="' + this.step + '"]' ), 'click' );
+			},
+			save:function( step ){
+				var _this = this;
+				switch( step ){
+					case 1:
+						aps.req({
+							tipe:'POST_MASTERPRODUK',
+							idproduk:"",
+							tipestok:$('[name="tipestok"]').prop('checked') ? 1 : 0,
+							idkategoriproduk: $('[name="idkategoriproduk"]').val(),
+							namaproduk:$('[name="namaproduk"]').val(),
+							idsatuanproduk:$('[name="idsatuanproduk"]').val(),
+							berat: $('[name="berat"]').val(),
+							deskripsiproduk:$('[name="deskripsiproduk"]').val(),
+							fotoprodukutama:'',
+							listvarian:[],
+							listfoto:[],
+						})
+							.then(
+								function(data){
+									console.log(data)
+								},
+								aps.noop
+							);
+						break;
+				}
+				
+			},
+			step2:function(){
+				var _this = this,
+					notyConfirm = new Noty({
+						theme: 'limitless',
+						text: '<h4 class="mb-3">Gunakan Varian Produk?</h6>',
+						timeout: false,
+						modal: true,
+						layout: 'center',
+						closeWith: 'button',
+						type: 'confirm',
+						buttons: [
+							Noty.button('Tidak', 'btn btn-danger', function () {
+								notyConfirm.close();
+								_this.next();
+							}),
+
+							Noty.button('Ya', 'btn bg-blue ml-1', function () {
+									notyConfirm.close();
+								},
+								{id: 'button1', 'data-status': 'ok'}
+							)
+						]
+					}).show();
+			},
+			step3:function(){
+				var outlets = [],
+					tmp = _.template( $( '#tmpl-varian-per-outlet' ).html() ),
+					_this = this,
+					$kombinasivarian = apsCore.getComponent( $u( '.uk-kombinasivarian', _this.$el ), 'kombinasivarian' );
+				if( ! $kombinasivarian ){return;}
+				aps.req( 
+					{
+						tipe:'GET_OUTLET',
+						idoutlet:'',
+					} 
+				)
+					.then(
+						function(data){
+							outlets = data.daftaroutlet
+								
+							$( '.produkstokharga-outlets', _this.$el ).html( 
+								tmp( 
+									{
+										outlets:outlets,
+										kombinasi:$kombinasivarian.kombinasi,
+									} 
+								) 
+							);
+						},
+						aps.noop
+					);
+			},
 		}
 	});
 		
@@ -585,6 +686,14 @@
 	});
 	
 	apsCore.component( 'kombinasivarian', {
+		props:{
+			kombinasi:Array,
+			kombinasiStringify:String,
+		},
+		data:{
+			kombinasi:[],
+			kombinasiStringify:'',
+		},
 		mixins:[Class],
 		events:[
 			{
@@ -602,42 +711,125 @@
 		methods:{
 			changeKombinasi:function(e){
 				
-				var _this = this,
-					form = util.parents( $u( _this.$el ), '.uk-productform' ),
-					varians = util.toNodes( util.$$( '.uk-varianitems', $u( form ) ) ),
-					cartesians = [],
-					kombinasi = [],
+				var _this			= this,
+					form			= util.parents( $u( _this.$el ), '.uk-productform' ),
+					varians 		= util.toNodes( util.$$( '.uk-varianitems', $u( form ) ) ),
+					$produkKombinasi= $( '.produk-kombinasi-varian', _this.$el ),
+					tmp 			= _.template( $( '#tmpl-varian-kombinasi' ).html() ),
+					cartesians 		= [],
+					kombinasi 		= [],
 					produkKombinasi = [],
-					kombinasiIds = [];
-					// console.log( aps.cartesian( varian.varians, subvarian.varians ) );
-				$( '.produk-kombinasi-varian', _this.$el ).empty();
+					kombinasiIds 	= [],
+					combinations 	= [];
+					
 				varians.map( function( $el, i ){
 					varian = apsCore.getComponent( $el, 'varianitems' );
 					cartesians.push( varian.varians );
 				} );
+				
 				kombinasi = aps.cartesian.apply( null, cartesians );
+				combinations = [];
+				_this.kombinasi = [];
 				
 				for( var i in kombinasi ){
 					produkKombinasi = [];
 					kombinasiIds = [];
+					_this.kombinasi[i] = {barcode:'', liststokharga:[]};
 					for( var j in kombinasi[i] ){
 						produkKombinasi.push( $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val() );
 						kombinasiIds.push( kombinasi[i][j] );
+						_this.kombinasi[i][ 'varian' + ( parseInt( j ) + 1 ) ] = $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val();
+						
 					}
-					var tmp = _.template( $( '#tmpl-varian-kombinasi' ).html() );
-					$( '.produk-kombinasi-varian', _this.$el ).append(
-						tmp( 
-							{
-								produk:produkKombinasi.join( ' - ' ),
-								kombinasi:encodeURI( JSON.stringify( kombinasiIds ) ),
-							} 
-						) 
+					_this.kombinasi[i].dataKombinasiIds = kombinasiIds;
+					_this.kombinasi[i].dataProdukKombinasi = produkKombinasi;
+					_this.kombinasi[i].kombinasiIds = encodeURI( JSON.stringify( kombinasiIds ) );
+					_this.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
+					combinations.push(
+						{
+							produkKombinasi:produkKombinasi,
+							kombinasiIds:kombinasiIds
+						}
 					);
 				}
+				_.map( _this.kombinasi, function( combination ){
+					var $varianKombinasiItem = $( '.varian-kombinasi-item[data-kombinasi="' + combination.kombinasiIds + '"]', $produkKombinasi );
+					if( ! $varianKombinasiItem.length ){
+						$produkKombinasi.append(
+							tmp( 
+								{
+									produk:combination.produkKombinasi,
+									kombinasi:combination.kombinasiIds,
+									barcode:'',
+									dataProduk:combination.dataProdukKombinasi,
+									dataKombinasi:combination.dataKombinasiIds,
+								} 
+							) 
+						);
+					} else {
+						$( '.varian-kombinasi-item-nama', $varianKombinasiItem ).html( combination.produkKombinasi );
+					}
+										
+				} );
+				
 			}
 		}
 	 }
 	);
+	apsCore.component( 'produkstokharga_outlets', {
+		props:{
+			KombinasiVarian:Object,
+		},
+		data:{
+			KombinasiVarian:{},
+		},
+		events:[
+			{
+				name:'change',
+				delegate:'.produkstokharga_outlets-input',
+				handler:function(){
+					this.sync();
+				}
+			}
+		],
+		connected:function(){
+			this.init();
+		},
+		methods:{
+			init:function(){
+				this.KombinasiVarian = apsCore.getComponent( $u( '.uk-kombinasivarian', $u( util.parents( this.$el, '.uk-productform' ) ) ), 'kombinasivarian' );
+				console.log(this.KombinasiVarian)
+			},
+			sync:function(){
+				
+				var _this = this,
+					outlets = util.toNodes( util.$$( '.produkstokharga-outlet', _this.$el ) ),
+					inputs = [],
+					liststokharga = {},
+					inputValue = {},
+					index;
+				
+				outlets.map( function(outlet, i){
+					
+					inputs = util.toNodes( util.$$( '.produkstokharga_outlets-input', outlet ) );
+					inputValue = {};
+					inputValue.idoutlet = $( outlet ).data( 'outlet' );
+					
+					liststokharga[ $( outlet ).data( 'kombinasi' ) ] = liststokharga[ $( outlet ).data( 'kombinasi' ) ] || [];
+					
+					inputs.map( function(input, j){
+						inputValue[ util.attr( input, 'name' ) ] = $( input ).val();
+					});
+					liststokharga[ $( outlet ).data( 'kombinasi' ) ].push( inputValue );
+				});
+				
+				_.map( liststokharga, function( value, key ){
+					index = _.findIndex(_this.KombinasiVarian.kombinasi, { kombinasiIds: key});
+					_this.KombinasiVarian.kombinasi[ index ].liststokharga = value;
+				} );
+			}
+		},
+	} );
 	apsCore.component(
 		
 		'status_produk',

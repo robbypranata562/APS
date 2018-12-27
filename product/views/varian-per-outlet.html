@@ -1,0 +1,90 @@
+<script type="text/template" id="tmpl-varian-per-outlet">
+	<div class="card-group-control card-group-control-right" id="produkstokharga-outlets-wrapper" data-uk-produkstokharga_outlets>
+		<% for( var i in outlets ){ %>
+			<div class="card">
+				<div class="card-header">
+					<h6 class="card-title">
+						<a data-toggle="collapse" class="text-default" href="#produkstokharga-outlets-wrapper-outlet<%= outlets[i].IDOUTLET%>"><%= outlets[i].NAMAOUTLET%></a>
+					</h6>
+				</div>
+
+				<div id="produkstokharga-outlets-wrapper-outlet<%= outlets[i].IDOUTLET%>" class="collapse" data-parent="#produkstokharga-outlets-wrapper">
+					<div class="card-body">
+						<div class="table-responsive">
+							<table class="table" data-uk-produkstokharga_outlet>
+								<thead>
+									<tr>
+										<th>Nama Produk</th>
+										<th>Stok</th>
+										<th>Harga Jual</th>
+										<th>Harga HPP</th>
+										<th>Notifikasi Minimal Stok</th>
+										<th>Notifikasi Maksimal Stok</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td></td>
+										<td>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input type="checkbox" class="form-check-input-styled jumlahstok-all" data-fouc="" data-uk-uniform>
+													Berlaku di semua varian
+												</label>
+											</div>
+										</td>
+										<td>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input type="checkbox" class="form-check-input-styled hargajual-all" data-fouc="" data-uk-uniform>
+													Berlaku di semua varian
+												</label>
+											</div>
+										</td>
+										<td>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input type="checkbox" class="form-check-input-styled hpp-all" data-fouc="" data-uk-uniform>
+													Berlaku di semua varian
+												</label>
+											</div>
+										</td>
+										<td>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input type="checkbox" class="form-check-input-styled notifikasiminimalstok-all" data-fouc="" data-uk-uniform>
+													Berlaku di semua varian
+												</label>
+											</div>
+										</td>
+										<td>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input type="checkbox" class="form-check-input-styled notifikasimaksimalstok-all" data-fouc="" data-uk-uniform>
+													Berlaku di semua varian
+												</label>
+											</div>
+										</td>
+									</tr>
+									<% for( var j in kombinasi ){ %>
+										
+										<% console.log(kombinasi[j]);%>
+										<tr class="produkstokharga-outlet" data-kombinasi="<%= kombinasi[j].kombinasiIds %>" data-outlet="<%= outlets[i].IDOUTLET %>">
+											<td><%= kombinasi[j].produkKombinasi %></td>
+											<td><input type="text" class="form-control produkstokharga_outlets-input" placeholder="Stok" name="jumlahstok"></td>
+											<td><input type="text" class="form-control produkstokharga_outlets-input" placeholder="Harga Jual" name="hargajual"></td>
+											<td><input type="text" class="form-control produkstokharga_outlets-input" placeholder="Harga HPP" name="hpp"></td>
+											<td><input type="text" class="form-control produkstokharga_outlets-input" placeholder="Notifikasi Minimal Stok" name="notifikasiminimalstok"></td>
+											<td><input type="text" class="form-control produkstokharga_outlets-input" placeholder="Notifikasi Maksimal Stok" name="notifikasimaksimalstok"></td>
+										</tr>
+									<% }%>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		<% }%>
+	</div>
+</script>
