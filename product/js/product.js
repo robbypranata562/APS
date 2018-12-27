@@ -320,9 +320,10 @@
 				var _this = this,
 					form = util.parents( $u( _this.$el ), '.uk-productform' ),
 					varians = util.toNodes( util.$$( '.uk-varianitems', $u( form ) ) ),
-					cartesians = [];
-					kombinasi = [];
-					produkKombinasi = [];
+					cartesians = [],
+					kombinasi = [],
+					produkKombinasi = [],
+					kombinasiIds = [];
 					// console.log( aps.cartesian( varian.varians, subvarian.varians ) );
 				$( '.produk-kombinasi-varian', _this.$el ).empty();
 				varians.map( function( $el, i ){
@@ -333,14 +334,17 @@
 				
 				for( var i in kombinasi ){
 					produkKombinasi = [];
+					kombinasiIds = [];
 					for( var j in kombinasi[i] ){
 						produkKombinasi.push( $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val() );
+						kombinasiIds.push( kombinasi[i][j] );
 					}
 					var tmp = _.template( $( '#tmpl-varian-kombinasi' ).html() );
 					$( '.produk-kombinasi-varian', _this.$el ).append( 
 						tmp( 
 							{
-								produk:produkKombinasi.join( ' - ' )
+								produk:produkKombinasi.join( ' - ' ),
+								kombinasi:encodeURI( JSON.stringify( kombinasiIds ) ),
 							} 
 						) 
 					);
