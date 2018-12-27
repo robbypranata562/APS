@@ -58,10 +58,10 @@
 			{
 				name:'redraw',
 				self:true,
-				handler:function(e, outletpilihan){
+				handler:function(e, outletpilihan ,kategoripilihan , statusprodukpilihan){
 					var table = $( '#tmpl-table-productasd' ),
 						 tmp = _.template( table.html() );
-					$( this.$el ).html( tmp( {idoutlet:outletpilihan} ) );
+					$( this.$el ).html( tmp( {idoutlet:outletpilihan , idkategori : kategoripilihan , statusproduk : statusprodukpilihan} ) );
 				}
 			}
 		],
@@ -69,7 +69,7 @@
 			init:function(){
 				var table = $( '#tmpl-table-productasd' );
 				var tmp = _.template( table.html() );
-				$( this.$el ).html( tmp( {idoutlet:1} ) );
+				$( this.$el ).html( tmp( {idoutlet:1 , idkategori : "" , statusproduk = ""} ) );
 			}
 		}
 	});
@@ -85,12 +85,14 @@
 			},
 			props:{
 				table:Object,
-				idoutlet:String
+				idoutlet:String,
+				idkategori : String,
 			},
 			data:{
 				table:false,
 				initialize : false,
 				idoutlet:1,
+				idkategori :"",
 			},
 			events:[
 			{
@@ -165,12 +167,12 @@
 										var text = title.replace(" ", "_");
 										if (text == "Stock")
 										{
-											$(this).html( '<select data-uk-'+text+'></select>' );
+											$(this).html( '<select data-uk-'+text+' class=param-'+text+'></select>' );
 										}
 										else
 										{
 											var label_total = '</br><h3> </h3>';
-											$(this).html( '<select data-uk-'+text+'></select>' );
+											$(this).html( '<select data-uk-'+text+' class=param-'+text+'></select>' );
 										}
 										
 									}
@@ -183,12 +185,13 @@
 									search 			: '', 
 									limit			: 1000, 
 									page			: 0,
-									idkategori		: '' , 
+									idkategori		: _this.idkategori , 
 									statusproduk 	: '',
 									stokoption 		: ''
 								};
+								console.log(y)
 								$.ajax({
-																			type: "POST",
+										type: "POST",
 										url: 'https://development.autopilotstore.co.id/api_all.php',
 										data: JSON.stringify(y),
 										success: function(data){
@@ -221,9 +224,16 @@
 												// //"scrollX":        true,
 												// //"scrollCollapse": true,
 												// "autoWidth":         true,
+												"lengthMenu": [
+														[  50,75,100 -1 ],
+														[ '50 rows', '75 rows', '100 rows', 'Show all' ]
+													],
+												"buttons": [
+														'pageLength'
+													],
 												"orderCellsTop": true,
 												"fixedHeader": true,
-												 "pagingType": "simple_numbers",
+												"pagingType": "simple_numbers",
 												"deferLoading": totalproduct,
 												"data" : data_produk,
 												"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) 
@@ -255,7 +265,7 @@
 
 												},
 												"fnDrawCallback": function (oSettings, json) {
-													//$('#SALESAREATSALESAREA tbody tr:eq(0)').click();
+													$(".param-Kategori").val(_this.idkategori);
 												},
 												"initComplete": function () {
 															this.api().columns().every( function () {
@@ -311,9 +321,9 @@
 					e.preventDefault();
 					var _this = e.current;
 					 var outletpilihan = $( this.$el ).val();
-					 alert('aaa')
+					alert('aaa')
 					var datajson = {action : "UPDATE_SELECTED_OUTLET", outlet : outletpilihan};
-					util.trigger( $( '.table-product-wrapper' ), 'redraw', [outletpilihan] );
+					util.trigger( $( '.table-product-wrapper' ), 'redraw', [outletpilihan , "" ] );
 					// $.post('welcome/outletsekarang.php',JSON.stringify(datajson),function(d){
 					//     if (d.errcode == 'OK') console.log("Berhasil ubah outlet sekarang");
 						
@@ -359,6 +369,22 @@
 			data:{
 				initialize : false,
 			},
+			events:[
+			{
+				name:'change',
+				self:true,
+				handler:function(e){
+					e.preventDefault();
+					var _this = e.current;
+					 var outletpilihan = $( this.$el ).val();
+					util.trigger( $( '.table-product-wrapper' ), 'redraw', [$(".listoutlet_index").val(),outletpilihan] );
+					// $.post('welcome/outletsekarang.php',JSON.stringify(datajson),function(d){
+					//     if (d.errcode == 'OK') console.log("Berhasil ubah outlet sekarang");
+						
+					// },"json");
+				}
+			}
+			],
 			methods:{
 				init:function(){
 					var _this = this;
