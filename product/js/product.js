@@ -69,7 +69,7 @@
 			init:function(){
 				var table = $( '#tmpl-table-productasd' );
 				var tmp = _.template( table.html() );
-				$( this.$el ).html( tmp( {idoutlet:1 , idkategori : "" , statusproduk = ""} ) );
+				$( this.$el ).html( tmp( {idoutlet:1 , idkategori : "" , statusproduk : ""} ) );
 			}
 		}
 	});
