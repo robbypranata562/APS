@@ -50,7 +50,29 @@
 			!util.hasClass(this.$el, this.$name) && addClass(this.$el, this.$name);
 		},
 	};
-
+	apsCore.component('tableproductwrapper',{
+		connected:function(){
+			this.init();
+		},
+		events:[
+			{
+				name:'redraw',
+				self:true,
+				handler:function(e, outletpilihan){
+					var table = $( '#tmpl-table-productasd' ),
+						 tmp = _.template( table.html() );
+					$( this.$el ).html( tmp( {idoutlet:outletpilihan} ) );
+				}
+			}
+		],
+		methods:{
+			init:function(){
+				var table = $( '#tmpl-table-productasd' );
+				var tmp = _.template( table.html() );
+				$( this.$el ).html( tmp( {idoutlet:1} ) );
+			}
+		}
+	});
 	apsCore.component(
 		
 		'tableproduct',
@@ -63,14 +85,55 @@
 			},
 			props:{
 				table:Object,
+				idoutlet:String
 			},
 			data:{
 				table:false,
 				initialize : false,
+				idoutlet:1,
 			},
+			events:[
+			{
+				name:'click',
+				delegate:"tbody tr",
+				handler:function(e){
+					e.preventDefault();
+					var _this = e.current;
+
+					if ($(_this).hasClass("selected"))
+					{
+						$(_this).removeClass("selected")
+						
+					}
+					else{
+						$(_this).addClass("selected")
+					}
+
+					if ($("#t_product tbody tr.selected").length)
+					{
+						$(".aps-add-product").hide()
+						$(".aps-export-product").hide()
+						$(".aps-alokasi-outlet").show()
+						$(".aps-hapus").show()
+						$(".aps-add-product-favorit").show()
+						$(".aps-delete-product-favorit").show()
+						
+					}
+					else
+					{
+						$(".aps-add-product").show()
+						$(".aps-export-product").show()
+						$(".aps-alokasi-outlet").hide()
+						$(".aps-hapus").hide()
+						$(".aps-add-product-favorit").hide()
+						$(".aps-delete-product-favorit").hide()
+					}			
+				}
+			}
+			],
 			methods:{
 				init:function(){
-					var _this = this;
+								var _this = this;
 								var data;
 								var data_produk = [];
 								var x = [];
@@ -78,6 +141,10 @@
 								var jumlahstoktotal = 0;
 								var totalproduct = 0;
 								this.initialize = true;
+								$(".aps-alokasi-outlet").hide()
+								$(".aps-hapus").hide()
+								$(".aps-add-product-favorit").hide()
+								$(".aps-delete-product-favorit").hide()
 								$('#t_product thead tr').clone(false).appendTo( '#t_product thead' );
 								$('#t_product thead tr:eq(1) th').each( function (i) {
 									var title = $(this).text();
@@ -112,7 +179,7 @@
 								var y =
 								{
 									tipe			: 'GET_OUTLETMASTERPRODUK',
-									idoutlet 		: 1, 
+									idoutlet 		: _this.idoutlet, 
 									search 			: '', 
 									limit			: 1000, 
 									page			: 0,
@@ -125,8 +192,8 @@
 										url: 'https://development.autopilotstore.co.id/api_all.php',
 										data: JSON.stringify(y),
 										success: function(data){
-											 
 											 data_p = data.daftarproduk;
+											 console.log(data_p)
 											 jumlahstoktotal = data.jumlahstoktotal
 											 totalproduct = data_p.jumlahproduk;
 											 _.each( data_p, function(i){
@@ -141,7 +208,9 @@
 														i['iskonsinyasi'],
 														i['ispromokonsinyasi'],
 														i['namakategoriproduk'],
-														i['jumlahstokproduk']
+														i['jumlahstokproduk'],
+														i['idproduk']
+															
 													]
 												);
 											 });
@@ -159,7 +228,6 @@
 												"data" : data_produk,
 												"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) 
 												{
-													console.log(aData)
 													var tag_image = "";
 													var varian = "";
 													var subvarian = "";
@@ -178,6 +246,7 @@
 													$('td:eq(2)', nRow).html(tag_image);
 													$('td:eq(3)', nRow).html(aData[8]);
 													$('td:eq(4)', nRow).html(aData[9] + jumlahstoktotal);
+													$(nRow).attr("id", aData[10]);
 													return nRow;
 												},
 												"fnInitComplete": function (oSettings, json) {
@@ -211,17 +280,14 @@
 												"columnDefs": 	[ {
 																	"orderable": false,
 																	"className": 'select-checkbox',
-																	"targets":   0
-																} ],
-												"select": {
-																"style":    'os',
-																"selector": 'td:first-child'
-												},
+																	"targets":   0,
+																	"style":    'os',
+																} ]
 
 										})
 
-									},
-																			complete:function(){
+										},
+										complete:function(){
 										},
 										dataType: 'json',
 								});
@@ -246,10 +312,12 @@
 					var _this = e.current;
 					 var outletpilihan = $( this.$el ).val();
 					 alert('aaa')
-			        var datajson = {action : "UPDATE_SELECTED_OUTLET", outlet : outletpilihan};
-			        $.post('welcome/outletsekarang.php',JSON.stringify(datajson),function(d){
-			            if (d.errcode == 'OK') console.log("Berhasil ubah outlet sekarang");
-			        },"json");
+					var datajson = {action : "UPDATE_SELECTED_OUTLET", outlet : outletpilihan};
+					util.trigger( $( '.table-product-wrapper' ), 'redraw', [outletpilihan] );
+					// $.post('welcome/outletsekarang.php',JSON.stringify(datajson),function(d){
+					//     if (d.errcode == 'OK') console.log("Berhasil ubah outlet sekarang");
+						
+					// },"json");
 				}
 			}
 			],
@@ -304,7 +372,6 @@
 										url: 'https://development.autopilotstore.co.id/api_all.php',
 										data: JSON.stringify(x),
 											success: function(data){
-												console.log(data);
 												var data = data.daftarkategoriproduk;
 													$(_this.$el).append('<option value="">Semua kategori</option>');
 												_.each( data, function(i){
@@ -667,6 +734,147 @@
 		}
 	);
 
+	apsCore.component('alokasi-outlet', {
+		events:[
+			{
+				name:'click',
+				self:true,
+				handler:function(e){
+					var list_id_produk="";
+					e.preventDefault();
+					_.each( $("#t_product tbody tr.selected"), function(i){
+						list_id_produk = list_id_produk + $(i).attr("id") + ",";
+					});
+					$("#list_produk").val(list_id_produk.substring(0,list_id_produk.length - 1));
+					$("#modal-outlet").modal('show');
+				}
+			}
+		],
+		connected:function(){
+			this.init();
+		},
+		methods:{
+			init:function(){
+			},
+		}
+	});
+
+	apsCore.component('add_favorit_produk', {
+		events:[
+			{
+				name:'click',
+				self:true,
+				handler:function(e){
+					alert('')
+					var list_id_produk="";
+					e.preventDefault();
+					_.each( $("#t_product tbody tr.selected"), function(i){
+						list_id_produk = list_id_produk + $(i).attr("id") + ",";
+					});
+					list_id_produk = list_id_produk.substring(0,list_id_produk.length - 1);
+					list_id_produk = '[' + list_id_produk + ']';
+					console.log(list_id_produk)
+					console.log($( ".listoutlet_index" ).val())
+					aps.req( {tipe:'ADD_PRODUKFAVORIT' , idoutlet: $( ".listoutlet_index" ).val() , listidproduk: list_id_produk} )
+					.then(
+						function(data){
+					data = data.daftaroutlet;
+					console.log(data)
+					_.each( data, function(i){
+					$(".modal-body .row").append
+					(
+						'<div class="form-check"><label class="form-check-label">' +
+							'<div class="uniform-checker">' +
+								'<span class="">'+
+								'<input type="checkbox" class="form-check-input-styled">' +
+								'</span>'+
+							'</div>'+
+						''+i['NAMAOUTLET']+''+
+						'</label></div>'
+					);
+					});
+				},
+				aps.noop
+			);
+				}
+			}
+		],
+		connected:function(){
+			this.init();
+		},
+		methods:{
+			init:function(){
+			},
+		}
+	});
+
+	apsCore.component('modal-alokasi-outlet', {
+		// events:[
+		// 	{
+		// 		name:'click',
+		// 		self:true,
+		// 		handler:function(e){
+		// 			e.preventDefault()
+		// 			$("#modal-outlet").modal('show');
+		// 		}
+		// 	}
+		// ],
+		connected:function(){
+			this.init();
+		},
+		methods:{
+			init:function(){
+			var _this = this;
+			aps.req( {tipe:'GET_USEROUTLET'} )
+			.then(
+				function(data){
+					data = data.daftaroutlet;
+					console.log(data)
+					_.each( data, function(i){
+					$(".modal-body .row").append
+					(
+						'<div class="form-check"><label class="form-check-label">' +
+							'<div class="uniform-checker">' +
+								'<span class="">'+
+								'<input type="checkbox" class="form-check-input-styled">' +
+								'</span>'+
+							'</div>'+
+						''+i['NAMAOUTLET']+''+
+						'</label></div>'
+					);
+					});
+				},
+				aps.noop
+			);
+		}
+	}
+	});
+
+	apsCore.component(
+		
+		'stock',
+		{
+			connected:function(){
+
+				if (this.initialize) return;
+				this.init();
+			},
+			data:{
+				
+				initialize : false,
+			},
+			methods:{
+				init:function(){
+					var _this = this;
+					this.initialize = true;
+					$(_this.$el).append('<option value="">Semua</option>');
+					$(_this.$el).append('<option value="MINIMALSTOCK">Jumlah Stock < Minimal Stock</option>');
+					$(_this.$el).append('<option value="MAKSIMALSTOCK">Jumlah Stock > Maksimal Stock</option>');
+						
+				}
+			}
+		}
+	);
 
 
 })(UIkit, UIkit.util, jQuery)

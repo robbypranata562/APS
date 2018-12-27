@@ -3,10 +3,15 @@ session_start();
 include(__DIR__."/Functions.php");
 //include(__DIR__."/cekUser.php");
 //include(__DIR__."/DBConnectPDOH.php");
-
+include(__DIR__."/product/views/table-product.html");
 $page_title = 'Product Page';
 include(__DIR__."/main_header.php");
 ?>
+<?php include(__DIR__."/product/views/index.html");?>
+<?php include(__DIR__."/product/views/add-product.html");?>
+<?php include(__DIR__."/product/views/varian-input.html");?>
+<?php include(__DIR__."/product/views/kombinasi.html");?>
+<?php include(__DIR__."/product/views/modal.html");?>
 <!-- Custom CSS -->
 <link rel="stylesheet" type="text/css" href="product/css/custom.css" />
 <!-- /Custom CSS -->
@@ -33,9 +38,5 @@ include(__DIR__."/main_header.php");
 
 		</div>
 	<!-- /page content -->
-	<?php include(__DIR__."/product/views/index.html");?>
-	<?php include(__DIR__."/product/views/add-product.html");?>
-	<?php include(__DIR__."/product/views/varian-input.html");?>
-	<?php include(__DIR__."/product/views/kombinasi.html");?>
 	</body>
 </html>
