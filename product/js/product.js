@@ -328,9 +328,11 @@
 		},
 		props:{
 			type:String,
+			template:String,
 		},
 		data:{
 			type:'header',
+			template:'index'
 		},
 		events:[
 			{
@@ -340,12 +342,25 @@
 					e.preventDefault();
 					this.addProduct();
 				}
+			},
+			{
+				name:'change_page',
+				self:true,
+				handler:function(e){
+					e.preventDefault();
+					this.changePage();
+				}
 			}
 		],
 		methods:{
-			init:function(){},
+			init:function(){
+				this.changePage();
+			},
 			addProduct:function(){
 				this.render( $( '#tmpl-add-product' ), {} );
+			},
+			changePage:function(){
+				this.render( $( '#tmpl-' + this.template ), {} );
 			},
 			render:function( $template, data ){
 				var tmp = _.template( $template.html() );
@@ -610,7 +625,7 @@
 						kombinasiIds.push( kombinasi[i][j] );
 					}
 					var tmp = _.template( $( '#tmpl-varian-kombinasi' ).html() );
-					$( '.produk-kombinasi-varian', _this.$el ).append( 
+					$( '.produk-kombinasi-varian', _this.$el ).append(
 						tmp( 
 							{
 								produk:produkKombinasi.join( ' - ' ),
