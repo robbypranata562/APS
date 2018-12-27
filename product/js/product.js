@@ -243,6 +243,7 @@
 				self:true,
 				handler:function(e){
 					e.preventDefault();
+					var _this = e.current;
 					 var outletpilihan = $( this.$el ).val();
 					 alert('aaa')
 			        var datajson = {action : "UPDATE_SELECTED_OUTLET", outlet : outletpilihan};
