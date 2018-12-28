@@ -3,7 +3,7 @@
 		attr = util.attr,
 		css = util.css,
 		addClass = util.addClass;
-		
+	
 	window.aps = window.aps || {};
 	
 	aps.apiURL = 'https://development.autopilotstore.co.id/api_all.php';
@@ -21,7 +21,7 @@
 			}), true);
 		}, [ [] ]);
 	};
-	//console.log( aps.cartesian.apply( null, [ [1,2,3], [1,2,3], [1,2,3] ] ) )
+	
 	aps.req = function( params ){
 		var dataString = JSON.stringify( params );
 		return new util.Promise( function(resolve, reject){
@@ -411,7 +411,6 @@
 	}
 	);
 
-
 	apsCore.component( 'productpage', {
 		mixins:[Class],
 		connected:function(){
@@ -536,8 +535,15 @@
 		}
 	});
 	
+	var ParentForm = {
+		
+		connected:function(){
+			this.parentForm = apsCore.getComponent( $u( util.parents( this.$el, '.uk-productform' ) ), 'productform' );
+		}
+	};
+	
 	apsCore.component( 'producttab', {
-		mixins:[Class],
+		mixins:[Class, ParentForm],
 		events:[
 			{
 				name: 'click',
@@ -563,10 +569,12 @@
 		props:{
 			step:Number,
 			action:String,
+			useVarian:Boolean,
 		},
 		data:{
 			step:1,
 			action:'add',
+			useVarian:false,
 		},
 		events:[
 			{
@@ -635,28 +643,31 @@
 				
 			},
 			step2:function(){
-				var _this = this,
-					notyConfirm = new Noty({
-						theme: 'limitless',
-						text: '<h4 class="mb-3">Gunakan Varian Produk?</h6>',
-						timeout: false,
-						modal: true,
-						layout: 'center',
-						closeWith: 'button',
-						type: 'confirm',
-						buttons: [
-							Noty.button('Tidak', 'btn btn-danger', function () {
-								notyConfirm.close();
-								_this.next();
-							}),
+				var _this = this;
+				_this.notyConfirm = _this.notyConfirm || new Noty({
+					theme: 'limitless',
+					text: '<h4 class="mb-3">Gunakan Varian Produk?</h6>',
+					timeout: false,
+					modal: true,
+					layout: 'center',
+					closeWith: 'button',
+					type: 'confirm',
+					buttons: [
+						Noty.button('Tidak', 'btn btn-danger', function () {
+							_this.notyConfirm.close();
+							
+						}),
 
-							Noty.button('Ya', 'btn bg-blue ml-1', function () {
-									notyConfirm.close();
-								},
-								{id: 'button1', 'data-status': 'ok'}
-							)
-						]
-					}).show();
+						Noty.button( 'Ya', 'btn bg-blue ml-1', function () {
+								_this.notyConfirm.close();
+								$( '.produk-varianitems-wrapper', _this.$el ).removeClass( 'd-none' );
+								_this.useVarian = true;
+							},
+							{id: 'button1', 'data-status': 'ok'}
+						)
+					]
+				});
+			!_this.useVarian &&  _this.notyConfirm.show();
 			},
 			step3:function(){
 				var outlets = [],
@@ -690,7 +701,7 @@
 	});
 		
 	apsCore.component( 'varianitems', {
-		mixins:[Class],
+		mixins:[Class, ParentForm],
 		props:{
 			varians:Array,
 		},
@@ -753,7 +764,7 @@
 	});
 	
 	apsCore.component( 'varianitemvalue', {
-		mixins:[Class],
+		mixins:[Class, ParentForm],
 		props:{
 			itemid:String,
 			value:String,
@@ -776,6 +787,7 @@
 	});
 	
 	apsCore.component( 'kombinasivarian', {
+		mixins:[Class, ParentForm],
 		props:{
 			kombinasi:Array,
 			kombinasiStringify:String,
@@ -809,38 +821,42 @@
 					cartesians 		= [],
 					kombinasi 		= [],
 					produkKombinasi = [],
-					kombinasiIds 	= [],
-					combinations 	= [];
+					kombinasiIds 	= [];
 					
-				varians.map( function( $el, i ){
-					varian = apsCore.getComponent( $el, 'varianitems' );
-					cartesians.push( varian.varians );
-				} );
+					varians.map( function( $el, i ){
+						varian = apsCore.getComponent( $el, 'varianitems' );
+						varian.varians.length && cartesians.push( varian.varians );
+					} );
+					if( cartesians.length > 1 ){
+						kombinasi = aps.cartesian.apply( null, cartesians );
+					} else if( cartesians.length === 1 ) {
+						for( var i in cartesians[0] ){
+							kombinasi.push( cartesians[0][i] );
+						}
+					}
 				
-				kombinasi = aps.cartesian.apply( null, cartesians );
-				combinations = [];
 				_this.kombinasi = [];
 				
 				for( var i in kombinasi ){
 					produkKombinasi = [];
 					kombinasiIds = [];
 					_this.kombinasi[i] = {barcode:'', liststokharga:[]};
-					for( var j in kombinasi[i] ){
-						produkKombinasi.push( $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val() );
-						kombinasiIds.push( kombinasi[i][j] );
-						_this.kombinasi[i][ 'varian' + ( parseInt( j ) + 1 ) ] = $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val();
-						
+					if( _.isArray( kombinasi[i] ) ){
+						for( var j in kombinasi[i] ){
+							produkKombinasi.push( $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val() );
+							kombinasiIds.push( kombinasi[i][j] );
+							_this.kombinasi[i][ 'varian' + ( parseInt( j ) + 1 ) ] = $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val();
+						}
+					} else {
+						produkKombinasi.push( $( '[data-itemid="' + kombinasi[i] + '"]' ).val() );
+						kombinasiIds.push( kombinasi[i] );
+						_this.kombinasi[i].varian1 = $( '[data-itemid="' + kombinasi[i] + '"]' ).val();
+						_this.kombinasi[i].varian2 = '';
 					}
 					_this.kombinasi[i].dataKombinasiIds = kombinasiIds;
 					_this.kombinasi[i].dataProdukKombinasi = produkKombinasi;
 					_this.kombinasi[i].kombinasiIds = encodeURI( JSON.stringify( kombinasiIds ) );
 					_this.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
-					combinations.push(
-						{
-							produkKombinasi:produkKombinasi,
-							kombinasiIds:kombinasiIds
-						}
-					);
 				}
 				_.map( _this.kombinasi, function( combination ){
 					var $varianKombinasiItem = $( '.varian-kombinasi-item[data-kombinasi="' + combination.kombinasiIds + '"]', $produkKombinasi );
@@ -867,6 +883,7 @@
 	 }
 	);
 	apsCore.component( 'produkstokharga_outlets', {
+		mixins:[ Class, ParentForm ],
 		props:{
 			KombinasiVarian:Object,
 		},
@@ -888,7 +905,6 @@
 		methods:{
 			init:function(){
 				this.KombinasiVarian = apsCore.getComponent( $u( '.uk-kombinasivarian', $u( util.parents( this.$el, '.uk-productform' ) ) ), 'kombinasivarian' );
-				console.log(this.KombinasiVarian)
 			},
 			sync:function(){
 				
@@ -916,11 +932,61 @@
 				_.map( liststokharga, function( value, key ){
 					index = _.findIndex(_this.KombinasiVarian.kombinasi, { kombinasiIds: key});
 					_this.KombinasiVarian.kombinasi[ index ].liststokharga = value;
-				} );
+				} );alert()
 			}
 		},
 	} );
-	apsCore.component('status_produk',
+
+	
+	apsCore.component( 'produkstokharga_outlet', {
+		mixins:[ Class, ParentForm ],
+		events:[
+			{
+				name:'change',
+				delegate:'.all-varian',
+				handler:function(e){
+					this.allVarian(e);
+				}
+			},
+			{
+				name:'change',
+				delegate:'.produkstokharga_outlets-input',
+				handler:function(e){
+					this.changeAll(e);
+				}
+			}
+		],
+		methods:{
+			allVarian:function(e){
+				var _that = e.current,
+					_this = this,
+					field = $( _that ).data( 'field' ),
+					$primaryField = $( '.produkstokharga_outlets-input[name="' + field + '"]:eq(0)', _this.$el ),
+					$secondaryField = $( '.produkstokharga_outlets-input[name="' + field + '"]:not(:eq(0))', _this.$el );
+				if( $( _that ).prop('checked') ){
+					$secondaryField.prop( 'disabled', true );
+					$secondaryField.val( $primaryField.val() );
+					util.trigger( $u( '.produkstokharga_outlets-input[name="' + field + '"]', _this.$el ), 'change' );
+				} else {
+					$secondaryField.prop( 'disabled', false );
+				}
+			},
+			changeAll:function( e ){
+				var _that = e.current,
+					_this = this,
+					field = $( _that ).attr( 'name' ),
+					$allVarianCheck = $( '.all-varian[data-field="' + field + '"]', _this.$el ),
+					$secondaryField = $( '.produkstokharga_outlets-input[name="' + field + '"]:not(:eq(0))', _this.$el );
+				if( $allVarianCheck.prop('checked') ){
+					$secondaryField.val( $( _that ).val() );
+				}
+			}
+		},
+	} );
+	
+	apsCore.component(
+		
+		'status_produk',
 		{
 			connected:function(){
 

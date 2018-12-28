@@ -9,30 +9,31 @@
 	<!-- /page header -->
 	
 	<!-- Content area -->
-	<div class="content pt-0">
+	<form action="#" data-uk-productform="step:1;action:add;">
+		<div class="content pt-0">
 
-		<!-- Dashboard content -->
-		<div class="row">
-			<div class="col-xl-auto">
-				<div class="card card-body pb-sm-0 pt-sm-0">
-					<ul class="nav nav-tabs nav-tabs-bottom mb-sm-0" data-uk-producttab>
-						<li class="nav-item">
-							<a href="#produk-deskripsi" class="nav-link active text-left" data-toggle="tab" data-step="1">Deskripsi</a>
-						</li>
-						<li class="nav-item">
-							<a href="#produk-varian" class="nav-link text-left" data-toggle="tab" data-step="2">Varian</a>
-						</li>
-						<li class="nav-item">
-							<a href="#produk-stok-harga" class="nav-link text-left" data-toggle="tab" data-step="3">Stock &amp; Harga</a>
-						</li>
-						<li class="nav-item">
-							<a href="#bottom-tab2" class="nav-link text-left" data-toggle="tab" data-step="4">Foto</a>
-						</li>
-					</ul>
+			<!-- Dashboard content -->
+			<div class="row">
+				<div class="col-xl-auto">
+					<div class="card card-body pb-sm-0 pt-sm-0">
+						<ul class="nav nav-tabs nav-tabs-bottom mb-sm-0" data-uk-producttab>
+							<li class="nav-item">
+								<a href="#produk-deskripsi" class="nav-link active text-left" data-toggle="tab" data-step="1">Deskripsi</a>
+							</li>
+							<li class="nav-item">
+								<a href="#produk-varian" class="nav-link text-left" data-toggle="tab" data-step="2">Varian</a>
+							</li>
+							<li class="nav-item">
+								<a href="#produk-stok-harga" class="nav-link text-left" data-toggle="tab" data-step="3">Stock &amp; Harga</a>
+							</li>
+							<li class="nav-item">
+								<a href="#bottom-tab2" class="nav-link text-left" data-toggle="tab" data-step="4">Foto</a>
+							</li>
+						</ul>
+					</div>
 				</div>
 			</div>
-		</div>
-		<form action="#" data-uk-productform="step:1;action:add;">
+			
 			<div class="tab-content">
 				<div class="tab-pane fade show active" id="produk-deskripsi">
 					<div class="row">
@@ -72,7 +73,7 @@
 				</div>
 				<div class="tab-pane fade" id="produk-varian" data-uk-produkvarian>
 					<div class="row">
-						<div class="col-md-3">
+						<div class="col-md-3 d-none produk-varianitems-wrapper">
 							<div class="card card-body">
 								<h5>Varian</h5>
 								<div data-uk-varianitems>
@@ -81,7 +82,7 @@
 								</div>
 							</div>
 						</div>
-						<div class="col-md-3">
+						<div class="col-md-3 d-none produk-varianitems-wrapper">
 							<div class="card card-body">
 								<h5>Subvarian</h5>
 								<div data-uk-varianitems>
@@ -119,8 +120,9 @@
 				<button type="submit" class="btn btn-danger product-form-cancel">Cancel</button>
 				<button type="submit" class="btn btn-primary product-form-next">Next</button>
 			</div>
-		</form>
-	</div>
+			
+		</div>
+	</form>
 </div>
 </div>
 <!-- /dashboard content -->
