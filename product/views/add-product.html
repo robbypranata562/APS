@@ -11,11 +11,11 @@
 		var args = {
 			step: ! _.isUndefined( data.step ) ? data.step : 1,
 			action: ! _.isUndefined( data.action ) ? data.action : "add",
-			idproduk: ! _.isUndefined( data.idproduk ) ? data.idproduk : "",
+			dataProduk: ! _.isUndefined( data.dataProduk ) ? data.dataProduk : "",
 		};
 	%>
 	<!-- Content area -->
-	<form action="#" data-uk-productform="step:<%=args.step%>;action:<%=args.action%>;idproduk:<%=args.idproduk%>;">
+	<form action="#" data-uk-productform="step:<%=args.step%>;action:<%=args.action%>;data-produk:<%=args.dataProduk%>;">
 		<div class="content pt-0">
 			<!-- Dashboard content -->
 			<div class="row">

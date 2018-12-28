@@ -161,7 +161,8 @@
 		props:{
 			step:Number,
 			action:String,
-			idproduk:String,
+			dataProduk:String,
+			DataProduk:Object,
 			useVarian:Boolean,
 			useSubvarian:Boolean,
 			varians:Object,
@@ -170,7 +171,8 @@
 		data:{
 			step:1,
 			action:'add',
-			idproduk:'',
+			dataProduk:'',
+			DataProduk:{},
 			useVarian:false,
 			useSubvarian:false,
 			varians:{},
@@ -221,28 +223,12 @@
 		],
 		methods:{
 			init:function(){
-				if( this.idproduk !== '' ){
-					aps.req({
-						tipe			: 'GET_OUTLETMASTERPRODUK',
-						idoutlet 		: _this.idoutlet, 
-						search 			: '', 
-						limit			: 1000, 
-						page			: 0,
-						idkategori		: _this.idkategori , 
-						statusproduk 	: '',
-						stokoption 		: ''
-					})
-						.then(
-							function(data){
-								console.log(data)
-							},
-							aps.noop
-						);
+				if( this.dataProduk !== '' ){
+					this.DataProduk = JSON.parse( decodeURI( this.dataProduk ) );
 				}
 			},
 			next: function(){
 				if( this.step >= 4 ){return;}
-				alert(this.step)
 				this.step++;
 				util.trigger( $u( '.nav-item a[data-toggle="tab"][data-step="' + this.step + '"]' ), 'click' );
 			},
@@ -474,7 +460,6 @@
 					Field = apsCore.getComponent( $field, 'varianitemvalue' ),
 					$varian = $u( util.parents( $wrapper, '.uk-varianitems' ) ),
 					itemid;
-					console.log($varian);
 				return new util.Promise(function(resolve){
 					itemid = Field.itemid;
 					Field.$destroy();
@@ -636,7 +621,6 @@
 				var _this = this,
 					index;
 					itemDeleted = util.$$( '.varian-kombinasi-item[data-' + idvarian + '="' + itemid + '"]', _this.$el );
-				console.log()
 				util.toNodes( itemDeleted ).map( function( el, i ){
 					index = _.findIndex(_this.$parentForm.kombinasi, { kombinasiIds: util.data( el, 'data-kombinasi' )});
 					_this.$parentForm.kombinasi.splice( index, 1 );

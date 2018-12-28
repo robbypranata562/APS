@@ -61,7 +61,7 @@
 						_that = e.current,
 						$produkPage = $u( util.parents( _this.$el, '.uk-productpage' ) ),
 						ProdukPage = apsCore.getComponent( $produkPage, 'productpage' );
-					ProdukPage.redirect ( 'add-product', { action:'edit', step:1, idproduk:util.data( _that, 'id' )} );
+					ProdukPage.redirect ( 'add-product', { action:'edit', step:1, dataProduk:util.data( _that, 'data-produk' )} );
 				},
 			}
 		],
@@ -75,10 +75,10 @@
 			{
 				name:'redraw',
 				self:true,
-				handler:function(e, outletpilihan ,kategoripilihan , statusprodukpilihan){
+				handler:function(e, outletpilihan ,kategoripilihan , statusprodukpilihan , stockoptionpilihan , keywords){
 					var table = $( '#tmpl-table-productasd' ),
 						 tmp = _.template( table.html() );
-					$( this.$el ).html( tmp( {idoutlet:outletpilihan , idkategori : kategoripilihan , statusproduk : statusprodukpilihan} ) );
+					$( this.$el ).html( tmp( {idoutlet:outletpilihan , idkategori : kategoripilihan , statusproduk : statusprodukpilihan , stokoption : stockoptionpilihan , search : keywords} ) );
 				}
 			}
 		],
@@ -86,7 +86,7 @@
 			init:function(){
 				var table = $( '#tmpl-table-productasd' );
 				var tmp = _.template( table.html() );
-				$( this.$el ).html( tmp( {idoutlet:1 , idkategori : "" , statusproduk : ""} ) );
+				$( this.$el ).html( tmp( {idoutlet:1 , idkategori : "" , statusproduk : "" , stokoption : "" , search : ""} ) );
 			}
 		}
 	});
@@ -105,12 +105,18 @@
 				table:Object,
 				idoutlet:String,
 				idkategori : String,
+				statusproduk:String,
+				stokoption : String,
+				search : String,
 			},
 			data:{
 				table:false,
 				initialize : false,
 				idoutlet:1,
 				idkategori :"",
+				statusproduk : "",
+				stokoption : "",
+				search : "",
 			},
 			events:[
 			{
@@ -170,15 +176,7 @@
 									var title = $(this).text();
 									if (i == 1)
 									{
-										$(this).html( '<input type="text" placeholder="Search '+title+'" />' );
-										$( 'input', this ).on( 'keyup change', function () {
-										if ( table.column(i).search() !== this.value ) {
-											table
-												.column(i)
-												.search( this.value )
-												.draw();
-										}
-										});
+										$(this).html( '<input data-uk-search type="text" class="param-search" placeholder="Search '+title+'" />' );
 									}
 									else if (i > 1)
 									{
@@ -200,21 +198,19 @@
 								{
 									tipe			: 'GET_OUTLETMASTERPRODUK',
 									idoutlet 		: _this.idoutlet, 
-									search 			: '', 
+									search 			: _this.search, 
 									limit			: 1000, 
 									page			: 0,
 									idkategori		: _this.idkategori , 
-									statusproduk 	: '',
-									stokoption 		: ''
+									statusproduk 	: _this.statusproduk,
+									stokoption 		: _this.stokoption,
 								};
-								console.log(y)
 								$.ajax({
 										type: "POST",
 										url: 'https://development.autopilotstore.co.id/api_all.php',
 										data: JSON.stringify(y),
 										success: function(data){
 											 data_p = data.daftarproduk;
-											 console.log(data_p)
 											 jumlahstoktotal = data.jumlahstoktotal
 											 totalproduct = data_p.jumlahproduk;
 											 _.each( data_p, function(i){
@@ -230,8 +226,8 @@
 														i['ispromokonsinyasi'],
 														i['namakategoriproduk'],
 														i['jumlahstokproduk'],
-														i['idproduk']
-															
+														i['idproduk'],
+														encodeURI( JSON.stringify( i ) )
 													]
 												);
 											 });
@@ -275,6 +271,7 @@
 													$('td:eq(3)', nRow).html(aData[8]);
 													$('td:eq(4)', nRow).html(aData[9] + jumlahstoktotal);
 													$(nRow).attr("id", aData[10]);
+													$(nRow).attr( "data-produk", aData[11] );
 													return nRow;
 												},
 												"fnInitComplete": function (oSettings, json) {
@@ -284,6 +281,9 @@
 												},
 												"fnDrawCallback": function (oSettings, json) {
 													$(".param-Kategori").val(_this.idkategori);
+													$(".param-Status_Produk").val(_this.statusproduk);
+													$(".param-Stock").val(_this.stokoption);
+													$(".param-Search").val(_this.search);	
 												},
 												"initComplete": function () {
 															this.api().columns().every( function () {
@@ -338,10 +338,9 @@
 				handler:function(e){
 					e.preventDefault();
 					var _this = e.current;
-					 var outletpilihan = $( this.$el ).val();
-					alert('aaa')
+					var outletpilihan = $( this.$el ).val();
 					var datajson = {action : "UPDATE_SELECTED_OUTLET", outlet : outletpilihan};
-					util.trigger( $( '.table-product-wrapper' ), 'redraw', [outletpilihan , "" ] );
+					util.trigger( $( '.table-product-wrapper' ), 'redraw', [outletpilihan ,$(".param-Kategori").val()  ,$(".param-Status_Produk").val() , $(".param-Stock").val() , $(".param-search").val()] );
 					// $.post('welcome/outletsekarang.php',JSON.stringify(datajson),function(d){
 					//     if (d.errcode == 'OK') console.log("Berhasil ubah outlet sekarang");
 						
@@ -395,7 +394,7 @@
 					e.preventDefault();
 					var _this = e.current;
 					 var outletpilihan = $( this.$el ).val();
-					util.trigger( $( '.table-product-wrapper' ), 'redraw', [$(".listoutlet_index").val(),outletpilihan] );
+					util.trigger( $( '.table-product-wrapper' ), 'redraw', [$(".listoutlet_index").val(),outletpilihan , $(".param-Status_Produk").val() , $(".param-Stock").val() , $(".param-search").val()] );
 					// $.post('welcome/outletsekarang.php',JSON.stringify(datajson),function(d){
 					//     if (d.errcode == 'OK') console.log("Berhasil ubah outlet sekarang");
 						
@@ -416,7 +415,7 @@
 										url: 'https://development.autopilotstore.co.id/api_all.php',
 										data: JSON.stringify(x),
 											success: function(data){
-												var data = data.daftarkategoriproduk;
+													var data = data.daftarkategoriproduk;
 													$(_this.$el).append('<option value="">Semua kategori</option>');
 												_.each( data, function(i){
 													$(_this.$el).append('<option value="' + i['IDKATEGORIPRODUK'] + '">' + i['NAMAKATEGORIPRODUK'] + '</option>');
@@ -444,6 +443,18 @@
 				
 				initialize : false,
 			},
+			events:[
+			{
+				name:'change',
+				self:true,
+				handler:function(e){
+					e.preventDefault();
+					var _this = e.current;
+					var status_produk_pilihan = $( this.$el ).val();
+					util.trigger( $( '.table-product-wrapper' ), 'redraw', [$(".listoutlet_index").val(), $(".param-Kategori").val() , status_produk_pilihan , $(".param-Stock").val()] , $(".param-search").val() );
+				}
+			}
+			],
 			methods:{
 				init:function(){
 					var _this = this;
@@ -491,7 +502,6 @@
 				name:'click',
 				self:true,
 				handler:function(e){
-					alert('')
 					var list_id_produk="";
 					e.preventDefault();
 					_.each( $("#t_product tbody tr.selected"), function(i){
@@ -499,13 +509,10 @@
 					});
 					list_id_produk = list_id_produk.substring(0,list_id_produk.length - 1);
 					list_id_produk = '[' + list_id_produk + ']';
-					console.log(list_id_produk)
-					console.log($( ".listoutlet_index" ).val())
 					aps.req( {tipe:'ADD_PRODUKFAVORIT' , idoutlet: $( ".listoutlet_index" ).val() , listidproduk: list_id_produk} )
 					.then(
 						function(data){
 					data = data.daftaroutlet;
-					console.log(data)
 					_.each( data, function(i){
 					$(".modal-body .row").append
 					(
@@ -555,7 +562,6 @@
 			.then(
 				function(data){
 					data = data.daftaroutlet;
-					console.log(data)
 					_.each( data, function(i){
 					$(".modal-body .row").append
 					(
@@ -576,9 +582,7 @@
 	}
 	});
 
-	apsCore.component(
-		
-		'stock',
+	apsCore.component('stock',
 		{
 			connected:function(){
 
@@ -589,6 +593,18 @@
 				
 				initialize : false,
 			},
+			events:[
+			{
+				name:'change',
+				self:true,
+				handler:function(e){
+					e.preventDefault();
+					var _this = e.current;
+					var stokoption = $( this.$el ).val();
+					util.trigger( $( '.table-product-wrapper' ), 'redraw', [$(".listoutlet_index").val(), $(".param-Kategori").val() , $(".param-Kategori").val() , stokoption , $(".param-search").val()] );
+				}
+			}
+			],
 			methods:{
 				init:function(){
 					var _this = this;
@@ -597,6 +613,38 @@
 					$(_this.$el).append('<option value="MINIMALSTOCK">Jumlah Stock < Minimal Stock</option>');
 					$(_this.$el).append('<option value="MAKSIMALSTOCK">Jumlah Stock > Maksimal Stock</option>');
 						
+				}
+			}
+		}
+	);
+
+		apsCore.component('search',
+		{
+			connected:function(){
+
+				if (this.initialize) return;
+				this.init();
+			},
+			data:{
+				
+				initialize : false,
+			},
+			events:[
+			{
+				name:'keyup',
+				self:true,
+				handler:function(e){
+					e.preventDefault();
+					var _this = e.current;
+					var search = $( this.$el ).val();
+					console.log(search)
+					util.trigger( $( '.table-product-wrapper' ), 'redraw', [$(".listoutlet_index").val(), $(".param-Kategori").val() , $(".param-Kategori").val() , $(".param-Stock").val() , search] );
+				}
+			}
+			],
+			methods:{
+				init:function(){
+					var _this = this;
 				}
 			}
 		}
