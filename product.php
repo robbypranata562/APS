@@ -24,6 +24,7 @@ include(__DIR__."/main_header.php");
 <script src="global_assets/js/plugins/forms/selects/select2.min.js"></script>
 <script src="global_assets/js/plugins/notifications/noty.min.js"></script>
 <script src="product/js/product.js"></script>
+<script src="product/js/product-form.js"></script>
 <script src="global_assets/js/plugins/tables/datatables/datatables.min.js"></script>
 		<!-- /Custom Javascript -->
 		<?php include(__DIR__."/navbar_sidebar.php"); ?>

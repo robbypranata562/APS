@@ -7,6 +7,19 @@
 		
 	window.aps = window.aps || {};
 	
+	var Class = {
+		connected:function(){
+			!util.hasClass(this.$el, this.$name) && addClass(this.$el, this.$name);
+		},
+	};
+	
+	var ParentForm = {
+		connected:function(){
+			this.$parentForm = apsCore.getComponent( $u( util.parents( this.$el, '.uk-productform' ) ), 'productform' );
+			this.parentForm = $u( util.parents( this.$el, '.uk-productform' ) );
+		}
+	};
+	/* Product Page Index */
 	apsCore.component( 'productpage', {
 		mixins:[Class],
 		connected:function(){
@@ -26,7 +39,7 @@
 				delegate:'.aps-add-product',
 				handler:function(e){
 					e.preventDefault();
-					this.addProduct();
+					this.redirect( 'add-product' );
 				}
 			},
 			{
@@ -42,19 +55,25 @@
 			init:function(){
 				this.changePage();
 			},
-			addProduct:function(){
-				this.render( $( '#tmpl-add-product' ), {} );
+			redirect:function( template, data ){
+				template = template || this.template;
+				data = data || {};
+				this.template = template;
+				this.changePage( data );
 			},
-			changePage:function(){
-				this.render( $( '#tmpl-' + this.template ), {} );
+			changePage:function( data ){
+				data = data || {};
+				this.render( $( '#tmpl-' + this.template ), data );
 			},
 			render:function( $template, data ){
 				var tmp = _.template( $template.html() );
-				$( this.$el, $( '.aps-container' ) ).html( tmp( data ) );
+				$( this.$el, $( '.aps-container' ) ).html( tmp( {data:data} ) );
 			}
 		}
 	});
+	/* /Product Page Index */
 	
+	/* Form Component */
 	apsCore.component( 'switchery', {
 		mixins:[Class],
 		connected:function(){
@@ -130,40 +149,32 @@
 			},
 		}
 	});
-	
-	apsCore.component( 'producttab', {
-		mixins:[Class],
-		events:[
-			{
-				name: 'click',
-				delegate:'.nav-item a[data-toggle="tab"]',
-				handler:function(e){
-					this.clickTab(e);
-				}
-			}
-		],
-		methods:{
-			clickTab:function(e){
-				var that = e.current;
-				util.trigger( $( $( that ).attr("href") ), 'tab_show', [ $( that ).attr("href"), $( that ).data("step") ] );
-			},
-		}
-	});
-	
+	/* /Form Component */
+
+	/* Form Product */
 	apsCore.component( 'productform', {
 		mixins:[Class],
 		connected:function(){
 			!util.hasClass(this.$el, this.$name) && addClass(this.$el, this.$name);
+			this.init();
 		},
 		props:{
 			step:Number,
 			action:String,
+			idproduk:String,
 			useVarian:Boolean,
+			useSubvarian:Boolean,
+			varians:Object,
+			kombinasi:Array,
 		},
 		data:{
 			step:1,
 			action:'add',
+			idproduk:'',
 			useVarian:false,
+			useSubvarian:false,
+			varians:{},
+			kombinasi:[],
 		},
 		events:[
 			{
@@ -172,11 +183,17 @@
 				handler:function(e, target, step){
 					var _this = this;
 					switch( step ){
+						case 1:
+							this.step1();
+							break;
 						case 2:
 							this.step2();
 							break;
 						case 3:
 							this.step3();
+							break;
+						case 4:
+							this.step4();
 							break;
 					}
 					this.step = step;
@@ -191,18 +208,47 @@
 					this.next();
 				}
 				
+			},
+			{
+				name: 'click',
+				delegate:'.product-form-prev',
+				handler:function(e, target){
+					e.preventDefault();
+					this.prev();
+				}
+				
 			}
 		],
 		methods:{
-			tabShow:function( e, target ){
-				
+			init:function(){
+				if( this.idproduk !== '' ){
+					aps.req({
+						tipe			: 'GET_OUTLETMASTERPRODUK',
+						idoutlet 		: _this.idoutlet, 
+						search 			: '', 
+						limit			: 1000, 
+						page			: 0,
+						idkategori		: _this.idkategori , 
+						statusproduk 	: '',
+						stokoption 		: ''
+					})
+						.then(
+							function(data){
+								console.log(data)
+							},
+							aps.noop
+						);
+				}
 			},
 			next: function(){
 				if( this.step >= 4 ){return;}
-				if( this.step == 1 && this.action == 'add' ){
-					this.save( this.step );
-				}
+				alert(this.step)
 				this.step++;
+				util.trigger( $u( '.nav-item a[data-toggle="tab"][data-step="' + this.step + '"]' ), 'click' );
+			},
+			prev: function(){
+				if( this.step <= 1 ){return;}
+				this.step--;
 				util.trigger( $u( '.nav-item a[data-toggle="tab"][data-step="' + this.step + '"]' ), 'click' );
 			},
 			save:function( step ){
@@ -232,8 +278,29 @@
 				}
 				
 			},
+			titleNext:function( isSimpan ){
+				var _this = this;
+				if( isSimpan ){
+					util.addClass( $u( '.product-form-next .title-next', _this.$el ), 'd-none' );
+					util.removeClass( $u( '.product-form-next .title-simpan', _this.$el ), 'd-none' );
+				} else {
+					util.removeClass( $u( '.product-form-next .title-next', _this.$el ), 'd-none' );
+					util.addClass( $u( '.product-form-next .title-simpan', _this.$el ), 'd-none' );
+				}
+			},
+			step1:function(){
+				var _this = this;
+				_this.titleNext( false );
+				util.addClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
+				util.removeClass( $u( '.product-form-next', _this.$el ), 'd-none' );
+			},
 			step2:function(){
 				var _this = this;
+				
+				_this.titleNext( false );
+				util.removeClass( $u( '.product-form-next', _this.$el ), 'd-none' );
+				util.removeClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
+				
 				_this.notyConfirm = _this.notyConfirm || new Noty({
 					theme: 'limitless',
 					text: '<h4 class="mb-3">Gunakan Varian Produk?</h6>',
@@ -257,14 +324,17 @@
 						)
 					]
 				});
-			!_this.useVarian &&  _this.notyConfirm.show();
+				!_this.useVarian &&  _this.notyConfirm.show();
 			},
 			step3:function(){
 				var outlets = [],
 					tmp = _.template( $( '#tmpl-varian-per-outlet' ).html() ),
-					_this = this,
-					$kombinasivarian = apsCore.getComponent( $u( '.uk-kombinasivarian', _this.$el ), 'kombinasivarian' );
-				if( ! $kombinasivarian ){return;}
+					_this = this;
+				_this.titleNext( true );
+				
+				util.removeClass( $u( '.product-form-next', _this.$el ), 'd-none' );
+				util.removeClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
+					
 				aps.req( 
 					{
 						tipe:'GET_OUTLET',
@@ -279,7 +349,7 @@
 								tmp( 
 									{
 										outlets:outlets,
-										kombinasi:$kombinasivarian.kombinasi,
+										kombinasi:_this.kombinasi,
 									} 
 								) 
 							);
@@ -287,16 +357,61 @@
 						aps.noop
 					);
 			},
+			step4:function(){
+				var _this = this;
+				util.removeClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
+				util.addClass( $u( '.product-form-next', _this.$el ), 'd-none' );
+				aps.req({
+						tipe:'POST_MASTERPRODUK',
+						idproduk:"",
+						tipestok:$('[name="tipestok"]').prop('checked') ? 1 : 0,
+						idkategoriproduk: $('[name="idkategoriproduk"]').val(),
+						namaproduk:$('[name="namaproduk"]').val(),
+						idsatuanproduk:$('[name="idsatuanproduk"]').val(),
+						berat: $('[name="berat"]').val(),
+						deskripsiproduk:$('[name="deskripsiproduk"]').val(),
+						fotoprodukutama:'',
+						listvarian:_this.kombinasi,
+						listfoto:[],
+					})
+						.then(
+							function(data){
+								console.log(data)
+							},
+							aps.noop
+						);
+			},
 		}
 	});
-		
+	
+	apsCore.component( 'producttab', {
+		mixins:[Class, ParentForm],
+		events:[
+			{
+				name: 'click',
+				delegate:'.nav-item a[data-toggle="tab"]',
+				handler:function(e){
+					this.clickTab(e);
+				}
+			}
+		],
+		methods:{
+			clickTab:function(e){
+				var that = e.current;
+				util.trigger( $( $( that ).attr("href") ), 'tab_show', [ $( that ).attr("href"), $( that ).data("step") ] );
+			},
+		}
+	});
+	
 	apsCore.component( 'varianitems', {
-		mixins:[Class],
+		mixins:[Class, ParentForm],
 		props:{
 			varians:Array,
+			idVarian:String,
 		},
 		data:{
 			varians:[],
+			idVarian:'',
 		},
 		events:[
 			{
@@ -317,12 +432,25 @@
 					this.changeKombinasi();
 				}
 			},
+			{
+				name : 'click',
+				delegate:'.delete-varian',
+				handler:function(e){
+					var _that = e.current,
+						_this = this,
+						$wrapper = $u( util.parents( _that, '.produk-varian-item-wrapper' ) );
+					this.deleteVarian($wrapper).then(function( result ){
+						_this.changeKombinasi( 'delete_kombinasi', [ result.itemid, result.idvarian ] );
+					});
+				}
+			}
 		],
 		connected:function(){
 			this.init();
 		},
 		methods:{
 			init:function(){
+				!util.hasAttr( this.$el, 'data-idvarian' ) && util.attr( this.$el, 'data-idvarian', this.idVarian );
 			},
 			addVarian:function( id ){
 				var tmp = _.template( $( '#tmpl-varian-input' ).html() ),
@@ -340,21 +468,38 @@
 				});
 				
 			},
-			changeKombinasi:function(){
+			deleteVarian:function( $wrapper ){
 				var _this = this,
-					form = util.parents( $u( _this.$el ), '.uk-productform' ),
+					$field = $u( '.produk-varian-item-value', $wrapper ),
+					Field = apsCore.getComponent( $field, 'varianitemvalue' ),
+					$varian = $u( util.parents( $wrapper, '.uk-varianitems' ) ),
+					itemid;
+					console.log($varian);
+				return new util.Promise(function(resolve){
+					itemid = Field.itemid;
+					Field.$destroy();
+					$( $wrapper ).remove();
+					resolve( {itemid:itemid, idvarian:util.data( $varian, 'data-idvarian' )} );
+				});
+			},
+			changeKombinasi:function( event, data ){
+				var _this = this,
 					items = util.toNodes( util.$$( '.produk-varian-item-value', _this.$el ) );
-					_this.varians = [];
-					items.map( function(el, i){
-						_this.varians.push( util.data( el, 'data-itemid' ) );
-					});
-				util.trigger( $u( '.uk-kombinasivarian', $u( form ) ), 'change_kombinasi' );
+					
+				event = event || 'change_kombinasi';
+				data = data || [];
+				
+				_this.$parentForm.varians[ _this.idVarian ] = [];
+				items.map( function(el, i){
+					_this.$parentForm.varians[ _this.idVarian ].push( util.data( el, 'data-itemid' ) );
+				});
+				util.trigger( $u( '.uk-kombinasivarian', $u( _this.parentForm ) ), event, data );
 			},
 		}
 	});
 	
 	apsCore.component( 'varianitemvalue', {
-		mixins:[Class],
+		mixins:[Class, ParentForm],
 		props:{
 			itemid:String,
 			value:String,
@@ -363,8 +508,7 @@
 			itemid:'',
 			value:'',
 		},
-		events:[
-		],
+		events:[],
 		connected:function(){
 			this.init();
 		},
@@ -377,15 +521,17 @@
 	});
 	
 	apsCore.component( 'kombinasivarian', {
+		mixins:[Class, ParentForm],
 		props:{
 			kombinasi:Array,
 			kombinasiStringify:String,
+			useSubvarian:Boolean,
 		},
 		data:{
 			kombinasi:[],
 			kombinasiStringify:'',
+			useSubvarian:false,
 		},
-		mixins:[Class],
 		events:[
 			{
 				name:'change_kombinasi',
@@ -393,6 +539,14 @@
 				handler:function(e){
 					e.preventDefault()
 					this.changeKombinasi(e);
+				}
+			},
+			{
+				name:'delete_kombinasi',
+				self:true,
+				handler:function(e, itemid, idvarian){
+					e.preventDefault()
+					this.deleteKombinasi(e,itemid, idvarian);
 				}
 			}
 		],
@@ -403,8 +557,8 @@
 			changeKombinasi:function(e){
 				
 				var _this			= this,
-					form			= util.parents( $u( _this.$el ), '.uk-productform' ),
-					varians 		= util.toNodes( util.$$( '.uk-varianitems', $u( form ) ) ),
+					varians 		= util.toNodes( util.$$( '.uk-varianitems', $u( _this.parentForm ) ) ),
+					idvarian		= '';
 					$produkKombinasi= $( '.produk-kombinasi-varian', _this.$el ),
 					tmp 			= _.template( $( '#tmpl-varian-kombinasi' ).html() ),
 					cartesians 		= [],
@@ -413,41 +567,51 @@
 					kombinasiIds 	= [];
 					
 					varians.map( function( $el, i ){
-						varian = apsCore.getComponent( $el, 'varianitems' );
-						varian.varians.length && cartesians.push( varian.varians );
+						idvarian = $( $el ).data( 'idvarian' );
+						( !_.isUndefined( _this.$parentForm.varians[ idvarian ] ) ) && cartesians.push( _this.$parentForm.varians[ idvarian ] );
 					} );
+
 					if( cartesians.length > 1 ){
 						kombinasi = aps.cartesian.apply( null, cartesians );
+						_this.$parentForm.useSubvarian = true;
 					} else if( cartesians.length === 1 ) {
 						for( var i in cartesians[0] ){
 							kombinasi.push( cartesians[0][i] );
 						}
+						_this.$parentForm.useSubvarian = false;
 					}
+				if( _this.useSubvarian !==  _this.$parentForm.useSubvarian ){
+					$produkKombinasi.empty();
+				}
 				
-				_this.kombinasi = [];
+				_this.$parentForm.kombinasi = [];
 				
 				for( var i in kombinasi ){
+					
 					produkKombinasi = [];
 					kombinasiIds = [];
-					_this.kombinasi[i] = {barcode:'', liststokharga:[]};
-					if( _.isArray( kombinasi[i] ) ){
+					_this.$parentForm.kombinasi[i] = {barcode:'', liststokharga:[]};
+					
+					if( _this.$parentForm.useSubvarian ){
 						for( var j in kombinasi[i] ){
 							produkKombinasi.push( $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val() );
 							kombinasiIds.push( kombinasi[i][j] );
-							_this.kombinasi[i][ 'varian' + ( parseInt( j ) + 1 ) ] = $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val();
+							_this.$parentForm.kombinasi[i][ 'varian' + ( parseInt( j ) + 1 ) ] = $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val();
 						}
 					} else {
 						produkKombinasi.push( $( '[data-itemid="' + kombinasi[i] + '"]' ).val() );
 						kombinasiIds.push( kombinasi[i] );
-						_this.kombinasi[i].varian1 = $( '[data-itemid="' + kombinasi[i] + '"]' ).val();
-						_this.kombinasi[i].varian2 = '';
+						_this.$parentForm.kombinasi[i].varian1 = $( '[data-itemid="' + kombinasi[i] + '"]' ).val();
+						_this.$parentForm.kombinasi[i].varian2 = '';
 					}
-					_this.kombinasi[i].dataKombinasiIds = kombinasiIds;
-					_this.kombinasi[i].dataProdukKombinasi = produkKombinasi;
-					_this.kombinasi[i].kombinasiIds = encodeURI( JSON.stringify( kombinasiIds ) );
-					_this.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
+					
+					_this.$parentForm.kombinasi[i].dataKombinasiIds = kombinasiIds;
+					_this.$parentForm.kombinasi[i].dataProdukKombinasi = produkKombinasi;
+					_this.$parentForm.kombinasi[i].kombinasiIds = encodeURI( JSON.stringify( kombinasiIds ) );
+					_this.$parentForm.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
+					
 				}
-				_.map( _this.kombinasi, function( combination ){
+				_.map( _this.$parentForm.kombinasi, function( combination ){
 					var $varianKombinasiItem = $( '.varian-kombinasi-item[data-kombinasi="' + combination.kombinasiIds + '"]', $produkKombinasi );
 					if( ! $varianKombinasiItem.length ){
 						$produkKombinasi.append(
@@ -466,18 +630,24 @@
 					}
 										
 				} );
-				
+				_this.useSubvarian =  _this.$parentForm.useSubvarian;
+			},
+			deleteKombinasi:function(e, itemid, idvarian){
+				var _this = this,
+					index;
+					itemDeleted = util.$$( '.varian-kombinasi-item[data-' + idvarian + '="' + itemid + '"]', _this.$el );
+				console.log()
+				util.toNodes( itemDeleted ).map( function( el, i ){
+					index = _.findIndex(_this.$parentForm.kombinasi, { kombinasiIds: util.data( el, 'data-kombinasi' )});
+					_this.$parentForm.kombinasi.splice( index, 1 );
+					$( el ).remove();
+				} );
 			}
 		}
-	 }
-	);
+	 });
+	 
 	apsCore.component( 'produkstokharga_outlets', {
-		props:{
-			KombinasiVarian:Object,
-		},
-		data:{
-			KombinasiVarian:{},
-		},
+		mixins:[ Class, ParentForm ],
 		events:[
 			{
 				name:'change',
@@ -487,14 +657,7 @@
 				}
 			}
 		],
-		connected:function(){
-			this.init();
-		},
 		methods:{
-			init:function(){
-				this.KombinasiVarian = apsCore.getComponent( $u( '.uk-kombinasivarian', $u( util.parents( this.$el, '.uk-productform' ) ) ), 'kombinasivarian' );
-				console.log(this.KombinasiVarian)
-			},
 			sync:function(){
 				
 				var _this = this,
@@ -519,13 +682,15 @@
 				});
 				
 				_.map( liststokharga, function( value, key ){
-					index = _.findIndex(_this.KombinasiVarian.kombinasi, { kombinasiIds: key});
-					_this.KombinasiVarian.kombinasi[ index ].liststokharga = value;
-				} );alert()
+					index = _.findIndex(_this.$parentForm.kombinasi, { kombinasiIds: key});
+					_this.$parentForm.kombinasi[ index ].liststokharga = value;
+				} );
 			}
 		},
 	} );
+	
 	apsCore.component( 'produkstokharga_outlet', {
+		mixins:[ Class, ParentForm ],
 		events:[
 			{
 				name:'change',
@@ -569,5 +734,6 @@
 			}
 		},
 	} );
+	/* /Form Product */
 
 })(UIkit, UIkit.util, jQuery);
