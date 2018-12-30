@@ -20,6 +20,35 @@
 		}
 	};
 	/* Product Page Index */
+	apsCore.component( 'productpage_nav', {
+		mixins:[Class],
+		props:{
+			template:String,
+			refresh:Boolean,
+			args:String,
+		},
+		data:{
+			template:'index-product',
+			refresh:true,
+			args:"",
+		},
+		events:[
+			{
+				name:'click',
+				self:true,
+				handler:function(e){
+					e.preventDefault();
+					var _this = this,
+						_that = e.current,
+						$produkPage = $u( util.parents( _this.$el, '.uk-productpage' ) ),
+						ProdukPage = apsCore.getComponent( $produkPage, 'productpage' ),
+						args = this.args !== '' ? JSON.parse( decodeURI( this.args ) ) : {};
+					
+					ProdukPage.redirect ( _this.template, args, _this.refresh );
+				}
+			},
+		],
+	});
 	apsCore.component( 'productpage', {
 		mixins:[Class],
 		connected:function(){
@@ -28,37 +57,23 @@
 		props:{
 			type:String,
 			template:String,
+			refresh:Boolean,
 		},
 		data:{
 			type:'header',
-			template:'index'
+			template:'index',
+			refresh:true,
 		},
-		events:[
-			{
-				name:'click',
-				delegate:'.aps-add-product',
-				handler:function(e){
-					e.preventDefault();
-					this.redirect( 'add-product' );
-				}
-			},
-			{
-				name:'change_page',
-				self:true,
-				handler:function(e){
-					e.preventDefault();
-					this.changePage();
-				}
-			}
-		],
 		methods:{
 			init:function(){
 				this.changePage();
 			},
-			redirect:function( template, data ){
+			redirect:function( template, data, refresh ){
 				template = template || this.template;
 				data = data || {};
+				refresh = ! _.isUndefined( refresh ) ?  refresh : true;
 				this.template = template;
+				this.refresh = refresh;
 				this.changePage( data );
 			},
 			changePage:function( data ){
@@ -67,7 +82,16 @@
 			},
 			render:function( $template, data ){
 				var tmp = _.template( $template.html() );
-				$( this.$el, $( '.aps-container' ) ).html( tmp( {data:data} ) );
+				$( '.aps-container', this.$el ).hide();
+
+				if( this.refresh ){
+					$( '.aps-container[data-template="' + this.template + '"]', this.$el )
+						.html( tmp( {data:data} ) )
+						.show();
+				} else {
+					$( '.aps-container[data-template="' + this.template + '"]', this.$el ).show();
+				}
+				
 			}
 		}
 	});
@@ -103,6 +127,12 @@
 		connected:function(){
 			this.init();
 		},
+		props:{
+			selected:String,
+		},
+		data:{
+			selected:'',
+		},
 		methods:{
 			init:function(){
 				var _this = this;
@@ -117,6 +147,7 @@
 							$( _this.$el ).select2({
 							  data: dataSelect
 							});
+							$( _this.$el ).val( _this.selected ).trigger( 'change' );
 						},
 						aps.noop
 					);
@@ -126,6 +157,12 @@
 	
 	apsCore.component( 'selectproductuom', {
 		mixins:[Class],
+		props:{
+			selected:String,
+		},
+		data:{
+			selected:'',
+		},
 		connected:function(){
 			this.init();
 		},
@@ -143,6 +180,7 @@
 							$( _this.$el ).select2({
 							  data: dataSelect
 							});
+							$( _this.$el ).val( _this.selected ).trigger( 'change' );
 						},
 						aps.noop
 					);
@@ -167,6 +205,8 @@
 			useSubvarian:Boolean,
 			varians:Object,
 			kombinasi:Array,
+			postedKombinasi:Array,
+			produkOutlets:Array,
 		},
 		data:{
 			step:1,
@@ -177,6 +217,8 @@
 			useSubvarian:false,
 			varians:{},
 			kombinasi:[],
+			postedKombinasi:[],
+			produkOutlets:[],
 		},
 		events:[
 			{
@@ -223,9 +265,196 @@
 		],
 		methods:{
 			init:function(){
-				if( this.dataProduk !== '' ){
-					this.DataProduk = JSON.parse( decodeURI( this.dataProduk ) );
+				var _this = this, varian2 = [], varianItems;
+				if( _this.dataProduk !== '' ){
+					
+					_this.DataProduk = JSON.parse( decodeURI( _this.dataProduk ) );
+					_this.varians.varian1 = [];
+					_this.getOutlets().then(function( outlets ){
+						
+						_this.getProdukOutlets( outlets ).then(function( produkOutlets ){
+							
+							_this.produkOutlets = produkOutlets;
+							_.map( _this.DataProduk.varian, function( _varian1 ){
+						
+								_this.varians.varian1.push( 
+									{ 
+										id:'varian1-' + _varian1.idvarian.split( '.' )[1], 
+										name:_varian1.varian1,
+									} 
+								);
+								
+								_.map( _varian1.subvarian, function( _varian2 ){
+									varian2.push( 
+										{
+											id:'varian2-' + _varian2.idproduk_var.split( '.' )[2], 
+											name:_varian2.varian2,
+										}
+									);
+									_this.postedKombinasi.push({
+										varian1:'varian1-' + _varian1.idvarian.split( '.' )[1],
+										varian2:'varian2-' + _varian2.idproduk_var.split( '.' )[2],
+										idVarian1:_varian1.idvarian,
+										idVarian2:_varian2.idproduk_var,
+										barcode:_varian2.barcode,
+									});
+									
+								} );
+								
+							} );
+							_this.varians.varian2 = _.uniq( varian2, 'id' );
+							_this.generateKombinasi();
+							 varianitems = util.toNodes( util.$$( '.uk-varianitems', _this.$el ) );
+							 varianitems.map( function(el, i){
+								VarianItem = apsCore.getComponent( el, 'varianitems' );
+								VarianItem.setVarian().then( function(){
+									VarianItem.changeKombinasi();
+								} );
+							 } );
+							 console.log(_this)
+						},aps.noop);
+						
+					}, aps.noop);
 				}
+			},
+			getKombinasi:function(){
+				var _this = this, cartesians = [], kombinasi = [], useSubvarian = false;
+				_.map( _this.varians, function( _varian, idvarian ){
+					! _.isEmpty( _varian ) && cartesians.push( _varian );
+				} );
+				if( cartesians.length > 1 ){
+					kombinasi = aps.cartesian.apply( null, cartesians );
+					useSubvarian = true;
+				} else if( cartesians.length === 1 ) {
+					for( var i in cartesians[0] ){
+						kombinasi.push( cartesians[0][i] );
+					}
+				}
+				return { kombinasi:kombinasi, useSubvarian:useSubvarian };
+			},
+			generateKombinasi:function(){
+				var _this = this, postedKombinasi, produkKombinasi, indexPosted, index, index1, index2, kombinasiIds, dataKombinasi = _this.getKombinasi(), barcode = '', liststokharga = [];
+				console.log('AAAAAAAA')
+				_this.useSubvarian = dataKombinasi.useSubvarian;
+				_.map( dataKombinasi.kombinasi, function( kombinasi, i ){
+					
+					produkKombinasi = [];
+					kombinasiIds = [];
+					postedKombinasi = {};
+					
+					_this.kombinasi[i] = {};
+					
+					if( dataKombinasi.useSubvarian ){
+						_.map( kombinasi, function( kombinasi2, j ){
+							produkKombinasi.push( kombinasi2.name );
+							kombinasiIds.push( kombinasi2.id );
+							_this.kombinasi[i][ 'varian' + ( parseInt( j ) + 1 ) ] = kombinasi2.name;
+						} );
+					} else {
+						produkKombinasi.push( kombinasi.name );
+						kombinasiIds.push( kombinasi.id );
+						_this.kombinasi[i].varian1 = kombinasi.name;
+						_this.kombinasi[i].varian2 = '';
+					}
+					
+					indexPosted = _.findIndex( 
+						_this.postedKombinasi, 
+						{ 
+							varian1: ( ! _.isUndefined( kombinasiIds[0] ) ? kombinasiIds[0] : '' ),
+							varian2: ( ! _.isUndefined( kombinasiIds[1] ) ? kombinasiIds[1] : '' ),
+						} 
+					);
+					postedKombinasi = indexPosted !== -1 ? _this.postedKombinasi[ indexPosted ] : {};
+					index1 = _.findIndex(_this.DataProduk.varian, { idvarian: ! _.isUndefined( postedKombinasi.idVarian1 ) ? postedKombinasi.idVarian1: '' });
+					index2 = index1 !== -1 ? _.findIndex(_this.DataProduk.varian[ index1 ].subvarian, { idproduk_var: ! _.isUndefined( postedKombinasi.idVarian2 ) ? postedKombinasi.idVarian2 : '' }) : -1;
+					
+					_.map( _this.produkOutlets, function( produkOutlet ){
+						console.log(produkOutlet)
+					} );
+					
+					_this.kombinasi[i].barcode = index1 !== -1 && index2 !== -1 ? _this.DataProduk.varian[ index1 ].subvarian[ index2 ].barcode : '';
+					_this.kombinasi[i].liststokharga = [];
+					_this.kombinasi[i].dataKombinasiIds = kombinasiIds;
+					_this.kombinasi[i].dataProdukKombinasi = produkKombinasi;
+					_this.kombinasi[i].kombinasiIds = encodeURI( JSON.stringify( kombinasiIds ) );
+					_this.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
+				} );
+			},
+			requestProdukOutlets:function( params, IDOUTLET ){
+				var dataString = JSON.stringify( params );
+				return new util.Promise( function(resolve, reject){
+					$.ajax({
+						type: "POST",
+						url: aps.apiURL,
+						data: dataString,
+						beforeSend:function(){
+							$.blockUI({ 
+								message: '<i class="icon-spinner4 spinner"></i>',
+								//timeout: 2000, //unblock after 2 seconds
+								overlayCSS: {
+									backgroundColor: '#1b2024',
+									opacity: 0.8,
+									zIndex: 1200,
+									cursor: 'wait'
+								},
+								css: {
+									border: 0,
+									color: '#fff',
+									padding: 0,
+									zIndex: 1201,
+									backgroundColor: 'transparent'
+								}
+							});
+						},
+						success: function( data ){
+							$.unblockUI();
+							if( data.errcode == "OK" ){
+								resolve( { IDOUTLET:IDOUTLET, produk: data.daftarproduk[0] } );
+							} else {
+								reject( { IDOUTLET:IDOUTLET, produk: {} } );
+							}
+							
+						},
+						error:function(){
+							$.unblockUI();
+							reject( { IDOUTLET:IDOUTLET, produk: {} } );
+						},
+						dataType: 'json',
+					});
+				});
+			},
+			getProdukOutlets:function( outlets ){
+				var _this = this;
+				return util.Promise.all( _.map( outlets, function( outlet ){
+					return _this.requestProdukOutlets({
+						tipe			: 'GET_OUTLETMASTERPRODUK',
+						idoutlet 		: outlet.IDOUTLET, 
+						search 			: _this.DataProduk.idproduk, 
+						limit			: 1, 
+						page			: 0,
+						idkategori		: '' , 
+						statusproduk 	: '',
+						stokoption 		: '',
+					}, outlet.IDOUTLET );
+				} ));
+			},
+			getOutlets:function(){
+				return new util.Promise( function( resolve, reject ){
+					aps.req( 
+						{
+							tipe:'GET_OUTLET',
+							idoutlet:'',
+						} 
+					)
+						.then(
+							function(data){
+								resolve( data.daftaroutlet );
+							},
+							function(){
+								reject();
+							}
+						);
+				} );
 			},
 			next: function(){
 				if( this.step >= 4 ){return;}
@@ -436,17 +665,30 @@
 		},
 		methods:{
 			init:function(){
-				!util.hasAttr( this.$el, 'data-idvarian' ) && util.attr( this.$el, 'data-idvarian', this.idVarian );
+				var _this = this;
+				!util.hasAttr( _this.$el, 'data-idvarian' ) && util.attr( _this.$el, 'data-idvarian', _this.idVarian );
 			},
-			addVarian:function( id ){
+			setVarian:function(){
+				var _this = this,
+					varians = ! _.isUndefined( _this.$parentForm.varians[ _this.idVarian ] ) ? _this.$parentForm.varians[ _this.idVarian ] : [];
+				return util.Promise.all(
+					_.map( varians, function( varian ){
+						return _this.addVarian( varian.id, varian.name );
+					})
+				);
+				
+			},
+			addVarian:function( id, name ){
 				var tmp = _.template( $( '#tmpl-varian-input' ).html() ),
 					_this = this;
 				id = id || _.uniqueId( 'varian-' + _.now() + '-' );
+				name = name || '';
 				return new util.Promise(function(resolve){
 					$( '.produk-varian-items', _this.$el ).append( 
 						tmp( 
 							{
-								itemid:id
+								itemid:id,
+								value:name,
 							} 
 						) 
 					);
@@ -476,7 +718,12 @@
 				
 				_this.$parentForm.varians[ _this.idVarian ] = [];
 				items.map( function(el, i){
-					_this.$parentForm.varians[ _this.idVarian ].push( util.data( el, 'data-itemid' ) );
+					var itemid = util.data( el, 'data-itemid' ),
+						id = itemid.split( '.' );
+					_this.$parentForm.varians[ _this.idVarian ].push( {
+						id: itemid,
+						name:$( el ).val()
+					} );
 				});
 				util.trigger( $u( '.uk-kombinasivarian', $u( _this.parentForm ) ), event, data );
 			},
@@ -533,68 +780,31 @@
 					e.preventDefault()
 					this.deleteKombinasi(e,itemid, idvarian);
 				}
+			},
+			{
+				name:'change',
+				delegate:'input[name="barcode"]',
+				handler:function(e, itemid, idvarian){
+					e.preventDefault()
+					this.changeBarcode(e);
+				}
 			}
 		],
 		connected:function(){
 			!util.hasClass(this.$el, this.$name) && addClass(this.$el, this.$name);
+			this.useSubvarian = this.$parentForm.useSubvarian;
 		},
 		methods:{
-			changeKombinasi:function(e){
+			changeKombinasi:function(){
 				
 				var _this			= this,
-					varians 		= util.toNodes( util.$$( '.uk-varianitems', $u( _this.parentForm ) ) ),
-					idvarian		= '';
 					$produkKombinasi= $( '.produk-kombinasi-varian', _this.$el ),
-					tmp 			= _.template( $( '#tmpl-varian-kombinasi' ).html() ),
-					cartesians 		= [],
-					kombinasi 		= [],
-					produkKombinasi = [],
-					kombinasiIds 	= [];
+					tmp 			= _.template( $( '#tmpl-varian-kombinasi' ).html() );
 					
-					varians.map( function( $el, i ){
-						idvarian = $( $el ).data( 'idvarian' );
-						( !_.isUndefined( _this.$parentForm.varians[ idvarian ] ) ) && cartesians.push( _this.$parentForm.varians[ idvarian ] );
-					} );
-
-					if( cartesians.length > 1 ){
-						kombinasi = aps.cartesian.apply( null, cartesians );
-						_this.$parentForm.useSubvarian = true;
-					} else if( cartesians.length === 1 ) {
-						for( var i in cartesians[0] ){
-							kombinasi.push( cartesians[0][i] );
-						}
-						_this.$parentForm.useSubvarian = false;
-					}
+				_this.$parentForm.generateKombinasi();
+					
 				if( _this.useSubvarian !==  _this.$parentForm.useSubvarian ){
 					$produkKombinasi.empty();
-				}
-				
-				_this.$parentForm.kombinasi = [];
-				
-				for( var i in kombinasi ){
-					
-					produkKombinasi = [];
-					kombinasiIds = [];
-					_this.$parentForm.kombinasi[i] = {barcode:'', liststokharga:[]};
-					
-					if( _this.$parentForm.useSubvarian ){
-						for( var j in kombinasi[i] ){
-							produkKombinasi.push( $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val() );
-							kombinasiIds.push( kombinasi[i][j] );
-							_this.$parentForm.kombinasi[i][ 'varian' + ( parseInt( j ) + 1 ) ] = $( '[data-itemid="' + kombinasi[i][j] + '"]' ).val();
-						}
-					} else {
-						produkKombinasi.push( $( '[data-itemid="' + kombinasi[i] + '"]' ).val() );
-						kombinasiIds.push( kombinasi[i] );
-						_this.$parentForm.kombinasi[i].varian1 = $( '[data-itemid="' + kombinasi[i] + '"]' ).val();
-						_this.$parentForm.kombinasi[i].varian2 = '';
-					}
-					
-					_this.$parentForm.kombinasi[i].dataKombinasiIds = kombinasiIds;
-					_this.$parentForm.kombinasi[i].dataProdukKombinasi = produkKombinasi;
-					_this.$parentForm.kombinasi[i].kombinasiIds = encodeURI( JSON.stringify( kombinasiIds ) );
-					_this.$parentForm.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
-					
 				}
 				_.map( _this.$parentForm.kombinasi, function( combination ){
 					var $varianKombinasiItem = $( '.varian-kombinasi-item[data-kombinasi="' + combination.kombinasiIds + '"]', $produkKombinasi );
@@ -604,7 +814,7 @@
 								{
 									produk:combination.produkKombinasi,
 									kombinasi:combination.kombinasiIds,
-									barcode:'',
+									barcode:combination.barcode,
 									dataProduk:combination.dataProdukKombinasi,
 									dataKombinasi:combination.dataKombinasiIds,
 								} 
@@ -626,7 +836,32 @@
 					_this.$parentForm.kombinasi.splice( index, 1 );
 					$( el ).remove();
 				} );
-			}
+				console.log(_this.$parentForm.kombinasi)
+			},
+			changeBarcode:function(e){
+				var _this = this, postedKombinasi, index1, index2, indexPosted, indexKombinasi,
+					_that =  e.current,
+					$wrapper = $( _that ).parents( '.varian-kombinasi-item' ),
+					parentForm = _this.$parentForm;
+				indexPosted = _.findIndex( 
+					parentForm.postedKombinasi, 
+					{ 
+						varian1: $wrapper.data( 'varian1' ),
+						varian2: $wrapper.data( 'varian2' ),
+					} 
+				);
+				postedKombinasi = indexPosted !== -1 ? parentForm.postedKombinasi[ indexPosted ] : {};
+				index1 = _.findIndex( parentForm.DataProduk.varian, { idvarian: ! _.isUndefined( postedKombinasi.idVarian1 ) ? postedKombinasi.idVarian1: '' });
+				index2 = index1 !== -1 ? _.findIndex( parentForm.DataProduk.varian[ index1 ].subvarian, { idproduk_var: ! _.isUndefined( postedKombinasi.idVarian2 ) ? postedKombinasi.idVarian2 : '' }) : -1;				
+				indexKombinasi = _.findIndex( parentForm.kombinasi, {kombinasiIds: $wrapper.data( 'kombinasi' )} );
+				if(  index1 !== -1 && index2 !== -1 ){
+					parentForm.DataProduk.varian[ index1 ].subvarian[ index2 ].barcode = $( _that ).val();
+				}
+				if( indexKombinasi !== -1 ){
+					parentForm.kombinasi[ indexKombinasi ].barcode = $( _that ).val();
+					console.log(parentForm.kombinasi)
+				}
+			},
 		}
 	 });
 	 
