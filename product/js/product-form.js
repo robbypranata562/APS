@@ -207,6 +207,8 @@
 			kombinasi:Array,
 			postedKombinasi:Array,
 			produkOutlets:Array,
+			stokhargaOutlets:Object,
+			enableOutlet:[],
 		},
 		data:{
 			step:1,
@@ -219,6 +221,8 @@
 			kombinasi:[],
 			postedKombinasi:[],
 			produkOutlets:[],
+			stokhargaOutlets:{},
+			enableOutlet:[],
 		},
 		events:[
 			{
@@ -264,8 +268,21 @@
 			}
 		],
 		methods:{
+			refreshData:function(){
+				var _this = this;
+				_this.DataProduk = {};
+				_this.useVarian = false;
+				_this.useSubvarian = false;
+				_this.varians = {};
+				_this.kombinasi = [];
+				_this.postedKombinasi = [];
+				_this.produkOutlets = [];
+				_this.stokhargaOutlets = {};
+				_this.enableOutlet = [];
+			},
 			init:function(){
 				var _this = this, varian2 = [], varianItems;
+				_this.refreshData();
 				if( _this.dataProduk !== '' ){
 					
 					_this.DataProduk = JSON.parse( decodeURI( _this.dataProduk ) );
@@ -274,7 +291,13 @@
 						
 						_this.getProdukOutlets( outlets ).then(function( produkOutlets ){
 							
-							_this.produkOutlets = produkOutlets;
+							_this.produkOutlets = _.filter( produkOutlets, function(produkOutlet){
+								if( produkOutlet.produk ){
+									_this.enableOutlet.push( produkOutlet.IDOUTLET );
+								}
+								return produkOutlet.produk;
+							} );
+							
 							_.map( _this.DataProduk.varian, function( _varian1 ){
 						
 								_this.varians.varian1.push( 
@@ -311,10 +334,11 @@
 									VarianItem.changeKombinasi();
 								} );
 							 } );
-							 console.log(_this)
+							
 						},aps.noop);
 						
 					}, aps.noop);
+					
 				}
 			},
 			getKombinasi:function(){
@@ -333,15 +357,16 @@
 				return { kombinasi:kombinasi, useSubvarian:useSubvarian };
 			},
 			generateKombinasi:function(){
-				var _this = this, postedKombinasi, produkKombinasi, indexPosted, index, index1, index2, kombinasiIds, dataKombinasi = _this.getKombinasi(), barcode = '', liststokharga = [];
-				console.log('AAAAAAAA')
+				var _this = this, stringKombinasiIds, stokHargaOutlet, postedKombinasi,liststokharga, produkKombinasi, indexPosted, index, index1, index2, indexOutlet1, indexOutlet2, dataProdukOutlet, kombinasiIds, dataKombinasi = _this.getKombinasi(), barcode = '', liststokharga = [];
+				
+				
 				_this.useSubvarian = dataKombinasi.useSubvarian;
 				_.map( dataKombinasi.kombinasi, function( kombinasi, i ){
 					
 					produkKombinasi = [];
 					kombinasiIds = [];
 					postedKombinasi = {};
-					
+					liststokharga = [];
 					_this.kombinasi[i] = {};
 					
 					if( dataKombinasi.useSubvarian ){
@@ -357,6 +382,8 @@
 						_this.kombinasi[i].varian2 = '';
 					}
 					
+					stringKombinasiIds = encodeURI( JSON.stringify( kombinasiIds ) );
+					
 					indexPosted = _.findIndex( 
 						_this.postedKombinasi, 
 						{ 
@@ -368,15 +395,31 @@
 					index1 = _.findIndex(_this.DataProduk.varian, { idvarian: ! _.isUndefined( postedKombinasi.idVarian1 ) ? postedKombinasi.idVarian1: '' });
 					index2 = index1 !== -1 ? _.findIndex(_this.DataProduk.varian[ index1 ].subvarian, { idproduk_var: ! _.isUndefined( postedKombinasi.idVarian2 ) ? postedKombinasi.idVarian2 : '' }) : -1;
 					
+
 					_.map( _this.produkOutlets, function( produkOutlet ){
-						console.log(produkOutlet)
+						
+						indexOutlet1 = _.findIndex( produkOutlet.produk.varian, { idvarian: ! _.isUndefined( postedKombinasi.idVarian1 ) ? postedKombinasi.idVarian1: '' });
+						indexOutlet2 = indexOutlet1 !== -1 ? _.findIndex(produkOutlet.produk.varian[ indexOutlet1 ].subvarian, { idproduk_var: ! _.isUndefined( postedKombinasi.idVarian2 ) ? postedKombinasi.idVarian2 : '' }) : -1;
+						dataProdukOutlet = indexOutlet1 !== -1 && indexOutlet2 !== -1 ? produkOutlet.produk.varian[ indexOutlet1 ].subvarian[ indexOutlet2 ] : {};
+						
+						stokHargaOutlet = {
+							idoutlet:produkOutlet.IDOUTLET,
+							jumlahstok:dataProdukOutlet.jumlahstok,
+							hpp: ! _.isUndefined( dataProdukOutlet.hpp ) ? dataProdukOutlet.hpp : '',
+							hargajual:dataProdukOutlet.hargajual,
+							notifikasiminimalstok:dataProdukOutlet.minstok,
+							notifikasimaksimalstok:! _.isUndefined( dataProdukOutlet.maxstok ) ? dataProdukOutlet.maxstok : '',
+						};
+						liststokharga.push( stokHargaOutlet );
+						_this.stokhargaOutlets[ produkOutlet.IDOUTLET ] = _this.stokhargaOutlets[ produkOutlet.IDOUTLET ] || {};
+						_this.stokhargaOutlets[ produkOutlet.IDOUTLET ][ stringKombinasiIds ] = stokHargaOutlet;
 					} );
 					
 					_this.kombinasi[i].barcode = index1 !== -1 && index2 !== -1 ? _this.DataProduk.varian[ index1 ].subvarian[ index2 ].barcode : '';
-					_this.kombinasi[i].liststokharga = [];
+					_this.kombinasi[i].liststokharga = liststokharga;
 					_this.kombinasi[i].dataKombinasiIds = kombinasiIds;
 					_this.kombinasi[i].dataProdukKombinasi = produkKombinasi;
-					_this.kombinasi[i].kombinasiIds = encodeURI( JSON.stringify( kombinasiIds ) );
+					_this.kombinasi[i].kombinasiIds = stringKombinasiIds;
 					_this.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
 				} );
 			},
@@ -409,15 +452,19 @@
 						success: function( data ){
 							$.unblockUI();
 							if( data.errcode == "OK" ){
-								resolve( { IDOUTLET:IDOUTLET, produk: data.daftarproduk[0] } );
+								if( !_.isUndefined( data.daftarproduk[0] ) ){
+									resolve( { IDOUTLET:IDOUTLET, produk: data.daftarproduk[0] } );
+								} else {
+									resolve( { IDOUTLET:IDOUTLET, produk: false } );
+								}
 							} else {
-								reject( { IDOUTLET:IDOUTLET, produk: {} } );
+								reject( 'Data outlet gagal dimuat' );
 							}
 							
 						},
 						error:function(){
 							$.unblockUI();
-							reject( { IDOUTLET:IDOUTLET, produk: {} } );
+							reject( 'sebagian data outlet gagal dimuat' );
 						},
 						dataType: 'json',
 					});
@@ -549,7 +596,7 @@
 				
 				util.removeClass( $u( '.product-form-next', _this.$el ), 'd-none' );
 				util.removeClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
-					
+				console.log(_this.kombinasi)
 				aps.req( 
 					{
 						tipe:'GET_OUTLET',
@@ -565,6 +612,9 @@
 									{
 										outlets:outlets,
 										kombinasi:_this.kombinasi,
+										stokHarga:_this.stokhargaOutlets,
+										currentOutlet: $(".listoutlet_index").val(),
+										enableOutlet:_this.enableOutlet,
 									} 
 								) 
 							);
@@ -578,7 +628,7 @@
 				util.addClass( $u( '.product-form-next', _this.$el ), 'd-none' );
 				aps.req({
 						tipe:'POST_MASTERPRODUK',
-						idproduk:"",
+						idproduk:$('[name="idproduk"]').val(),
 						tipestok:$('[name="tipestok"]').prop('checked') ? 1 : 0,
 						idkategoriproduk: $('[name="idkategoriproduk"]').val(),
 						namaproduk:$('[name="namaproduk"]').val(),
@@ -726,6 +776,7 @@
 					} );
 				});
 				util.trigger( $u( '.uk-kombinasivarian', $u( _this.parentForm ) ), event, data );
+				console.log(_this.$parentForm.kombinasi)
 			},
 		}
 	});
@@ -836,7 +887,6 @@
 					_this.$parentForm.kombinasi.splice( index, 1 );
 					$( el ).remove();
 				} );
-				console.log(_this.$parentForm.kombinasi)
 			},
 			changeBarcode:function(e){
 				var _this = this, postedKombinasi, index1, index2, indexPosted, indexKombinasi,
@@ -859,7 +909,6 @@
 				}
 				if( indexKombinasi !== -1 ){
 					parentForm.kombinasi[ indexKombinasi ].barcode = $( _that ).val();
-					console.log(parentForm.kombinasi)
 				}
 			},
 		}
@@ -867,43 +916,113 @@
 	 
 	apsCore.component( 'produkstokharga_outlets', {
 		mixins:[ Class, ParentForm ],
+		connected:function(){
+			this.sync();
+		},
 		events:[
 			{
 				name:'change',
 				delegate:'.produkstokharga_outlets-input',
-				handler:function(){
-					this.sync();
+				handler:function(e){
+					this.changeStokHarga(e);
+				}
+			},
+			{
+				name:'change',
+				delegate:'.enable-outlet',
+				handler:function(e){
+					this.changeEnableOutlet(e);
 				}
 			}
 		],
 		methods:{
-			sync:function(){
+			changeEnableOutlet:function(e){
+				var _this = this,
+					inputs = util.toNodes( util.$$( 'input.enable-outlet', _this.$el ) );
+				_this.$parentForm.enableOutlet = [];
+				inputs.map( function(input, i){
+					if( $( input ).prop( 'checked' ) ){
+						_this.$parentForm.enableOutlet.push( $( input ).val() );
+					}
+				});
+				_this.sync();
+			},
+			changeStokHarga:function(e){
+				
+				var _this = this,
+					_that = e.current,
+					parentForm = _this.$parentForm,
+					indexPosted,
+					postedKombinasi,
+					indexOutlet,
+					index1,
+					index2,
+					$wrapper = $( _that ).parents( '.produkstokharga-outlet' ),
+					dataKombinasi = $wrapper.data( 'kombinasi' ),
+					kombinasiIds = JSON.parse( decodeURI( dataKombinasi ) );
+					
+				indexPosted = _.findIndex( 
+					parentForm.postedKombinasi, 
+					{ 
+						varian1: ! _.isUndefined( kombinasiIds[0] ) ? kombinasiIds[0] : '',
+						varian2: ! _.isUndefined( kombinasiIds[1] ) ? kombinasiIds[1] : ''
+					} 
+				);
+				postedKombinasi = indexPosted !== -1 ? parentForm.postedKombinasi[ indexPosted ] : {};
+				
+				indexOutlet = _.findIndex( parentForm.produkOutlets, { IDOUTLET: $wrapper.data( 'outlet' ).toString() });
+
+				index1 = indexOutlet !== -1 ? _.findIndex( parentForm.produkOutlets[ indexOutlet ].produk.varian, { idvarian: ! _.isUndefined( postedKombinasi.idVarian1 ) ? postedKombinasi.idVarian1: '' }) : -1;
+				index2 = index1 !== -1 ? _.findIndex(parentForm.produkOutlets[ indexOutlet ].produk.varian[ index1 ].subvarian, { idproduk_var: ! _.isUndefined( postedKombinasi.idVarian2 ) ? postedKombinasi.idVarian2 : '' }) : -1;
+				
+				if(  index1 !== -1 && index2 !== -1 ){
+					parentForm.produkOutlets[ indexOutlet ].produk.varian[ index1 ].subvarian[ index2 ][ $( _that ).data( 'produk-prop' ) ] = $( _that ).val();
+					
+				}
+				_this.sync();
+								
+			},
+			sync:function(e){
 				
 				var _this = this,
 					outlets = util.toNodes( util.$$( '.produkstokharga-outlet', _this.$el ) ),
 					inputs = [],
+					parentForm = _this.$parentForm,
 					liststokharga = {},
 					inputValue = {},
-					index;
+					index,
+					stringKombinasiIds,
+					idoutlet;
+				
 				
 				outlets.map( function(outlet, i){
 					
-					inputs = util.toNodes( util.$$( '.produkstokharga_outlets-input', outlet ) );
+					idoutlet = $( outlet ).data( 'outlet' );
+					stringKombinasiIds = $( outlet ).data( 'kombinasi' );
 					inputValue = {};
-					inputValue.idoutlet = $( outlet ).data( 'outlet' );
 					
-					liststokharga[ $( outlet ).data( 'kombinasi' ) ] = liststokharga[ $( outlet ).data( 'kombinasi' ) ] || [];
+					liststokharga[ stringKombinasiIds ] = liststokharga[ stringKombinasiIds ] || [];
 					
+					inputs = util.toNodes( util.$$( '.produkstokharga_outlets-input', outlet ) );
 					inputs.map( function(input, j){
 						inputValue[ util.attr( input, 'name' ) ] = $( input ).val();
 					});
-					liststokharga[ $( outlet ).data( 'kombinasi' ) ].push( inputValue );
+					inputValue.idoutlet = idoutlet;
+					
+					if( $( 'input[name="enableOutlet"][value="' + idoutlet + '"]', _this.$el ).prop( 'checked' ) ){
+						
+						liststokharga[ stringKombinasiIds ].push( inputValue );
+					}
+
+					_this.$parentForm.stokhargaOutlets[ idoutlet ] = _this.$parentForm.stokhargaOutlets[ idoutlet ] || {};
+					_this.$parentForm.stokhargaOutlets[ idoutlet ][ stringKombinasiIds ] = inputValue;
 				});
 				
 				_.map( liststokharga, function( value, key ){
 					index = _.findIndex(_this.$parentForm.kombinasi, { kombinasiIds: key});
 					_this.$parentForm.kombinasi[ index ].liststokharga = value;
 				} );
+				console.log(_this.$parentForm.kombinasi)
 			}
 		},
 	} );
