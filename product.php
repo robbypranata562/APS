@@ -25,6 +25,10 @@ include(__DIR__."/main_header.php");
 <script src="global_assets/js/plugins/notifications/noty.min.js"></script>
 <script src="global_assets/js/plugins/loaders/blockui.min.js"></script>
 <script src="global_assets/js/plugins/tables/datatables/datatables.min.js"></script>
+<script src="global_assets/js/plugins/uploaders/fileinput/plugins/piexif.min.js"></script>
+<script src="global_assets/js/plugins/uploaders/fileinput/plugins/purify.min.js"></script>
+<script src="global_assets/js/plugins/uploaders/fileinput/plugins/sortable.min.js"></script>
+<script src="global_assets/js/plugins/uploaders/fileinput/fileinput.min.js"></script>
 <script src="product/js/product.js"></script>
 <script src="product/js/product-form.js"></script>
 		<!-- /Custom Javascript -->
