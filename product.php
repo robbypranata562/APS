@@ -25,6 +25,7 @@ include(__DIR__."/main_header.php");
 <script src="global_assets/js/plugins/notifications/noty.min.js"></script>
 <script src="product/js/product.js"></script>
 <script src="global_assets/js/plugins/tables/datatables/datatables.min.js"></script>
+<script src="global_assets/js/plugins/tables/datatables/extensions/simple_numbers_no_ellipses.js"></script>
 		<!-- /Custom Javascript -->
 		<?php include(__DIR__."/navbar_sidebar.php"); ?>
 			<!-- Main content -->

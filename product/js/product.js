@@ -193,6 +193,7 @@
 										data: JSON.stringify(y),
 										success: function(data){
 											 data_p = data.daftarproduk;
+											 console.log(data_p)
 											 jumlahstoktotal = data.jumlahstoktotal
 											 totalproduct = data_p.jumlahproduk;
 											 _.each( data_p, function(i){
@@ -229,7 +230,7 @@
 													],
 												"orderCellsTop": true,
 												"fixedHeader": true,
-												"pagingType": "simple_numbers",
+  												"pagingType": "simple_numbers_no_ellipses",
 												"deferLoading": totalproduct,
 												"data" : data_produk,
 												"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) 
@@ -238,7 +239,7 @@
 													var varian = "";
 													var subvarian = "";
 													var jumlahstoktotal = "";
-													varian = '</br>'+ aData[2].length + ' varian';
+													varian = '</br>'+ aData[2] + ' varian';
 													subvarian = ' - ' + aData[3][0]['jumlahsubvarian'] + ' subvarian';
 												
 													$('td:eq(1)', nRow).html(aData[1] + varian + subvarian);
