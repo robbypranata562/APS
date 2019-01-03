@@ -14,6 +14,7 @@ include(__DIR__."/main_header.php");
 <?php include(__DIR__."/product/views/modal.html");?>
 <!-- Custom CSS -->
 <link rel="stylesheet" type="text/css" href="product/css/custom.css" />
+<link rel="stylesheet" type="text/css" href="product/css/custom-table.css" />
 <!-- /Custom CSS -->
 
 <!-- Custom Javascript -->

@@ -286,7 +286,6 @@
 				if( _this.dataProduk !== '' ){
 					
 					_this.DataProduk = JSON.parse( decodeURI( _this.dataProduk ) );
-					console.log(_this.DataProduk)
 					_this.varians.varian1 = [];
 					_this.getOutlets().then(function( outlets ){
 						
@@ -597,7 +596,6 @@
 				
 				util.removeClass( $u( '.product-form-next', _this.$el ), 'd-none' );
 				util.removeClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
-				console.log(_this.kombinasi)
 				aps.req( 
 					{
 						tipe:'GET_OUTLET',
@@ -777,7 +775,6 @@
 					} );
 				});
 				util.trigger( $u( '.uk-kombinasivarian', $u( _this.parentForm ) ), event, data );
-				console.log(_this.$parentForm.kombinasi)
 			},
 		}
 	});
@@ -1023,7 +1020,6 @@
 					index = _.findIndex(_this.$parentForm.kombinasi, { kombinasiIds: key});
 					_this.$parentForm.kombinasi[ index ].liststokharga = value;
 				} );
-				console.log(_this.$parentForm.kombinasi)
 			}
 		},
 	} );
@@ -1075,6 +1071,15 @@
 	} );
 	/* /Form Product */
 	apsCore.component( 'produkfoto', {
+		events:[
+			// {
+				// name:"fileloaded",
+				// delegate:".file-input",
+				// handler:function(){
+					// alert()
+				// }
+			// }
+		],
 		connected:function(){
 			var modalTemplate = '<div class="modal-dialog modal-lg" role="document">\n' +
             '  <div class="modal-content">\n' +
@@ -1121,7 +1126,7 @@
             indicatorLoading: '<i class="icon-spinner2 spinner text-muted"></i>'
         };
 			$('.file-input').fileinput({
-				uploadUrl: "http://localhost", // server upload action
+				uploadUrl: window.location.href, // server upload action
 				browseLabel: 'Browse',
 				browseIcon: '<i class="icon-plus22 mr-2"></i>',
 				uploadIcon: '<i class="icon-file-upload2 mr-2"></i>',
@@ -1132,8 +1137,8 @@
 				},
 				resizeImage:true,
 				allowedFileExtensions: ["jpg", "png", "gif"],
-				minImageWidth:460,
-				minImageHeight:460,
+				// minImageWidth:460,
+				// minImageHeight:460,
 				maxImageWidth:460,
 				maxImageHeight:460,
 				// maxFileSize:35,
@@ -1148,6 +1153,14 @@
 				previewZoomButtonIcons: previewZoomButtonIcons,
 				fileActionSettings: fileActionSettings
 			});
+			$('.file-input').off( 'fileloaded' );
+			$('.file-input').on( 'fileloaded', function( event, file, previewId, index, reader ){
+				console.log('fileloaded');
+			} );
+			$('.file-input').on( 'filebatchselected', function( event, files ){
+				console.log(files);
+			} );
+			
 		}
 	} );
 })(UIkit, UIkit.util, jQuery);
