@@ -182,14 +182,14 @@
 									var title = $(this).text();
 									if (i == 1)
 									{
-										$(this).html( '<input data-uk-search type="text" class="param-search" placeholder="Search '+title+'" />' );
+										$(this).html( '<input data-uk-search type="text" class="param-search" placeholder="Search '+title+'" /></br><span>Total XX Jenis Produk</span>' );
 									}
 									else if (i > 1)
 									{
 										var text = title.replace(" ", "_");
 										if (text == "Stock")
 										{
-											$(this).html( '<select data-uk-'+text+' class=param-'+text+'></select>' );
+											$(this).html( '<select data-uk-'+text+' class=param-'+text+'></select></br><span>Total Stock</span>' );
 										}
 										else
 										{
@@ -200,6 +200,7 @@
 									}
 
 								});
+
 								var y =
 								{
 									tipe			: 'GET_OUTLETMASTERPRODUK',
