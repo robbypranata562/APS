@@ -2,8 +2,8 @@
 $host = 'localhost';
 $dbname2 = 'aps';
 $connStr2 = "mysql:host=$host;dbname=$dbname2";
-$user2 = 'aps';
-$pass2 = 'aps';
+$user2 = 'root';
+$pass2 = '';
 
 try{
         $conn2 = new PDO($connStr2, $user2, $pass2);

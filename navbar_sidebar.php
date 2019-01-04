@@ -119,6 +119,20 @@
 
 						<!-- Main -->
 						<li class="nav-item-header"><div class="text-uppercase font-size-xs line-height-xs"></div> <i class="icon-menu" title="Main"></i></li>
+						<li class="nav-item">
+							<a href="index.html" class="nav-link active legitRipple">
+								<i class="icon-home4"></i>
+								<span>
+									Dashboard
+								</span>
+							</a>
+						</li>
+						<li class="nav-item nav-item-submenu">
+							<a href="#" class="nav-link legitRipple"><i class="icon-copy"></i> <span>Produk</span></a>
+							<ul class="nav nav-group-sub" data-submenu-title="Layouts">
+								<li class="nav-item"><a href="product.php" class="nav-link active legitRipple">Daftar Produk</a></li>
+							</ul>
+						</li>
 						<?php //echo get_bo_menus(0,'welcome.php'); ?>
 						<!-- /Main -->	
 					</ul>
