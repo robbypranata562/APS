@@ -1,8 +1,8 @@
 <?php
 session_start();
 include(__DIR__."/Functions.php");
-//include(__DIR__."/cekUser.php");
-//include(__DIR__."/DBConnectPDOH.php");
+include(__DIR__."/cekUser.php");
+include(__DIR__."/DBConnectPDOH.php");
 include(__DIR__."/product/views/table-product.html");
 $page_title = 'Product Page';
 include(__DIR__."/main_header.php");
@@ -41,7 +41,7 @@ include(__DIR__."/main_header.php");
 			<!-- Main content -->
 			<div class="content-wrapper" data-uk-productpage="template:index-product;refresh:true;">
 				<!-- Page Container Selector-->
-				<div class="aps-container" data-template="index-product"></div>
+				<div class="aps-container" data-template="index-product" data-user="<?php echo $idpengguna ?>"></div>
 				<div class="aps-container" data-template="add-product"></div>
 				<!-- /Page Container Selector-->
 			</div>
