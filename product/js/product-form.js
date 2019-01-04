@@ -506,6 +506,8 @@
 			next: function(){
 				if( this.step >= 4 ){return;}
 				this.step++;
+				util.attr( $u( '.nav-item a[data-step="' + this.step + '"]' ), 'data-toggle', 'tab' );
+				util.removeClass( $u( '.nav-item a[data-step="' + this.step + '"]' ), 'disabled' );
 				util.trigger( $u( '.nav-item a[data-toggle="tab"][data-step="' + this.step + '"]' ), 'click' );
 			},
 			prev: function(){
@@ -649,6 +651,12 @@
 	});
 	
 	apsCore.component( 'producttab', {
+		connected:function(){
+			if( this.$parentForm.action === 'edit' ){
+				util.attr( util.$$( '.nav-item a', this.$el ), 'data-toggle', 'tab' );
+				util.removeClass( util.$$( '.nav-item a', this.$el ), 'disabled' );
+			}
+		},
 		mixins:[Class, ParentForm],
 		events:[
 			{
