@@ -90,9 +90,7 @@
 			}
 		}
 	});
-	apsCore.component(
-		
-		'tableproduct',
+	apsCore.component('tableproduct',
 		{
 			mixins:[EditProduk],
 			connected:function(){
@@ -340,9 +338,7 @@
 			}
 
 		});
-	apsCore.component(
-		
-		'listoutlet',
+	apsCore.component('listoutlet',
 		{
 			connected:function(){
 				//this.init();
@@ -391,9 +387,7 @@
 			}
 		}
 	);
-	apsCore.component(
-		
-		'kategori',
+	apsCore.component('kategori',
 		{
 			connected:function(){
 				if (this.initialize)return;
@@ -445,10 +439,7 @@
 		}
 	}
 	);
-
-	apsCore.component(
-		
-		'status_produk',
+	apsCore.component('status_produk',
 		{
 			connected:function(){
 
@@ -574,26 +565,26 @@
 		methods:{
 			init:function(){
 			var _this = this;
-			aps.req( {tipe:'GET_USEROUTLET'} )
-			.then(
-				function(data){
-					data = data.daftaroutlet;
-					_.each( data, function(i){
-					$(".modal-body .row").append
-					(
-						'<div class="form-check"><label class="form-check-label">' +
-							'<div class="uniform-checker">' +
-								'<span class="">'+
-								'<input type="checkbox" class="form-check-input-styled">' +
-								'</span>'+
-							'</div>'+
-						''+i['NAMAOUTLET']+''+
-						'</label></div>'
-					);
-					});
-				},
-				aps.noop
-			);
+			var datajson = {action : "GET_LIST_OUTLET"};
+		    var text = '';
+		    var i;
+		    $.post('welcome/outletsekarang.php',JSON.stringify(datajson),function(d){
+		        if (d.errcode == 'OK') {
+		            result = d.result;
+ 					for (i in result) 
+ 					{
+			            $(".modal-body .row-outlet").append
+						(
+							'<div class="form-check"><label class="form-check-label">' +
+									'<input data-uk-uniform data-id-outlet = "'+result[i]['idoutlet']+'" type="checkbox" class="form-check-input-styled">' +
+							''+result[i]['namaoutlet']+''+
+							'</label></div>'
+						);
+					}
+		        } else {
+		            alert(d.msg);
+		        }
+		    },"json");
 		}
 	}
 	});
