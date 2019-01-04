@@ -87,15 +87,16 @@
 													notifikasimaksimalstok:"",
 												}
 										%>
-										<% console.log(stokHargaOutlet);%>
-										<tr class="produkstokharga-outlet" data-kombinasi="<%= kombinasi[j].kombinasiIds %>" data-outlet="<%= outlets[i].IDOUTLET %>">
-											<td><%= kombinasi[j].produkKombinasi %></td>
-											<td><input value="<%= stokHargaOutlet.jumlahstok %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Stok" name="jumlahstok" data-produk-prop="jumlahstok"></td>
-											<td><input value="<%= stokHargaOutlet.hargajual %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Harga Jual" name="hargajual" data-produk-prop="hargajual"></td>
-											<td><input value="<%= stokHargaOutlet.hpp %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Harga HPP" name="hpp" data-produk-prop="hpp"></td>
-											<td><input value="<%= stokHargaOutlet.notifikasiminimalstok %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Notifikasi Minimal Stok" name="notifikasiminimalstok" data-produk-prop="minstok"></td>
-											<td><input value="<%= stokHargaOutlet.notifikasimaksimalstok %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Notifikasi Maksimal Stok" name="notifikasimaksimalstok" data-produk-prop="maxstok"></td>
-										</tr>
+										<% if( ! _.contains( disabledKombinasi, kombinasi[j].kombinasiIds  ) ){%>
+											<tr class="produkstokharga-outlet" data-kombinasi="<%= kombinasi[j].kombinasiIds %>" data-outlet="<%= outlets[i].IDOUTLET %>">
+												<td><%= kombinasi[j].produkKombinasi %></td>
+												<td><input value="<%= stokHargaOutlet.jumlahstok %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Stok" name="jumlahstok" data-produk-prop="jumlahstok"></td>
+												<td><input value="<%= stokHargaOutlet.hargajual %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Harga Jual" name="hargajual" data-produk-prop="hargajual"></td>
+												<td><input value="<%= stokHargaOutlet.hpp %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Harga HPP" name="hpp" data-produk-prop="hpp"></td>
+												<td><input value="<%= stokHargaOutlet.notifikasiminimalstok %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Notifikasi Minimal Stok" name="notifikasiminimalstok" data-produk-prop="minstok"></td>
+												<td><input value="<%= stokHargaOutlet.notifikasimaksimalstok %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Notifikasi Maksimal Stok" name="notifikasimaksimalstok" data-produk-prop="maxstok"></td>
+											</tr>
+										<% }%>
 									<% }%>
 								</tbody>
 							</table>

@@ -208,9 +208,9 @@
 								var y =
 								{
 									tipe			: 'GET_OUTLETMASTERPRODUK',
-									idoutlet 		: _this.idoutlet, 
+									idoutlet 		: 1, 
 									search 			: _this.search, 
-									limit			: 100, 
+									limit			: 1000, 
 									page			: _this.page,
 									idkategori		: _this.idkategori , 
 									statusproduk 	: _this.statusproduk,

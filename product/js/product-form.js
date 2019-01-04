@@ -211,6 +211,7 @@
 			enableOutlet:Array,
 			listFoto:Array,
 			fotoprodukutama:String,
+			disabledKombinasi:Array,
 		},
 		data:{
 			step:1,
@@ -227,6 +228,7 @@
 			enableOutlet:[],
 			listFoto:[],
 			fotoProdukUtama:'',
+			disabledKombinasi:[],
 		},
 		events:[
 			{
@@ -301,7 +303,11 @@
 								}
 								return produkOutlet.produk;
 							} );
-							
+							if( _this.DataProduk.varian.length ===1 && _this.DataProduk.varian[0].varian1 === '' ){
+								_this.useVarian = false;
+							} else {
+								_this.useVarian = true;
+							}
 							_.map( _this.DataProduk.varian, function( _varian1 ){
 						
 								_this.varians.varian1.push( 
@@ -348,7 +354,7 @@
 			getKombinasi:function(){
 				var _this = this, cartesians = [], kombinasi = [], useSubvarian = false;
 				_.map( _this.varians, function( _varian, idvarian ){
-					! _.isEmpty( _varian ) && cartesians.push( _varian );
+					cartesians.push( _varian );
 				} );
 				if( cartesians.length > 1 ){
 					kombinasi = aps.cartesian.apply( null, cartesians );
@@ -362,7 +368,6 @@
 			},
 			generateKombinasi:function(){
 				var _this = this, stringKombinasiIds, stokHargaOutlet, postedKombinasi,liststokharga, produkKombinasi, indexPosted, index, index1, index2, indexOutlet1, indexOutlet2, dataProdukOutlet, kombinasiIds, dataKombinasi = _this.getKombinasi(), barcode = '', liststokharga = [];
-				
 				
 				_this.useSubvarian = dataKombinasi.useSubvarian;
 				_.map( dataKombinasi.kombinasi, function( kombinasi, i ){
@@ -424,7 +429,14 @@
 					_this.kombinasi[i].dataKombinasiIds = kombinasiIds;
 					_this.kombinasi[i].dataProdukKombinasi = produkKombinasi;
 					_this.kombinasi[i].kombinasiIds = stringKombinasiIds;
-					_this.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
+					if( produkKombinasi.length === 2 && produkKombinasi[1] === '' && produkKombinasi[0] !== '' ){
+						_this.kombinasi[i].produkKombinasi = produkKombinasi[0];
+					} else if( produkKombinasi.length === 2 && produkKombinasi[1] === '' && produkKombinasi[0] === '' ){
+						_this.kombinasi[i].produkKombinasi = $('[name="namaproduk"]').val();
+					} else {
+						_this.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
+					}
+					
 				} );
 			},
 			requestProdukOutlets:function( params, IDOUTLET ){
@@ -508,8 +520,16 @@
 				} );
 			},
 			next: function(){
-				var _this = this;
+				var _this = this, index;
 				if( this.step >= 4 ){
+					
+					_.map( _this.disabledKombinasi, function( kombinasi ){
+						index = _.findIndex( _this.kombinasi, {kombinasiIds:kombinasi} );
+						if( index !== -1 ){
+							_this.kombinasi.splice( index, 1 );
+						}
+					} );
+					//console.log(_this.kombinasi)
 					aps.req({
 						tipe:'POST_MASTERPRODUK',
 						idproduk:$('[name="idproduk"]').val(),
@@ -590,7 +610,7 @@
 				_this.titleNext( false );
 				util.removeClass( $u( '.product-form-next', _this.$el ), 'd-none' );
 				util.removeClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
-				
+
 				_this.notyConfirm = _this.notyConfirm || new Noty({
 					theme: 'limitless',
 					text: '<h4 class="mb-3">Gunakan Varian Produk?</h6>',
@@ -601,20 +621,38 @@
 					type: 'confirm',
 					buttons: [
 						Noty.button('Tidak', 'btn btn-danger', function () {
+							_this.varians.varian1 = [{id:'varian1-empty', name:''}];
+							_this.varians.varian2 = [{id:'varian2-empty', name:''}];
 							_this.notyConfirm.close();
-							
+							util.trigger( $u( '.uk-kombinasivarian', $u( _this.$el ) ), 'change_kombinasi', [] );
 						}),
 
 						Noty.button( 'Ya', 'btn bg-blue ml-1', function () {
 								_this.notyConfirm.close();
 								$( '.produk-varianitems-wrapper', _this.$el ).removeClass( 'd-none' );
 								_this.useVarian = true;
+								
+								//if(  )
+								var varian1 = apsCore.getComponent( $u( '.uk-varianitems[data-idvarian="varian1"]', _this.$el ), 'varianitems' );
+								varian1.addVarian().then(function(){
+									varian1.changeKombinasi();
+								});
+								
 							},
 							{id: 'button1', 'data-status': 'ok'}
 						)
 					]
 				});
-				!_this.useVarian &&  _this.notyConfirm.show();
+				if( _this.action === 'add' ){
+					if( !_this.useVarian ){
+						_this.notyConfirm.show();
+					} else {
+						$( '.produk-varianitems-wrapper', _this.$el ).removeClass( 'd-none' );
+					}
+				} else {
+					$( '.produk-varianitems-wrapper', _this.$el ).removeClass( 'd-none' );
+				}
+				
 			},
 			step3:function(){
 				var outlets = [],
@@ -642,6 +680,7 @@
 										stokHarga:_this.stokhargaOutlets,
 										currentOutlet: $(".listoutlet_index").val(),
 										enableOutlet:_this.enableOutlet,
+										disabledKombinasi:_this.disabledKombinasi,
 									} 
 								) 
 							);
@@ -687,10 +726,12 @@
 		props:{
 			varians:Array,
 			idVarian:String,
+			emptyVarian:Boolean,
 		},
 		data:{
 			varians:[],
 			idVarian:'',
+			emptyVarian:true,
 		},
 		events:[
 			{
@@ -731,10 +772,21 @@
 			init:function(){
 				var _this = this;
 				!util.hasAttr( _this.$el, 'data-idvarian' ) && util.attr( _this.$el, 'data-idvarian', _this.idVarian );
+				
+				// if( _.isUndefined( _this.$parentForm.varians[ _this.idVarian ] ) ){
+					// _this.$parentForm.varians[ _this.idVarian ] = [];
+					// _this.$parentForm.varians[ _this.idVarian ].push( {
+						// id: 'varian-empty-' + _this.idVarian,
+						// name:'',
+					// } );
+				// }
 			},
 			setVarian:function(){
 				var _this = this,
 					varians = ! _.isUndefined( _this.$parentForm.varians[ _this.idVarian ] ) ? _this.$parentForm.varians[ _this.idVarian ] : [];
+				if( varians.length === 1 && varians[0].name === '' ){
+					varians = [];
+				}
 				return util.Promise.all(
 					_.map( varians, function( varian ){
 						return _this.addVarian( varian.id, varian.name );
@@ -743,8 +795,15 @@
 				
 			},
 			addVarian:function( id, name ){
+				
 				var tmp = _.template( $( '#tmpl-varian-input' ).html() ),
 					_this = this;
+					
+				// if( _this.emptyVarian ){
+					// _this.changeKombinasi( 'delete_kombinasi', [ 'varian-empty-' + _this.idVarian, _this.idVarian ] );
+					// _this.emptyVarian = false;
+				// }
+				
 				id = id || _.uniqueId( 'varian-' + _.now() + '-' );
 				name = name || '';
 				return new util.Promise(function(resolve){
@@ -781,6 +840,7 @@
 				data = data || [];
 				
 				_this.$parentForm.varians[ _this.idVarian ] = [];
+
 				items.map( function(el, i){
 					var itemid = util.data( el, 'data-itemid' ),
 						id = itemid.split( '.' );
@@ -817,6 +877,7 @@
 	});
 	
 	apsCore.component( 'kombinasivarian', {
+
 		mixins:[Class, ParentForm],
 		props:{
 			kombinasi:Array,
@@ -852,15 +913,23 @@
 					e.preventDefault()
 					this.changeBarcode(e);
 				}
+			},
+			{
+				name:'click',
+				delegate:'.disabled-kombinasi',
+				handler:function(e){
+					e.preventDefault();
+					this.disabledKombinasi(e);
+				}
 			}
 		],
 		connected:function(){
 			!util.hasClass(this.$el, this.$name) && addClass(this.$el, this.$name);
 			this.useSubvarian = this.$parentForm.useSubvarian;
+			this.changeKombinasi();
 		},
 		methods:{
 			changeKombinasi:function(){
-				
 				var _this			= this,
 					$produkKombinasi= $( '.produk-kombinasi-varian', _this.$el ),
 					tmp 			= _.template( $( '#tmpl-varian-kombinasi' ).html() );
@@ -923,6 +992,26 @@
 				if( indexKombinasi !== -1 ){
 					parentForm.kombinasi[ indexKombinasi ].barcode = $( _that ).val();
 				}
+			},
+			disabledKombinasi:function(e){
+				var _this = this,
+					_that = e.current,
+					index;
+				if( $( _that ).data( 'action' ) === 'disabled' ){
+					$( _that ).data( 'action', 'enabled' );
+					$( 'i', _that ).removeClass( 'icon-cross2' );
+					$( 'i', _that ).addClass( 'icon-undo' );
+					_this.$parentForm.disabledKombinasi.push( $( _that ).parents( '.varian-kombinasi-item' ).data( 'kombinasi' ) );
+				} else {
+					$( _that ).data( 'action', 'disabled' );
+					$( 'i', _that ).addClass( 'icon-cross2' );
+					$( 'i', _that ).removeClass( 'icon-undo' );
+					index = _.indexOf( _this.$parentForm.disabledKombinasi, $( _that ).parents( '.varian-kombinasi-item' ).data( 'kombinasi' ) );
+					if( index !== -1 ){
+						_this.$parentForm.disabledKombinasi.splice( index, 1 );
+					}
+				}
+				_this.changeKombinasi();
 			},
 		}
 	 });
