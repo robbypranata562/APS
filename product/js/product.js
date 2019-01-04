@@ -199,7 +199,7 @@
 									tipe			: 'GET_OUTLETMASTERPRODUK',
 									idoutlet 		: _this.idoutlet, 
 									search 			: _this.search, 
-									limit			: 1000, 
+									limit			: 10, 
 									page			: 0,
 									idkategori		: _this.idkategori , 
 									statusproduk 	: _this.statusproduk,
