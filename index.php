@@ -3,7 +3,7 @@ ini_set('display_errors', 1);
 session_start();
 include(__DIR__."/Functions.php");
 include(__DIR__."/recaptchaCek.php");
-$urlnow = 'https://development.autopilotstore.co.id';
+$urlnow = 'http://localhost:8160/APS';
 if ($recaptcharesult == 0) {
     if (isset($_SESSION['aps_id'])) {
         include(__DIR__."/cekUser.php");
