@@ -205,8 +205,9 @@
 									tipe			: 'GET_OUTLETMASTERPRODUK',
 									idoutlet 		: _this.idoutlet, 
 									search 			: _this.search, 
-									limit			: 1000,//_this.length, // matches exactly 'tcol1', 
+									limit			: 10, 
 									page			: _this.page,
+
 									idkategori		: _this.idkategori , 
 									statusproduk 	: _this.statusproduk,
 									stokoption 		: _this.stokoption,

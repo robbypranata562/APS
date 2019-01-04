@@ -208,7 +208,9 @@
 			postedKombinasi:Array,
 			produkOutlets:Array,
 			stokhargaOutlets:Object,
-			enableOutlet:[],
+			enableOutlet:Array,
+			listFoto:Array,
+			fotoprodukutama:String,
 		},
 		data:{
 			step:1,
@@ -223,6 +225,8 @@
 			produkOutlets:[],
 			stokhargaOutlets:{},
 			enableOutlet:[],
+			listFoto:[],
+			fotoProdukUtama:'',
 		},
 		events:[
 			{
@@ -286,7 +290,6 @@
 				if( _this.dataProduk !== '' ){
 					
 					_this.DataProduk = JSON.parse( decodeURI( _this.dataProduk ) );
-					console.log(_this.DataProduk)
 					_this.varians.varian1 = [];
 					_this.getOutlets().then(function( outlets ){
 						
@@ -505,7 +508,29 @@
 				} );
 			},
 			next: function(){
-				if( this.step >= 4 ){return;}
+				var _this = this;
+				if( this.step >= 4 ){
+					aps.req({
+						tipe:'POST_MASTERPRODUK',
+						idproduk:$('[name="idproduk"]').val(),
+						tipestok:$('[name="tipestok"]').prop('checked') ? 1 : 0,
+						idkategoriproduk: $('[name="idkategoriproduk"]').val(),
+						namaproduk:$('[name="namaproduk"]').val(),
+						idsatuanproduk:$('[name="idsatuanproduk"]').val(),
+						berat: $('[name="berat"]').val(),
+						deskripsiproduk:$('[name="deskripsiproduk"]').val(),
+						fotoprodukutama:_this.fotoProdukUtama,
+						listvarian:_this.kombinasi,
+						listfoto:_this.listFoto,
+					})
+						.then(
+							function(data){
+								console.log(data)
+							},
+							aps.noop
+						);
+					return;
+				}
 				this.step++;
 				util.trigger( $u( '.nav-item a[data-toggle="tab"][data-step="' + this.step + '"]' ), 'click' );
 			},
@@ -597,7 +622,6 @@
 				
 				util.removeClass( $u( '.product-form-next', _this.$el ), 'd-none' );
 				util.removeClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
-				console.log(_this.kombinasi)
 				aps.req( 
 					{
 						tipe:'GET_OUTLET',
@@ -626,26 +650,7 @@
 			step4:function(){
 				var _this = this;
 				util.removeClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
-				util.addClass( $u( '.product-form-next', _this.$el ), 'd-none' );
-				aps.req({
-						tipe:'POST_MASTERPRODUK',
-						idproduk:$('[name="idproduk"]').val(),
-						tipestok:$('[name="tipestok"]').prop('checked') ? 1 : 0,
-						idkategoriproduk: $('[name="idkategoriproduk"]').val(),
-						namaproduk:$('[name="namaproduk"]').val(),
-						idsatuanproduk:$('[name="idsatuanproduk"]').val(),
-						berat: $('[name="berat"]').val(),
-						deskripsiproduk:$('[name="deskripsiproduk"]').val(),
-						fotoprodukutama:'',
-						listvarian:_this.kombinasi,
-						listfoto:[],
-					})
-						.then(
-							function(data){
-								console.log(data)
-							},
-							aps.noop
-						);
+				//util.addClass( $u( '.product-form-next', _this.$el ), 'd-none' );
 			},
 		}
 	});
@@ -777,7 +782,6 @@
 					} );
 				});
 				util.trigger( $u( '.uk-kombinasivarian', $u( _this.parentForm ) ), event, data );
-				console.log(_this.$parentForm.kombinasi)
 			},
 		}
 	});
@@ -1023,7 +1027,6 @@
 					index = _.findIndex(_this.$parentForm.kombinasi, { kombinasiIds: key});
 					_this.$parentForm.kombinasi[ index ].liststokharga = value;
 				} );
-				console.log(_this.$parentForm.kombinasi)
 			}
 		},
 	} );
@@ -1075,65 +1078,76 @@
 	} );
 	/* /Form Product */
 	apsCore.component( 'produkfoto', {
+		mixins:[ Class, ParentForm ],
+		data:{
+			modalTemplate:'<div class="modal-dialog modal-lg" role="document">\n' +
+				'  <div class="modal-content">\n' +
+				'    <div class="modal-header align-items-center">\n' +
+				'      <h6 class="modal-title">{heading} <small><span class="kv-zoom-title"></span></small></h6>\n' +
+				'      <div class="kv-zoom-actions btn-group">{toggleheader}{fullscreen}{borderless}{close}</div>\n' +
+				'    </div>\n' +
+				'    <div class="modal-body">\n' +
+				'      <div class="floating-buttons btn-group"></div>\n' +
+				'      <div class="kv-zoom-body file-zoom-content"></div>\n' + '{prev} {next}\n' +
+				'    </div>\n' +
+				'  </div>\n' +
+				'</div>\n',
+			previewZoomButtonClasses:{
+				toggleheader: 'btn btn-light btn-icon btn-header-toggle btn-sm',
+				fullscreen: 'btn btn-light btn-icon btn-sm',
+				borderless: 'btn btn-light btn-icon btn-sm',
+				close: 'btn btn-light btn-icon btn-sm'
+			},
+			previewZoomButtonIcons:{
+				prev: '<i class="icon-arrow-left32"></i>',
+				next: '<i class="icon-arrow-right32"></i>',
+				toggleheader: '<i class="icon-menu-open"></i>',
+				fullscreen: '<i class="icon-screen-full"></i>',
+				borderless: '<i class="icon-alignment-unalign"></i>',
+				close: '<i class="icon-cross2 font-size-base"></i>'
+			},
+			fileActionSettings:{
+				zoomClass: '',
+				zoomIcon: '<i class="icon-zoomin3"></i>',
+				dragClass: 'p-2',
+				dragIcon: '<i class="icon-three-bars"></i>',
+				removeClass: '',
+				removeErrorClass: 'text-danger',
+				removeIcon: '<i class="icon-bin"></i>',
+				indicatorNew: '<i class="icon-file-plus text-success"></i>',
+				indicatorSuccess: '<i class="icon-checkmark3 file-icon-large text-success"></i>',
+				indicatorError: '<i class="icon-cross2 text-danger"></i>',
+				indicatorLoading: '<i class="icon-spinner2 spinner text-muted"></i>'
+			},
+		},
+		events:[
+			{
+				name:"change",
+				delegate:".file-input",
+				handler:function(){
+					var _this = this;
+					var files = $(".file-input[type='file']",this.$el).fileinput('getFileStack');
+					console.log($( '.file-preview-frame' ))
+				}
+			}
+		],
 		connected:function(){
-			var modalTemplate = '<div class="modal-dialog modal-lg" role="document">\n' +
-            '  <div class="modal-content">\n' +
-            '    <div class="modal-header align-items-center">\n' +
-            '      <h6 class="modal-title">{heading} <small><span class="kv-zoom-title"></span></small></h6>\n' +
-            '      <div class="kv-zoom-actions btn-group">{toggleheader}{fullscreen}{borderless}{close}</div>\n' +
-            '    </div>\n' +
-            '    <div class="modal-body">\n' +
-            '      <div class="floating-buttons btn-group"></div>\n' +
-            '      <div class="kv-zoom-body file-zoom-content"></div>\n' + '{prev} {next}\n' +
-            '    </div>\n' +
-            '  </div>\n' +
-            '</div>\n';
-			// Buttons inside zoom modal
-        var previewZoomButtonClasses = {
-            toggleheader: 'btn btn-light btn-icon btn-header-toggle btn-sm',
-            fullscreen: 'btn btn-light btn-icon btn-sm',
-            borderless: 'btn btn-light btn-icon btn-sm',
-            close: 'btn btn-light btn-icon btn-sm'
-        };
-
-        // Icons inside zoom modal classes
-        var previewZoomButtonIcons = {
-            prev: '<i class="icon-arrow-left32"></i>',
-            next: '<i class="icon-arrow-right32"></i>',
-            toggleheader: '<i class="icon-menu-open"></i>',
-            fullscreen: '<i class="icon-screen-full"></i>',
-            borderless: '<i class="icon-alignment-unalign"></i>',
-            close: '<i class="icon-cross2 font-size-base"></i>'
-        };
-
-        // File actions
-        var fileActionSettings = {
-            zoomClass: '',
-            zoomIcon: '<i class="icon-zoomin3"></i>',
-            dragClass: 'p-2',
-            dragIcon: '<i class="icon-three-bars"></i>',
-            removeClass: '',
-            removeErrorClass: 'text-danger',
-            removeIcon: '<i class="icon-bin"></i>',
-            indicatorNew: '<i class="icon-file-plus text-success"></i>',
-            indicatorSuccess: '<i class="icon-checkmark3 file-icon-large text-success"></i>',
-            indicatorError: '<i class="icon-cross2 text-danger"></i>',
-            indicatorLoading: '<i class="icon-spinner2 spinner text-muted"></i>'
-        };
+			var _this = this;
+			
 			$('.file-input').fileinput({
-				uploadUrl: "http://localhost", // server upload action
+				uploadUrl: window.location.href, // server upload action
 				browseLabel: 'Browse',
 				browseIcon: '<i class="icon-plus22 mr-2"></i>',
 				uploadIcon: '<i class="icon-file-upload2 mr-2"></i>',
 				removeIcon: '<i class="icon-cross2 font-size-base mr-2"></i>',
 				layoutTemplates: {
 					icon: '<i class="icon-file-check"></i>',
-					modal: modalTemplate
+					modal: _this.modalTemplate
 				},
 				resizeImage:true,
 				allowedFileExtensions: ["jpg", "png", "gif"],
-				minImageWidth:460,
-				minImageHeight:460,
+				// minImageWidth:460,
+				// minImageHeight:460,
 				maxImageWidth:460,
 				maxImageHeight:460,
 				// maxFileSize:35,
@@ -1144,10 +1158,28 @@
 				resizePreference:'height',
 				maxFileCount: 8,
 				initialCaption: "No file selected",
-				previewZoomButtonClasses: previewZoomButtonClasses,
-				previewZoomButtonIcons: previewZoomButtonIcons,
-				fileActionSettings: fileActionSettings
+				previewZoomButtonClasses: _this.previewZoomButtonClasses,
+				previewZoomButtonIcons: _this.previewZoomButtonIcons,
+				fileActionSettings: _this.fileActionSettings
 			});
+			$('.file-input').off( 'fileloaded' );
+			$('.file-input').off( 'filebatchselected' );
+			$('.file-input').on( 'fileloaded', function( event, file, previewId, index, reader ){
+				//_this.$parentForm.listFoto[index] = reader.result;
+				//console.log(_this.$parentForm.listFoto)
+			} );
+			$('.file-input').on( 'filebatchselected', function( event, files ){
+				_this.$parentForm.listFoto = [];
+				$( '.file-preview-frame.kv-zoom-thumb', _this.$el ).each(function(i, $thumb){
+					//var previewID = $( '.file-preview-frame.kv-preview-thumb[data-fileindex="' + $( $thumb ).data( 'fileindex' ) + '"]' ).attr('id');
+					if( i === 0 ){
+						_this.$parentForm.fotoProdukUtama = $( '.kv-file-content img', $thumb ).attr( 'src' );
+					} else {
+						_this.$parentForm.listFoto.push( {no:i,fotoproduk:$( '.kv-file-content img', $thumb ).attr( 'src' )} );
+										}
+				});
+			} );
+			
 		}
 	} );
 })(UIkit, UIkit.util, jQuery);
