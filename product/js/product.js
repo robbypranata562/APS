@@ -205,9 +205,8 @@
 									tipe			: 'GET_OUTLETMASTERPRODUK',
 									idoutlet 		: _this.idoutlet, 
 									search 			: _this.search, 
-									limit			: 10, 
+									limit			: 1000, 
 									page			: _this.page,
-
 									idkategori		: _this.idkategori , 
 									statusproduk 	: _this.statusproduk,
 									stokoption 		: _this.stokoption,

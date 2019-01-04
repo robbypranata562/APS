@@ -1182,4 +1182,38 @@
 			
 		}
 	} );
+
+	apsCore.component( 'nama_produk', {
+
+		props:{
+		},
+		data:{
+		},
+		events:[
+			{
+				name:'change',
+				self:true,
+				handler:function(e){
+					
+					e.preventDefault();
+					var _this = e.current,
+					 _that = this;
+					aps.req( {tipe:'CEK_MASTERPRODUKNAME' , namaproduk: $( _that.$el ).val()} )
+					.then(
+						function(data){
+							console.log(data)
+						data = data['isexists'];
+						if (data != 0)
+						{
+							alert("Produk Nama Sudah Ada");
+							$( _that.$el ).focus();
+						}
+						console.log(data)
+
+
+				})
+			},
+		}
+		],
+	});
 })(UIkit, UIkit.util, jQuery);
