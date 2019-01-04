@@ -110,6 +110,8 @@
 				search : String,
 				length : String,
 				page : String,
+				totalproduk : String,
+				totalstock : String,
 			},
 			data:{
 				table:false,
@@ -121,6 +123,8 @@
 				search : "",
 				length : 50,
 				page : 0,
+				totalproduk : 0,
+				totalstock : 0,
 			},
 			events:[
 			{
@@ -182,14 +186,14 @@
 									var title = $(this).text();
 									if (i == 1)
 									{
-										$(this).html( '<input data-uk-search type="text" class="param-search" placeholder="Search '+title+'" /></br><span>Total XX Jenis Produk</span>' );
+										$(this).html( '<input data-uk-search type="text" class="param-search" placeholder="Search '+title+'" /></br><span>Total <span class="thead_totalproduk">'+_this.totalproduk+'</span> Jenis Produk</span>' );
 									}
 									else if (i > 1)
 									{
 										var text = title.replace(" ", "_");
 										if (text == "Stock")
 										{
-											$(this).html( '<select data-uk-'+text+' class=param-'+text+'></select></br><span>Total Stock</span>' );
+											$(this).html( '<select data-uk-'+text+' class=param-'+text+'></select></br><span>Total <span class="thead_totalstock">'+_this.totalstock+'</span></span>' );
 										}
 										else
 										{
@@ -206,7 +210,7 @@
 									tipe			: 'GET_OUTLETMASTERPRODUK',
 									idoutlet 		: _this.idoutlet, 
 									search 			: _this.search, 
-									limit			: 1000, 
+									limit			: 100, 
 									page			: _this.page,
 									idkategori		: _this.idkategori , 
 									statusproduk 	: _this.statusproduk,
@@ -217,8 +221,12 @@
 										url: 'https://development.autopilotstore.co.id/api_all.php',
 										data: JSON.stringify(y),
 										success: function(data){
+											console.log(data)
+											_this.totalproduk = data.jumlahproduk;
+											_this.totalstock = data.jumlahstoktotal;
+											$(".thead_totalproduk").html(_this.totalproduk)
+											$(".thead_totalstock").html(_this.totalstock)
 											 data_p = data.daftarproduk;
-											 console.log(data_p)
 											 jumlahstoktotal = data.jumlahstoktotal
 											 totalproduct = data_p.jumlahproduk;
 											 _.each( data_p, function(i){
