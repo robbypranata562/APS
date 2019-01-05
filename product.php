@@ -28,7 +28,6 @@ include(__DIR__."/main_header.php");
 <script src="global_assets/js/plugins/tables/datatables/datatables.min.js"></script>
 <script src="//cdn.datatables.net/plug-ins/1.10.19/api/fnPagingInfo.js"></script>
 <script src="global_assets/js/plugins/tables/datatables/extensions/simple_numbers_no_ellipses.js"></script>
-
 <script src="global_assets/js/plugins/uploaders/fileinput/plugins/piexif.min.js"></script>
 <script src="global_assets/js/plugins/uploaders/fileinput/plugins/purify.min.js"></script>
 <script src="global_assets/js/plugins/uploaders/fileinput/plugins/sortable.min.js"></script>
