@@ -1,27 +1,13 @@
-.table--card th, tr, td {
-    border: 0 !important;
-}
-.table--card > thead,
-.table--card .table-card-wrapper {
+.table--card > thead {
     background: #fff;
-    box-shadow: 0 1px 2px rgba(0, 0, 0, .05);
-    border-radius: 4px;
+    border-bottom: 20px solid #f5f5f5;
 }
-.table--card > tbody > tr > td {
-    padding: 5px 0;
+
+.table--card > thead > th {
+    border: 0;
 }
-.table--card > tbody > tr:first-child > td {
-    padding-top: 20px;
-}
-.table--card .table-card-wrapper table {
-    width: 100%;
-}
-.table--card .table-card-wrapper tbody > tr > td {
-    width: 20%;
-}
-.table--card .table-card-wrapper tbody > tr > td:first-child {
-    width: 5%;
-}
-.table--card .table-card-wrapper tbody > tr > td:nth-child(2) {
-    width: 35%;
+
+.table--card > tbody > tr {
+    background: #fff;
+    border-bottom: 10px solid #f5f5f5;
 }

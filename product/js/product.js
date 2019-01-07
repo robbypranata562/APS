@@ -61,7 +61,7 @@
 						_that = e.current,
 						$produkPage = $u( util.parents( _this.$el, '.uk-productpage' ) ),
 						ProdukPage = apsCore.getComponent( $produkPage, 'productpage' );
-					ProdukPage.redirect ( 'add-product', { action:'edit', step:1, dataProduk:util.data( _that, 'data-produk' )} );
+						ProdukPage.redirect ( 'add-product', { action:'edit', step:1, dataProduk:util.data( _that, 'data-produk' )} );
 				},
 			}
 		],
@@ -206,7 +206,7 @@
 								var y =
 								{
 									tipe			: 'GET_OUTLETMASTERPRODUK',
-									idoutlet 		: 1, 
+									idoutlet 		: _this.idoutlet, 
 									search 			: _this.search, 
 									limit			: 1000, 
 									page			: _this.page,
@@ -261,7 +261,7 @@
 													],
 												"orderCellsTop": true,
 												"fixedHeader": true,
-  												"pagingType": "simple_numbers_no_ellipses",
+  												"sPaginationType": "full_numbers_no_ellipses",
 												"deferLoading": totalproduct,
 												"data" : data_produk,
 												"fnRowCallback": function (nRow, aData, iDisplayIndex, iDisplayIndexFull) 
@@ -297,7 +297,11 @@
 													$(".param-Kategori").val(_this.idkategori);
 													$(".param-Status_Produk").val(_this.statusproduk);
 													$(".param-Stock").val(_this.stokoption);
-													$(".param-Search").val(_this.search);	
+													$(".param-Search").val(_this.search);
+													if(_this.search != "" )	
+													{
+														$(".param-Search").focus();
+													}
 												},
 												"initComplete": function () {
 															this.api().columns().every( function () {
@@ -341,7 +345,7 @@
 	apsCore.component('listoutlet',
 		{
 			connected:function(){
-				//this.init();
+				this.init();
 			},
 			events:[
 			{
