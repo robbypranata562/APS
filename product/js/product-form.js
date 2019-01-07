@@ -1313,4 +1313,4 @@
 		}
 		],
 	});
-})(UIkit, UIkit.util, jQuery);
+})(apsCore, apsCore.util, jQuery);

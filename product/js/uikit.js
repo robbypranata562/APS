@@ -1,9 +1,7 @@
-/*! UIkit 3.0.0-rc.25 | http://www.getuikit.com | (c) 2014 - 2018 YOOtheme | MIT License */
-
 (function (global, factory) {
     typeof exports === 'object' && typeof module !== 'undefined' ? module.exports = factory() :
     typeof define === 'function' && define.amd ? define('uikit', factory) :
-    (global.UIkit = factory());
+    (global.apsCore = factory());
 }(this, (function () { 'use strict';
 
     function bind(fn, context) {
@@ -2696,30 +2694,30 @@
         getPos: getPos$1
     });
 
-    function componentAPI (UIkit) {
+    function componentAPI (apsCore) {
 
-        var DATA = UIkit.data;
+        var DATA = apsCore.data;
 
         var components = {};
 
-        UIkit.component = function (name, options) {
+        apsCore.component = function (name, options) {
 
             if (!options) {
 
                 if (isPlainObject(components[name])) {
-                    components[name] = UIkit.extend(components[name]);
+                    components[name] = apsCore.extend(components[name]);
                 }
 
                 return components[name];
 
             }
 
-            UIkit[name] = function (element, data$$1) {
+            apsCore[name] = function (element, data$$1) {
                 var i = arguments.length, argsArray = Array(i);
                 while ( i-- ) argsArray[i] = arguments[i];
 
 
-                var component = UIkit.component(name);
+                var component = apsCore.component(name);
 
                 if (isPlainObject(element)) {
                     return new component({data: element});
@@ -2733,7 +2731,7 @@
 
                 function init(element) {
 
-                    var instance = UIkit.getComponent(element, name);
+                    var instance = apsCore.getComponent(element, name);
 
                     if (instance) {
                         if (!data$$1) {
@@ -2754,21 +2752,21 @@
             opt.name = name;
 
             if (opt.install) {
-                opt.install(UIkit, opt, name);
+                opt.install(apsCore, opt, name);
             }
 
-            if (UIkit._initialized && !opt.functional) {
+            if (apsCore._initialized && !opt.functional) {
                 var id = hyphenate(name);
-                fastdom.read(function () { return UIkit[name](("[uk-" + id + "],[data-uk-" + id + "]")); });
+                fastdom.read(function () { return apsCore[name](("[uk-" + id + "],[data-uk-" + id + "]")); });
             }
 
             return components[name] = isPlainObject(options) ? opt : options;
         };
 
-        UIkit.getComponents = function (element) { return element && element[DATA] || {}; };
-        UIkit.getComponent = function (element, name) { return UIkit.getComponents(element)[name]; };
+        apsCore.getComponents = function (element) { return element && element[DATA] || {}; };
+        apsCore.getComponent = function (element, name) { return apsCore.getComponents(element)[name]; };
 
-        UIkit.connect = function (node) {
+        apsCore.connect = function (node) {
 
             if (node[DATA]) {
                 for (var name in node[DATA]) {
@@ -2781,14 +2779,14 @@
                 var name$1 = getComponentName(node.attributes[i].name);
 
                 if (name$1 && name$1 in components) {
-                    UIkit[name$1](node);
+                    apsCore[name$1](node);
                 }
 
             }
 
         };
 
-        UIkit.disconnect = function (node) {
+        apsCore.disconnect = function (node) {
             for (var name in node[DATA]) {
                 node[DATA][name]._callDisconnected();
             }
@@ -2802,10 +2800,10 @@
             : false;
     }
 
-    function boot (UIkit) {
+    function boot (apsCore) {
 
-        var connect = UIkit.connect;
-        var disconnect = UIkit.disconnect;
+        var connect = apsCore.connect;
+        var disconnect = apsCore.disconnect;
 
         if (!('MutationObserver' in window)) {
             return;
@@ -2841,7 +2839,7 @@
                 attributes: true
             });
 
-            UIkit._initialized = true;
+            apsCore._initialized = true;
         }
 
         function applyMutation(mutation) {
@@ -2853,7 +2851,7 @@
                 ? applyChildList(mutation)
                 : applyAttribute(mutation);
 
-            update && UIkit.update(target);
+            update && apsCore.update(target);
 
         }
 
@@ -2868,16 +2866,16 @@
 
             var name = getComponentName(attributeName);
 
-            if (!name || !(name in UIkit)) {
+            if (!name || !(name in apsCore)) {
                 return;
             }
 
             if (hasAttr(target, attributeName)) {
-                UIkit[name](target);
+                apsCore[name](target);
                 return true;
             }
 
-            var component = UIkit.getComponent(target, name);
+            var component = apsCore.getComponent(target, name);
 
             if (component) {
                 component.$destroy();
@@ -2919,11 +2917,11 @@
 
     }
 
-    function globalAPI (UIkit) {
+    function globalAPI (apsCore) {
 
-        var DATA = UIkit.data;
+        var DATA = apsCore.data;
 
-        UIkit.use = function (plugin) {
+        apsCore.use = function (plugin) {
 
             if (plugin.installed) {
                 return;
@@ -2935,17 +2933,17 @@
             return this;
         };
 
-        UIkit.mixin = function (mixin, component) {
-            component = (isString(component) ? UIkit.component(component) : component) || this;
+        apsCore.mixin = function (mixin, component) {
+            component = (isString(component) ? apsCore.component(component) : component) || this;
             component.options = mergeOptions(component.options, mixin);
         };
 
-        UIkit.extend = function (options) {
+        apsCore.extend = function (options) {
 
             options = options || {};
 
             var Super = this;
-            var Sub = function UIkitComponent (options) {
+            var Sub = function apsCoreComponent (options) {
                 this._init(options);
             };
 
@@ -2959,7 +2957,7 @@
             return Sub;
         };
 
-        UIkit.update = function (element, e) {
+        apsCore.update = function (element, e) {
 
             e = createEvent(e || 'update');
             element = element ? toNode(element) : document.body;
@@ -2970,7 +2968,7 @@
         };
 
         var container;
-        Object.defineProperty(UIkit, 'container', {
+        Object.defineProperty(apsCore, 'container', {
 
             get: function() {
                 return container || document.body;
@@ -3011,9 +3009,9 @@
 
     }
 
-    function hooksAPI (UIkit) {
+    function hooksAPI (apsCore) {
 
-        UIkit.prototype._callHook = function (hook) {
+        apsCore.prototype._callHook = function (hook) {
             var this$1 = this;
 
 
@@ -3024,7 +3022,7 @@
             }
         };
 
-        UIkit.prototype._callConnected = function () {
+        apsCore.prototype._callConnected = function () {
 
             if (this._connected) {
                 return;
@@ -3043,7 +3041,7 @@
             this._callUpdate();
         };
 
-        UIkit.prototype._callDisconnected = function () {
+        apsCore.prototype._callDisconnected = function () {
 
             if (!this._connected) {
                 return;
@@ -3063,7 +3061,7 @@
 
         };
 
-        UIkit.prototype._callUpdate = function (e) {
+        apsCore.prototype._callUpdate = function (e) {
             var this$1 = this;
 
 
@@ -3122,11 +3120,11 @@
 
     }
 
-    function stateAPI (UIkit) {
+    function stateAPI (apsCore) {
 
         var uid = 0;
 
-        UIkit.prototype._init = function (options) {
+        apsCore.prototype._init = function (options) {
 
             options = options || {};
             options.data = normalizeData(options, this.constructor.options);
@@ -3149,7 +3147,7 @@
             }
         };
 
-        UIkit.prototype._initData = function () {
+        apsCore.prototype._initData = function () {
             var this$1 = this;
 
 
@@ -3161,7 +3159,7 @@
             }
         };
 
-        UIkit.prototype._initMethods = function () {
+        apsCore.prototype._initMethods = function () {
             var this$1 = this;
 
 
@@ -3175,7 +3173,7 @@
             }
         };
 
-        UIkit.prototype._initComputeds = function () {
+        apsCore.prototype._initComputeds = function () {
             var this$1 = this;
 
 
@@ -3191,11 +3189,11 @@
             }
         };
 
-        UIkit.prototype._resetComputeds = function () {
+        apsCore.prototype._resetComputeds = function () {
             this._computeds = {};
         };
 
-        UIkit.prototype._initProps = function (props) {
+        apsCore.prototype._initProps = function (props) {
             var this$1 = this;
 
 
@@ -3219,7 +3217,7 @@
             }
         };
 
-        UIkit.prototype._initEvents = function () {
+        apsCore.prototype._initEvents = function () {
             var this$1 = this;
 
 
@@ -3242,12 +3240,12 @@
             }
         };
 
-        UIkit.prototype._unbindEvents = function () {
+        apsCore.prototype._unbindEvents = function () {
             this._events.forEach(function (unbind) { return unbind(); });
             this._events = [];
         };
 
-        UIkit.prototype._initObserver = function () {
+        apsCore.prototype._initObserver = function () {
             var this$1 = this;
 
 
@@ -3464,11 +3462,11 @@
         }
     }
 
-    function instanceAPI (UIkit) {
+    function instanceAPI (apsCore) {
 
-        var DATA = UIkit.data;
+        var DATA = apsCore.data;
 
-        UIkit.prototype.$mount = function (el) {
+        apsCore.prototype.$mount = function (el) {
 
             var ref = this.$options;
             var name = ref.name;
@@ -3490,16 +3488,16 @@
             }
         };
 
-        UIkit.prototype.$emit = function (e) {
+        apsCore.prototype.$emit = function (e) {
             this._callUpdate(e);
         };
 
-        UIkit.prototype.$reset = function () {
+        apsCore.prototype.$reset = function () {
             this._callDisconnected();
             this._callConnected();
         };
 
-        UIkit.prototype.$destroy = function (removeEl) {
+        apsCore.prototype.$destroy = function (removeEl) {
             if ( removeEl === void 0 ) removeEl = false;
 
 
@@ -3528,17 +3526,17 @@
             }
         };
 
-        UIkit.prototype.$create = function (component, element, data$$1) {
-            return UIkit[component](element, data$$1);
+        apsCore.prototype.$create = function (component, element, data$$1) {
+            return apsCore[component](element, data$$1);
         };
 
-        UIkit.prototype.$update = UIkit.update;
-        UIkit.prototype.$getComponent = UIkit.getComponent;
+        apsCore.prototype.$update = apsCore.update;
+        apsCore.prototype.$getComponent = apsCore.getComponent;
 
         var names = {};
-        Object.defineProperties(UIkit.prototype, {
+        Object.defineProperties(apsCore.prototype, {
 
-            $container: Object.getOwnPropertyDescriptor(UIkit, 'container'),
+            $container: Object.getOwnPropertyDescriptor(apsCore, 'container'),
 
             $name: {
 
@@ -3547,7 +3545,7 @@
                     var name = ref.name;
 
                     if (!names[name]) {
-                        names[name] = UIkit.prefix + hyphenate(name);
+                        names[name] = apsCore.prefix + hyphenate(name);
                     }
 
                     return names[name];
@@ -3559,25 +3557,25 @@
 
     }
 
-    var UIkit = function (options) {
+    var apsCore = function (options) {
         this._init(options);
     };
 
-    UIkit.util = util;
-    UIkit.data = '__uikit__';
-    UIkit.prefix = 'uk-';
-    UIkit.options = {};
+    apsCore.util = util;
+    apsCore.data = '__uikit__';
+    apsCore.prefix = 'uk-';
+    apsCore.options = {};
 
-    globalAPI(UIkit);
-    hooksAPI(UIkit);
-    stateAPI(UIkit);
-    componentAPI(UIkit);
-    instanceAPI(UIkit);
+    globalAPI(apsCore);
+    hooksAPI(apsCore);
+    stateAPI(apsCore);
+    componentAPI(apsCore);
+    instanceAPI(apsCore);
 
     {
-        boot(UIkit);
+        boot(apsCore);
     }
 
-    return UIkit;
+    return apsCore;
 
 })));
