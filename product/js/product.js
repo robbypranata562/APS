@@ -3644,7 +3644,7 @@
 						_that = e.current,
 						$produkPage = $u( util.parents( _this.$el, '.uk-productpage' ) ),
 						ProdukPage = apsCore.getComponent( $produkPage, 'productpage' );
-					ProdukPage.redirect ( 'add-product', { action:'edit', step:1, dataProduk:util.data( _that, 'data-produk' )} );
+					ProdukPage.redirect ( 'add-product', { action:'edit', step:1, dataProduk:util.data( util.parents( $u( _that ), 'tr' ), 'data-produk' )} );
 				},
 			}
 		],
