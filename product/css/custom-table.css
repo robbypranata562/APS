@@ -24,3 +24,4 @@
 	background-color: #e6f5fd;
 	cursor:pointer;
 }
+.page-content { max-height: calc(100vh - 48px); }

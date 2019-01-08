@@ -520,7 +520,7 @@
 				} );
 			},
 			next: function(){
-				var _this = this, index;
+				var _this = this, index, $produkPage, ProdukPage;
 				if( this.step >= 4 ){
 					
 					_.map( _this.disabledKombinasi, function( kombinasi ){
@@ -529,7 +529,6 @@
 							_this.kombinasi.splice( index, 1 );
 						}
 					} );
-					//console.log(_this.kombinasi)
 					aps.req({
 						tipe:'POST_MASTERPRODUK',
 						idproduk:$('[name="idproduk"]').val(),
@@ -545,7 +544,10 @@
 					})
 						.then(
 							function(data){
-								console.log(data)
+								util.trigger( $( '.table-product-wrapper' ), 'redraw', []  );
+								$produkPage = $u( util.parents( _this.$el, '.uk-productpage' ) );
+								ProdukPage = apsCore.getComponent( $produkPage, 'productpage' );
+								ProdukPage.redirect ( 'index-product', {}, false );
 							},
 							aps.noop
 						);
@@ -1224,7 +1226,6 @@
 				handler:function(){
 					var _this = this;
 					var files = $(".file-input[type='file']",this.$el).fileinput('getFileStack');
-					console.log($( '.file-preview-frame' ))
 				}
 			}
 		],
@@ -1262,8 +1263,7 @@
 			$('.file-input').off( 'fileloaded' );
 			$('.file-input').off( 'filebatchselected' );
 			$('.file-input').on( 'fileloaded', function( event, file, previewId, index, reader ){
-				//_this.$parentForm.listFoto[index] = reader.result;
-				//console.log(_this.$parentForm.listFoto)
+
 			} );
 			$('.file-input').on( 'filebatchselected', function( event, files ){
 				_this.$parentForm.listFoto = [];
@@ -1298,17 +1298,13 @@
 					aps.req( {tipe:'CEK_MASTERPRODUKNAME' , namaproduk: $( _that.$el ).val()} )
 					.then(
 						function(data){
-							console.log(data)
-						data = data['isexists'];
-						if (data != 0)
-						{
-							alert("Produk Nama Sudah Ada");
-							$( _that.$el ).focus();
-						}
-						console.log(data)
-
-
-				})
+							data = data['isexists'];
+							if (data != 0)
+							{
+								alert("Produk Nama Sudah Ada");
+								$( _that.$el ).focus();
+							}
+						})
 			},
 		}
 		],

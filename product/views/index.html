@@ -8,10 +8,10 @@
 				<button type="button" class="btn btn-primary btn-md mr-2 aps-add-product" data-uk-productpage_nav="template:add-product;refresh:true;"><i class="icon-plus22 mr-2"></i> Produk</button>
 				<button type="button" class="btn btn-primary btn-md mr-2 aps-export-product">Ekspor</button>
 				<button type="button" class="btn btn-success btn-md mr-2 aps-alokasi-outlet" data-uk-alokasi-outlet> Alokasi Outlet</button>
-				<button type="button" class="btn btn-danger btn-md mr-2 aps-hapus"><i class="icon-trash mr-2"></i>Hapus</button>
+				<button type="button" class="btn btn-danger btn-md mr-2 aps-hapus" data-uk-hapus_produk><i class="icon-trash mr-2"></i>Hapus</button>
 				<button type="button" class="btn btn-primary btn-md mr-2 aps-add-product-favorit" data-uk-add_favorit_produk> + Favorit</button>
-				<button type="button" class="btn btn-outline-danger btn-md mr-2 aps-delete-product-favorit"><i class="icon-trash mr-2"></i> Hapus Favorit</button>
-				<select data-uk-listoutlet class="listoutlet_index"></select>
+				<button type="button" class="btn btn-outline-danger btn-md mr-2 aps-delete-product-favorit" data-uk-hapus_favorit_produk><i class="icon-trash mr-2"></i> Hapus Favorit</button>
+				<select data-uk-listoutlet class="listoutlet_index d-none"></select>
 			</div>
 		</div>
 	</div>
@@ -24,6 +24,75 @@
 		<div class="row">
 			<div class="col-xl-12">
 				<div class="table-product-wrapper" data-uk-tableproductwrapper>
+					<div class="row align-items-center mb-4">
+						<div class="col-sm-auto table-information">
+						</div>
+						<div class="col-sm-auto">
+							<div class="form-check form-check-switchery form-check-switchery-double">
+								<label class="form-check-label">
+									<p class="font-size-lg d-block mb-0 mr-2">Tampilkan </p>
+									<select class="form-control table-length">
+										<option value="50">50</option>
+										<option value="75">75</option>
+										<option value="100">100</option>
+										<option value="-1">Tampilkan Semua</option>
+									</select>
+									<p class="font-size-lg d-block mb-0 ml-2"> Hasil</p>
+								</label>
+							</div>
+						</div>
+						<div class="col table-pagination">
+						</div>
+					</div>
+					<div class="table-responsive">
+						<table id="t_product" data-uk-tableproduct class="table dataTable dtr-inline table--card col-sm-12 tableproduct">
+							<thead>
+								<tr>
+									<th width="5%"></th>
+									<th>
+										Nama Produk
+									</th>
+									<th>
+										Status Produk
+									</th>
+									<th>
+										Kategori
+									</th>
+									<th>
+										Stock
+									</th>
+								</tr>
+								<tr>
+									<th width="5%" class="select-checkbox"></th>
+									<th>
+										<input data-uk-search type="text" class="param-search form-control" placeholder="Search Produk">
+									</th>
+									<th>
+										<select data-uk-status_produk class="param-status_produk form-control"></select>
+									</th>
+									<th>
+										<select data-uk-kategori class="param-kategori form-control"></select>
+									</th>
+									<th>
+										<select data-uk-stock class="param-stock form-control"></select>
+									</th>
+								</tr>
+								<tr>
+									<th width="5%"></th>
+									<th>
+										<span>Total <span class="thead_totalproduk">...</span> Jenis Produk</span>
+									</th>
+									<th></th>
+									<th></th>
+									<th>
+										<span>Total <span class="thead_totalstock">...</span></span>
+									</th>
+								</tr>
+							</thead>
+							<tbody>
+							</tbody>
+						</table>
+					</div>
 				</div>
 				<div class="card card-body">
 					<div class="row">

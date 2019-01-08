@@ -1,0 +1,42 @@
+<script type="text/template" id="tmpl-table-pagination">
+	<% if( pagination.length ){%>
+		<nav aria-label="Page navigation example">
+			<ul class="pagination justify-content-end">
+				<li class="page-item <% if( page === 1 ){ %> disabled <% } %>">
+					<a class="page-link" href="#" data-page="1">First</a>
+				</li>
+				<li class="page-item <% if( page === 1 ){ %> disabled <% } %>">
+					<a class="page-link" href="#" tabindex="-1" data-page="<%= ( parseInt( page ) - 2 ) %>">Previous</a>
+				</li>
+				<% _.map( pagination, function( number ){ %>
+					<% if( ( ( page - 1 ) > 2 && number === 1 ) || ( page + 2 < _.last( pagination ) && number === _.last( pagination ) ) )return; %>
+					<li class="page-item <% if( page === number ){ %> active <% } %>"><a class="page-link" href="#" data-page="<%= ( parseInt( number ) - 1 ) %>"><%= number %></a></li>
+				<% });%>
+				<li class="page-item <% if( page === _.last( pagination ) ){ %> disabled <% } %>">
+					<a class="page-link" href="#" data-page="<%= ( parseInt( page ) ) %>">Next</a>
+				</li>
+				<li class="page-item <% if( page === _.last( pagination ) ){ %> disabled <% } %>">
+					<a class="page-link" href="#" data-page="<%= ( parseInt( _.last( pagination ) ) - 1 )%>">Last</a>
+				</li>
+			</ul>
+		</nav>
+	<% } else {%>
+		<nav aria-label="Page navigation example">
+			<ul class="pagination justify-content-end">
+				<li class="page-item disabled">
+					<a class="page-link" href="#">First</a>
+				</li>
+				<li class="page-item disabled">
+					<a class="page-link" href="#" tabindex="-1">Previous</a>
+				</li>
+				<li class="page-item active"><a class="page-link" href="#">1</a></li>
+				<li class="page-item disabled">
+					<a class="page-link" href="#">Next</a>
+				</li>
+				<li class="page-item disabled">
+					<a class="page-link" href="#">Last</a>
+				</li>
+			</ul>
+		</nav>
+	<% } %>
+</script>

@@ -1,49 +1,23 @@
 <script type="text/template" id="tmpl-table-productasd">
-	<table data-uk-tableproduct="idoutlet:<%= idoutlet %>;idkategori:<%= idkategori %>;statusproduk:<%= statusproduk %> ; stokoption : <%=stokoption%> ; search : <%=search%>; length : <%=length%>" class="table datatable-responsive dataTable no-footer dtr-inline table--card col-sm-12" id="t_product">
-		<thead>
-			<tr>
-				<th width="5%"></th>
-				<th>
-					Nama Produk
-				</th>
-				<th>
-					Status Produk
-				</th>
-				<th>
-					Kategori
-				</th>
-				<th>
-					Stock
-				</th>
-			</tr>
-			<tr>
-				<th width="5%" class="select-checkbox"></th>
-				<th>
-					<input data-uk-search type="text" class="param-search form-control" placeholder="Search Produk">
-				</th>
-				<th>
-					<select data-uk-status_produk class="param-status_produk form-control"></select>
-				</th>
-				<th>
-					<select data-uk-kategori class="param-kategori form-control"></select>
-				</th>
-				<th>
-					<select data-uk-stock class="param-stock form-control"></select>
-				</th>
-			</tr>
-			<tr>
-				<th width="5%"></th>
-				<th>
-					<span>Total <span class="thead_totalproduk">...</span> Jenis Produk</span>
-				</th>
-				<th></th>
-				<th></th>
-				<th>
-					<span>Total <span class="thead_totalstock">...</span></span>
-				</th>
-			</tr>
-		</thead>
-		<tbody>
-		</tbody>
-	</table>
+	<% _.map( daftarproduk, function( produk ){ %>
+		<tr id="<%= produk.idproduk %>" data-produk="<%= encodeURI( JSON.stringify( produk ) ) %>">
+			<td class="check">
+				<input type="checkbox" class="form-check-input-switchery pilih-produk" data-fouc data-uk-uniform value="<%= produk.idproduk %>">
+			</td>
+			<td>
+				<h6 class="mb-0 font-weight-semibold"><%= produk.namaproduk %></h6>
+				<p class="mb-0 text-muted"><%= produk.jumlahvarian %> varian - <%= produk.varian[0].jumlahsubvarian %> subvarian</p>
+			</td>
+			<td>
+				<% if (produk.isfavorit == "1" || produk.isfavoritpelanggan == "1"){%>
+					<img src="global_assets/images/icon/icon-favorit.svg">
+				<%}%>
+				<% if ( produk.ispromokonsinyasi == "1" ){%>
+					<img src="global_assets/images/icon/icon-status-diskon.svg">
+				<%}%>
+			</td>
+			<td><%= produk.namakategoriproduk %></td>
+			<td><%= produk.jumlahstokproduk %></td>
+		</tr>
+	<% });%>
 </script>
