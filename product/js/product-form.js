@@ -122,6 +122,58 @@
 		}
 	});
 	
+	apsCore.component( 'addproductcategory', {
+		mixins:[Class],
+		events:[
+			{
+				name:'click',
+				delegate:'.add-kategori-save',
+				handler:function(){
+					this.save();
+				}
+			}
+		],
+		methods:{
+			save:function(){
+				var _this = this;
+				aps.req( {tipe:'ADD_KATEGORIPRODUK',namakategoriproduk:$( '.add-kategori-input', _this.$el ).val()} )
+					.then(
+						function(data){
+							var $kategori = apsCore.getComponent( $u( '.uk-selectproductcategory' ), 'selectproductcategory' );
+							$kategori.init();
+						},
+						aps.noop
+					);
+			},
+		}
+	});
+	
+	apsCore.component( 'addproductuom', {
+		mixins:[Class],
+		events:[
+			{
+				name:'click',
+				delegate:'.add-uom-save',
+				handler:function(){
+					this.save();
+				}
+			}
+		],
+		methods:{
+			save:function(){
+				var _this = this;
+				aps.req( {tipe:'ADD_MASTERSATUAN',namasatuan:$( '.add-uom-input', _this.$el ).val()} )
+					.then(
+						function(data){
+							var $uom = apsCore.getComponent( $u( '.uk-selectproductuom' ), 'selectproductuom' );
+							$uom.init();
+						},
+						aps.noop
+					);
+			},
+		}
+	});
+	
 	apsCore.component( 'selectproductcategory', {
 		mixins:[Class],
 		connected:function(){
@@ -144,6 +196,7 @@
 								obj.text = obj.text || obj.NAMAKATEGORIPRODUK;
 								return obj;
 							} );
+							$( _this.$el ).empty();
 							$( _this.$el ).select2({
 							  data: dataSelect
 							});
