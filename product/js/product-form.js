@@ -129,7 +129,19 @@
 				name:'click',
 				delegate:'.add-kategori-save',
 				handler:function(){
-					this.save();
+					var _this = this;
+					if( $( '.add-kategori-input', _this.$el ).val() !== '' ){
+						this.save();
+					} else {
+						new Noty({
+							theme: 'limitless',
+							text: '<h4 class="mb-3">Nama Kategori Tidak Boleh Kosong</h6>',
+							timeout: 1000,
+							layout: 'center',
+							closeWith: 'click',
+							type: 'alert',
+						}).show();
+					}
 				}
 			}
 		],
@@ -155,7 +167,19 @@
 				name:'click',
 				delegate:'.add-uom-save',
 				handler:function(){
-					this.save();
+					var _this = this;
+					if( $( '.add-uom-input', _this.$el ).val() !== '' ){
+						this.save();
+					} else {
+						new Noty({
+							theme: 'limitless',
+							text: '<h4 class="mb-3">Nama Satuan Tidak Boleh Kosong</h6>',
+							timeout: 1000,
+							layout: 'center',
+							closeWith: 'click',
+							type: 'alert',
+						}).show();
+					}
 				}
 			}
 		],
@@ -330,6 +354,7 @@
 				delegate : '.add-kategori',
 				handler:function(e, target){
 					e.preventDefault();
+					$( '.add-kategori-input' ).val('');
 					$("#modal-add-kategori").modal('show');
 				}
 			},
@@ -338,6 +363,7 @@
 				delegate : '.add-satuan',
 				handler:function(e, target){
 					e.preventDefault();
+					$( '.add-uom-input' ).val('');
 					$("#modal-add-satuan").modal('show');
 				}
 			}
