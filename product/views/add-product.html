@@ -78,11 +78,25 @@
 								</div>
 								<div class="form-group">
 									<label>Kategory:</label>
-									<select class="form-control select" data-uk-selectproductcategory="selected:<%= dataProduk.idkategoriproduk %>;" name="idkategoriproduk"></select>
+									<div class="row">
+										<div class="col-md-6">
+											<select class="form-control select" data-uk-selectproductcategory="selected:<%= dataProduk.idkategoriproduk %>;" name="idkategoriproduk"></select>
+										</div>
+										<div class="col-md-6">
+											<button type="button" class="btn btn-primary btn-md mr-2 add-kategori"><i class="icon-plus22 mr-2"></i>Kategori</button>
+										</div>
+									</div>
 								</div>
 								<div class="form-group">
 									<label>Satuan Produk:</label>
-									<select class="form-control select" data-uk-selectproductuom="selected:<%= dataProduk.idsatuanproduk %>;" name="idsatuanproduk"></select>
+									<div class="row">
+										<div class="col-md-6">
+											<select class="form-control select" data-uk-selectproductuom="selected:<%= dataProduk.idsatuanproduk %>;" name="idsatuanproduk"></select>
+										</div>
+										<div class="col-md-6">
+											<button type="button" class="btn btn-primary btn-md mr-2 add-satuan"><i class="icon-plus22 mr-2"></i>Satuan</button>
+										</div>
+									</div>
 								</div>
 								<div class="form-group">
 									<label>Berat Produk (KG):</label>

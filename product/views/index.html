@@ -45,7 +45,7 @@
 						</div>
 					</div>
 					<div class="table-responsive">
-						<table id="t_product" data-uk-tableproduct class="table dataTable dtr-inline table--card col-sm-12 tableproduct">
+						<table id="t_product" data-uk-tableproduct="idoutlet:<?php echo isset( $_SESSION['outletsekarang'] ) ? $_SESSION['outletsekarang'] : 1;?>;" class="table dataTable dtr-inline table--card col-sm-12 tableproduct">
 							<thead>
 								<tr>
 									<th width="5%"></th>

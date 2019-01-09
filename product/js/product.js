@@ -3771,7 +3771,7 @@
 			var _this = this,
 				produkArgs = {
 					tipe			: 'GET_OUTLETMASTERPRODUK',
-					idoutlet 		: 1, 
+					idoutlet 		: _this.idoutlet, 
 					search 			: _this.search, 
 					limit			: 50, 
 					page			: _this.page,
@@ -3798,6 +3798,7 @@
 		methods:{
 			renderTable:function( args ){
 				var _this = this;
+				args.idoutlet = _this.idoutlet;
 				aps.req( args )
 					.then(
 						function(data){
