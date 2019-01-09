@@ -271,6 +271,22 @@
 					this.prev();
 				}
 				
+			},
+			{
+				name: 'click',
+				delegate : '.add-kategori',
+				handler:function(e, target){
+					e.preventDefault();
+					$("#modal-add-kategori").modal('show');
+				}
+			},
+			{
+				name: 'click',
+				delegate : '.add-satuan',
+				handler:function(e, target){
+					e.preventDefault();
+					$("#modal-add-satuan").modal('show');
+				}
 			}
 		],
 		methods:{

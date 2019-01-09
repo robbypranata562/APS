@@ -13,6 +13,8 @@ include(__DIR__."/main_header.php");
 <?php include(__DIR__."/product/views/varian-input.html");?>
 <?php include(__DIR__."/product/views/kombinasi.html");?>
 <?php include(__DIR__."/product/views/modal.html");?>
+<?php include(__DIR__."/product/views/modal-add-kategori.html");?>
+<?php include(__DIR__."/product/views/modal-add-satuan.html");?>
 <!-- Custom CSS -->
 <link rel="stylesheet" type="text/css" href="product/css/custom.css" />
 <link rel="stylesheet" type="text/css" href="product/css/custom-table.css" />
