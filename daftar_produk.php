@@ -3,24 +3,24 @@ session_start();
 include(__DIR__."/Functions.php");
 //include(__DIR__."/cekUser.php");
 //include(__DIR__."/DBConnectPDOH.php");
-include(__DIR__."/product/views/table-pagination.html");
-include(__DIR__."/product/views/table-product.html");
+include(__DIR__."/daftar_produk/views/table-pagination.html");
+include(__DIR__."/daftar_produk/views/table-product.html");
 $page_title = 'Product Page';
 include(__DIR__."/main_header.php");
 ?>
-<?php include(__DIR__."/product/views/index.html");?>
-<?php include(__DIR__."/product/views/add-product.html");?>
-<?php include(__DIR__."/product/views/varian-input.html");?>
-<?php include(__DIR__."/product/views/kombinasi.html");?>
-<?php include(__DIR__."/product/views/modal.html");?>
-<?php include(__DIR__."/product/views/modal-add-kategori.html");?>
-<?php include(__DIR__."/product/views/modal-add-satuan.html");?>
+<?php include(__DIR__."/daftar_produk/views/index.html");?>
+<?php include(__DIR__."/daftar_produk/views/add-product.html");?>
+<?php include(__DIR__."/daftar_produk/views/varian-input.html");?>
+<?php include(__DIR__."/daftar_produk/views/kombinasi.html");?>
+<?php include(__DIR__."/daftar_produk/views/modal.html");?>
+<?php include(__DIR__."/daftar_produk/views/modal-add-kategori.html");?>
+<?php include(__DIR__."/daftar_produk/views/modal-add-satuan.html");?>
 <!-- Custom CSS -->
-<link rel="stylesheet" type="text/css" href="product/css/custom.css" />
+<link rel="stylesheet" type="text/css" href="daftar_produk/css/custom.css" />
 <!-- /Custom CSS -->
 
 <!-- Custom Javascript -->
-<script src="product/js/underscores.min.js"></script>
+<script src="daftar_produk/js/underscores.min.js"></script>
 <script src="global_assets/js/plugins/forms/styling/uniform.min.js"></script>
 <script src="global_assets/js/plugins/forms/styling/switchery.min.js"></script>
 <script src="global_assets/js/plugins/forms/selects/select2.min.js"></script>
@@ -33,8 +33,8 @@ include(__DIR__."/main_header.php");
 <script src="global_assets/js/plugins/uploaders/fileinput/plugins/purify.min.js"></script>
 <script src="global_assets/js/plugins/uploaders/fileinput/plugins/sortable.min.js"></script>
 <script src="global_assets/js/plugins/uploaders/fileinput/fileinput.min.js"></script>
-<script src="product/js/product.js"></script>
-<script src="product/js/product-form.js"></script>
+<script src="daftar_produk/js/product.js"></script>
+<script src="daftar_produk/js/product-form.js"></script>
 <script src="welcome/js/custom.js"></script>
 		<!-- /Custom Javascript -->
 		<?php include(__DIR__."/navbar_sidebar.php");?>
@@ -49,10 +49,10 @@ include(__DIR__."/main_header.php");
 
 		</div>
 	<!-- /page content -->
-	<?php include(__DIR__."/product/views/index.html");?>
-	<?php include(__DIR__."/product/views/add-product.html");?>
-	<?php include(__DIR__."/product/views/varian-input.html");?>
-	<?php include(__DIR__."/product/views/kombinasi.html");?>
-	<?php include(__DIR__."/product/views/varian-per-outlet.html");?>
+	<?php include(__DIR__."/daftar_produk/views/index.html");?>
+	<?php include(__DIR__."/daftar_produk/views/add-product.html");?>
+	<?php include(__DIR__."/daftar_produk/views/varian-input.html");?>
+	<?php include(__DIR__."/daftar_produk/views/kombinasi.html");?>
+	<?php include(__DIR__."/daftar_produk/views/varian-per-outlet.html");?>
 	</body>
 </html>

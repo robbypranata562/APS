@@ -130,7 +130,7 @@
 						<li class="nav-item nav-item-submenu">
 							<a href="#" class="nav-link legitRipple"><i class="icon-copy"></i> <span>Produk</span></a>
 							<ul class="nav nav-group-sub" data-submenu-title="Layouts">
-								<li class="nav-item"><a href="product.php" class="nav-link active legitRipple">Daftar Produk</a></li>
+								<li class="nav-item"><a href="daftar_produk.php" class="nav-link active legitRipple">Daftar Produk</a></li>
 							</ul>
 						</li>
 						<?php //echo get_bo_menus(0,'welcome.php'); ?>
