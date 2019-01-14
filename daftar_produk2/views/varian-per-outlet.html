@@ -1,0 +1,110 @@
+<script type="text/template" id="tmpl-varian-per-outlet">
+	<div class="card-group-control card-group-control-right" id="produkstokharga-outlets-wrapper" data-uk-produkstokharga_outlets>
+		<% for( var i in outlets ){ %>
+			<div class="card produkstokharga-outlet-item">
+				<div class="card-header">
+					<h6 class="card-title">
+						<div class="form-check">
+							<label class="form-check-label">
+								<input type="checkbox" name="enableOutlet" value="<%= outlets[i].IDOUTLET%>" class="form-check-input-styled enable-outlet" data-fouc="" <% if( currentOutlet === outlets[i].IDOUTLET || _.contains( enableOutlet,outlets[i].IDOUTLET  ) ){%> checked <% }%> data-uk-uniform>
+								<a data-toggle="collapse" class="text-default" href="#produkstokharga-outlets-wrapper-outlet<%= outlets[i].IDOUTLET%>"><%= outlets[i].NAMAOUTLET%></a>
+							</label>
+						</div>
+					</h6>
+				</div>
+
+				<div id="produkstokharga-outlets-wrapper-outlet<%= outlets[i].IDOUTLET%>" class="collapse" data-parent="#produkstokharga-outlets-wrapper">
+					<div class="card-body">
+						<div class="table-responsive">
+							<table class="table" data-uk-produkstokharga_outlet>
+								<thead>
+									<tr>
+										<th>Nama Produk</th>
+										<th>Stok</th>
+										<th>Harga Jual</th>
+										<th>Harga HPP</th>
+										<th>Notifikasi Minimal Stok</th>
+										<th>Notifikasi Maksimal Stok</th>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td></td>
+										<td>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input type="checkbox" data-field="jumlahstok" class="form-check-input-styled all-varian jumlahstok-all" data-fouc="" data-uk-uniform>
+													Berlaku di semua varian
+												</label>
+											</div>
+										</td>
+										<td>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input type="checkbox" data-field="hargajual" class="form-check-input-styled all-varian hargajual-all" data-fouc="" data-uk-uniform>
+													Berlaku di semua varian
+												</label>
+											</div>
+										</td>
+										<td>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input type="checkbox" data-field="hpp" class="form-check-input-styled all-varian hpp-all" data-fouc="" data-uk-uniform>
+													Berlaku di semua varian
+												</label>
+											</div>
+										</td>
+										<td>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input type="checkbox" data-field="notifikasiminimalstok" class="form-check-input-styled all-varian notifikasiminimalstok-all" data-fouc="" data-uk-uniform>
+													Berlaku di semua varian
+												</label>
+											</div>
+										</td>
+										<td>
+											<div class="form-check">
+												<label class="form-check-label">
+													<input data-field="notifikasimaksimalstok" type="checkbox" class="form-check-input-styled all-varian notifikasimaksimalstok-all" data-fouc="" data-uk-uniform>
+													Berlaku di semua varian
+												</label>
+											</div>
+										</td>
+									</tr>
+									<% for( var j in kombinasi ){ %>
+										<% 
+											var stokHargaOutlet = ! _.isUndefined( stokHarga[ outlets[i].IDOUTLET ] ) 
+													&& 
+												! _.isUndefined( stokHarga[ outlets[i].IDOUTLET ][ kombinasi[j].kombinasiIds ] ) 
+													? 
+												stokHarga[ outlets[i].IDOUTLET ][ kombinasi[j].kombinasiIds ] 
+													: 
+												{
+													jumlahstok:"",
+													hpp: "",
+													hargajual:"",
+													notifikasiminimalstok:"",
+													notifikasimaksimalstok:"",
+												}
+										%>
+										<% if( ! _.contains( disabledKombinasi, kombinasi[j].kombinasiIds  ) ){%>
+											<tr class="produkstokharga-outlet" data-kombinasi="<%= kombinasi[j].kombinasiIds %>" data-outlet="<%= outlets[i].IDOUTLET %>">
+												<td><%= kombinasi[j].produkKombinasi %></td>
+												<td><input value="<%= stokHargaOutlet.jumlahstok %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Stok" name="jumlahstok" data-produk-prop="jumlahstok"></td>
+												<td><input value="<%= stokHargaOutlet.hargajual %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Harga Jual" name="hargajual" data-produk-prop="hargajual"></td>
+												<td><input value="<%= stokHargaOutlet.hpp %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Harga HPP" name="hpp" data-produk-prop="hpp"></td>
+												<td><input value="<%= stokHargaOutlet.notifikasiminimalstok %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Notifikasi Minimal Stok" name="notifikasiminimalstok" data-produk-prop="minstok"></td>
+												<td><input value="<%= stokHargaOutlet.notifikasimaksimalstok %>" type="text" class="form-control produkstokharga_outlets-input" placeholder="Notifikasi Maksimal Stok" name="notifikasimaksimalstok" data-produk-prop="maxstok"></td>
+											</tr>
+										<% }%>
+									<% }%>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+			</div>
+			
+		<% }%>
+	</div>
+</script>

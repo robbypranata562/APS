@@ -2212,6 +2212,7 @@ v.001 (2018-10-20) - kris
       }
       $data = array("errcode"=>"OK", "message"=>"get slider berhasil", "listslider"=>$listslider);
     }
+    
   
 	  echo json_encode($data);
   }

@@ -4162,7 +4162,7 @@
 							success: function(data){
 									var data = data.daftarkategoriproduk;
 									$(_this.$el).append('<option value="">Semua kategori</option>');
-									_.each( data, function(i){
+								_.each( data, function(i){
 									$(_this.$el).append('<option value="' + i['IDKATEGORIPRODUK'] + '">' + i['NAMAKATEGORIPRODUK'] + '</option>');
 								} )
 							},

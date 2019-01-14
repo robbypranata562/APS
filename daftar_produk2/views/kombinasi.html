@@ -1,0 +1,13 @@
+<script type="text/template" id="tmpl-varian-kombinasi">
+	<tr class="varian-kombinasi-item" data-kombinasi="<%= kombinasi %>" 
+		<% for( var i in dataKombinasi ){%>
+			data-varian<%= ( parseInt( i ) + 1 )%>="<%= dataKombinasi[i]%>"
+		<% }%>
+	>
+		<td class="text-center">
+			<a href="#" class="disabled-kombinasi" data-action="disabled"><i class="icon-cross2 text-danger-400"></i></a>
+		</td>
+		<td class="varian-kombinasi-item-nama"><%= produk %></td>
+		<td class="varian-kombinasi-item-barcode"><input type="text" class="form-control" value="<%= barcode %>" placeholder="Barcode" name="barcode"></td>
+	</tr>
+</script>
