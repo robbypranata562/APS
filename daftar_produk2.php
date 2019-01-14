@@ -28,8 +28,8 @@ include(__DIR__."/main_header.php");
 			<div class="content-wrapper" data-uk-productpage="template:index-product;refresh:true;">
 				<!-- Page Container Selector-->
 				<?php
-					//include(__DIR__."/daftar_produk2/views/table-pagination.html");
-					//include(__DIR__."/daftar_produk2/views/table-product.html");
+					include(__DIR__."/daftar_produk2/views/table-pagination.html");
+					include(__DIR__."/daftar_produk2/views/table-product.html");
 					include(__DIR__."/daftar_produk2/views/index.html");
 				?>
 				<!-- /Page Container Selector-->

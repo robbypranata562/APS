@@ -122,8 +122,13 @@
         $.getScript("daftar_produk2/js/produk.js", {
             cache: true
         }).done(function () {
-            produk.init();
+				var param = {};
+				param.attribute =
+				{
+					"idoutlet" : "1"
+				}
+				produk.init(param);
+            });
+           
         });
-
-    })
 	</script>

@@ -3843,9 +3843,13 @@
 				return range;
 			},
 			renderPagination:function( page, total, data ){
-				var _this = this, pagination = _this.pagination( page, Math.round( ( parseInt( total ) / $( '.table-length', $( _this.$el ).parents( '.table-product-wrapper' ) ).val() ) ) ),
-					paginationTmp = $( '#tmpl-table-pagination' );
+							
+				var _this = this, 
+
+				pagination = _this.pagination( page, Math.round( ( parseInt( total ) / $( '.table-length', $( _this.$el ).parents( '.table-product-wrapper' ) ).val() ) ) ),
+				paginationTmp = $( '#tmpl-table-pagination' );
 				var tmp = _.template( paginationTmp.html() );
+				console.log(paginationTmp.html());
 				var start = page > 1 ? ( ( ( parseInt( page ) - 1 ) * parseInt( $( '.table-length' ).val() ) ) + 1 ) : page;
 				var end = data.length * page;
 				$( '.table-information', $( this.$el )
