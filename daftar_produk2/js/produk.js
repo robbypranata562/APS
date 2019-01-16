@@ -1,5 +1,6 @@
-var produk = new function () 
+var produk = new function ()
 {
+	this.listidproduk = [];
     this.method = "";
 	this.idoutlet = 1;
 	this.search = "";
@@ -43,14 +44,14 @@ var produk = new function ()
 		url: 'https://development.autopilotstore.co.id/api_all.php',
 		data: JSON.stringify(_param),
 		success: function(data){
-			var data = data.daftarkategoriproduk; 
+			var data = data.daftarkategoriproduk;
 			data.forEach(function(item) {
 				$(".param-kategori").append("<option value="+item["IDKATEGORIPRODUK"]+">"+item["NAMAKATEGORIPRODUK"]+"</option>");
 			});
 		},
 		complete:function(){
 		},
-	dataType: 'json',
+			dataType: 'json',
 		});
 		$(".param-kategori").change(function(e){
 			var _this = this;
@@ -71,6 +72,141 @@ var produk = new function ()
 			produk.search = this.value;
 			produk.initTable();
 		})
+		$(".aps-alokasi-outlet").click(function(){
+			$('#t_product tbody tr .pilih-produk:checked').each(function(i, obj) {
+				produk.listidproduk.push( this.value );
+			});
+			var args =
+			{
+				tipe			: 'GET_USEROUTLET'
+			};
+			$.ajax({
+				type: "POST",
+				url: 'https://development.autopilotstore.co.id/api_all.php',
+				data: JSON.stringify(args),
+				success: function(data){
+					var list_outlet = data.listuseroutlet;
+					for (outlet in list_outlet)
+					{
+						$(".modal-body .row-outlet").append
+						(
+							'<div class="form-check"><label class="form-check-label">' +
+									'<input data-uk-uniform data-id-outlet = "'+list_outlet[outlet]['IDOUTLET']+'" type="checkbox" class="form-check-input-styled">' +
+							''+list_outlet[outlet]['NAMAOUTLET']+''+
+							'</label></div>'
+						);
+					}
+					$("#modal-outlet").modal('show');
+				},
+				complete:function(){
+				},
+				dataType: 'json',
+			});
+		})
+		$(".add-alokasi-outlet").click(function(){
+			var list_id_outlet = [];
+			$('#modal-outlet row-outlet form-check:checked').each(function(i, obj) {
+				list_id_outlet.push( $(this).attr('data-id-outlet') );
+			});
+			console.log(list_id_outlet)
+			// var args =
+			// {
+			// 	tipe			: 'GET_USEROUTLET'
+			// };
+			// $.ajax({
+			// 	type: "POST",
+			// 	url: 'https://development.autopilotstore.co.id/api_all.php',
+			// 	data: JSON.stringify(args),
+			// 	success: function(data){
+			// 		var list_outlet = data.listuseroutlet;
+			// 		for (outlet in list_outlet)
+			// 		{
+			// 			$(".modal-body .row-outlet").append
+			// 			(
+			// 				'<div class="form-check"><label class="form-check-label">' +
+			// 						'<input data-uk-uniform data-id-outlet = "'+list_outlet[outlet]['IDOUTLET']+'" type="checkbox" class="form-check-input-styled">' +
+			// 				''+list_outlet[outlet]['NAMAOUTLET']+''+
+			// 				'</label></div>'
+			// 			);
+			// 		}
+			// 		$("#modal-outlet").modal('show');
+			// 	},
+			// 	complete:function(){
+			// 	},
+			// 	dataType: 'json',
+			// });
+		})
+		$(".aps-add-product-favorit").click(function(){
+			var list_id_produk = [];
+			$('#t_product tbody tr .pilih-produk:checked').each(function(i, obj) {
+				list_id_produk.push( this.value );
+			});
+			var args =
+			{
+				tipe			: 'ADD_PRODUKFAVORIT',
+				idoutlet		: produk.idoutlet,
+				listidproduk 	: list_id_produk
+			};
+			$.ajax({
+				type: "POST",
+				url: 'https://development.autopilotstore.co.id/api_all.php',
+				data: JSON.stringify(args),
+				success: function(data){
+					var ret = data;
+					alert(ret.message)
+				},
+				complete:function(){
+				},
+				dataType: 'json',
+			});
+		})
+		$(".aps-delete-product-favorit").click(function(){
+			var list_id_produk = [];
+			$('#t_product tbody tr .pilih-produk:checked').each(function(i, obj) {
+				list_id_produk.push( this.value );
+			});
+			var args =
+			{
+				tipe			: 'DELETE_PRODUKFAVORIT',
+				idoutlet		: produk.idoutlet,
+				listidproduk 	: list_id_produk
+			};
+			$.ajax({
+				type: "POST",
+				url: 'https://development.autopilotstore.co.id/api_all.php',
+				data: JSON.stringify(args),
+				success: function(data){
+					var ret = data;
+					alert(ret.message)
+				},
+				complete:function(){
+				},
+				dataType: 'json',
+			});
+		})
+		$(".aps-hapus").click(function(){
+			var list_id_produk = [];
+			$('#t_product tbody tr .pilih-produk:checked').each(function(i, obj) {
+				list_id_produk.push( this.value );
+			});
+			var args =
+			{
+				tipe			: 'DELETE_MASTERPRODUK',
+				listidproduk 	: list_id_produk
+			};
+			$.ajax({
+				type: "POST",
+				url: 'https://development.autopilotstore.co.id/api_all.php',
+				data: JSON.stringify(args),
+				success: function(data){
+					var ret = data;
+					alert(ret.message)
+				},
+				complete:function(){
+				},
+			dataType: 'json',
+		});
+		})
 	}
 	this.initTable = function(){
 		var data;
@@ -88,12 +224,12 @@ var produk = new function ()
 		$(".aps-delete-product-favorit").hide()
 		var args =
 		{
-			tipe			: 'GET_OUTLETMASTERPRODUK',
-			idoutlet 		: produk.idoutlet, 
-			search 			: produk.search, 
-			limit			: produk.limit, 
+			tipe			: 'GET_MASTERPRODUK',
+			idoutlet 		: produk.idoutlet,
+			search 			: produk.search,
+			limit			: produk.limit,
 			page			: produk.page,
-			idkategori		: produk.idkategori , 
+			idkategori		: produk.idkategori ,
 			statusproduk 	: produk.statusproduk,
 			stokoption 		: produk.stokoption,
 		};
@@ -105,7 +241,7 @@ var produk = new function ()
 					var data_produk = data.daftarproduk;
 					data_produk.forEach(function(item) {
 						var data_row = "";
-						data_row = 
+						data_row =
 							"<tr id="+item.idproduk+" data-produk="+item+">" +
 								"<td class='check'>" +
 									"<input type='checkbox' class='form-check-input-switchery pilih-produk' data-fouc data-uk-uniform value="+item.idproduk+">" +
@@ -121,18 +257,48 @@ var produk = new function ()
 								"<td>"+item.jumlahstokproduk+"</td>" +
 							"</tr>"
 							$("#t_product tbody").append(data_row)
-						
+
 					});
 					$( '.thead_totalproduk' ).html( data.jumlahproduk );
 					$( '.thead_totalstock' ).html( data.jumlahstoktotal );
 					produk.renderPagination((parseInt( args.page ) + 1 ), data.jumlahproduk, data.daftarproduk);
 					$(".pilih-produk").uniform();
+					$(".pilih-produk").change(function (e) {
+					e.preventDefault();
+					var _this = $( this ).parents( 'tr' );
+					if ( $( this ).prop('checked') ){
+						$(_this).addClass("selected");
+					} else {
+						$(_this).removeClass("selected")
+					}
+
+					if ($("#t_product tbody tr.selected").length){
+						$(".aps-add-product").hide()
+						$(".aps-export-product").hide()
+						$(".aps-alokasi-outlet").show()
+						$(".aps-hapus").show()
+						$(".aps-add-product-favorit").show()
+						$(".aps-delete-product-favorit").show()
+
+					} else {
+						$(".aps-add-product").show()
+						$(".aps-export-product").show()
+						$(".aps-alokasi-outlet").hide()
+						$(".aps-hapus").hide()
+						$(".aps-add-product-favorit").hide()
+						$(".aps-delete-product-favorit").hide()
+					}
+					});
+					$(".table-pagination .page-link").click(function(e){
+						produk.page = $(this).attr("data-page");
+						produk.initTable();
+					})
 				},
 				complete:function(){
 				},
 			dataType: 'json',
 		});
-		
+
 	}
 	this.pagination =  function(c, m){
 		var current = c,
@@ -169,7 +335,7 @@ var produk = new function ()
 		paginationTmp = $( '#tmpl-table-pagination' );
 		//var tmp = _.template( paginationTmp.html() );
 		var tmp =  paginationTmp.html();
-		
+
 		var start = page > 1 ? ( ( ( parseInt( page ) - 1 ) * parseInt( $( '.table-length' ).val() ) ) + 1 ) : page;
 		var end = data.length * page;
 		$( '.table-information').html('<p class="font-size-lg mb-0">Tampilkan ' + start + '-' + end + ' dari ' + total + '</p>');
@@ -194,7 +360,7 @@ var produk = new function ()
 				"<li class='page-item' "+ hasClassDisabled +" > " +
 					"<a class='page-link' href='#' tabindex='-1' data-page=" + (page - 2)+ ">Previous</a>" +
 				"</li>";
-			_pagination.forEach(function(number) 
+			_pagination.forEach(function(number)
 			{
 				if( ( ( page - 1 ) > 2 && number === 1 ) || ( page + 2 < _pagination[_pagination.length - 1] && number === pagination[_pagination.length - 1] ) )return;
 				if (page === number){
@@ -213,6 +379,24 @@ var produk = new function ()
 					"<a class='page-link' href='#' data-page="+( _pagination[_pagination.length - 1]) +">Last</a>" +
 				"</li>";
 			List_Pagination += "</ul>";
+		} else {
+			List_Pagination = "<nav aria-label='Page navigation example'>" +
+			"<ul class='pagination justify-content-end'>" +
+				"<li class='page-item disabled'>" +
+					"<a class='page-link' href='#'>First</a>" +
+				"</li>" +
+				"<li class='page-item disabled'>" +
+					"<a class='page-link' href='#' tabindex='-1'>Previous</a>" +
+				"</li>" +
+				"<li class='page-item active'><a class='page-link' href='#'>1</a></li>" +
+				"<li class='page-item disabled'>" +
+					"<a class='page-link' href='#'>Next</a>" +
+				"</li>" +
+				"<li class='page-item disabled'>" +
+					"<a class='page-link' href='#'>Last</a>" +
+				"</li>" +
+			"</ul>" +
+		"</nav>"
 		}
 		return List_Pagination;
 	}
