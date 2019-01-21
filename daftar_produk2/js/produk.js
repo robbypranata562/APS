@@ -105,7 +105,7 @@ var produk = new function ()
 		})
 		$(".add-alokasi-outlet").click(function(){
 			var list_id_outlet = [];
-			$('#modal-outlet row-outlet form-check:checked').each(function(i, obj) {
+			$('#modal-outlet .row-outlet .form-check .form-check-input-styled:checked').each(function(i, obj) {
 				list_id_outlet.push( $(this).attr('data-id-outlet') );
 			});
 			console.log(list_id_outlet)
@@ -141,6 +141,7 @@ var produk = new function ()
 			$('#t_product tbody tr .pilih-produk:checked').each(function(i, obj) {
 				list_id_produk.push( this.value );
 			});
+			alert("")
 			var args =
 			{
 				tipe			: 'ADD_PRODUKFAVORIT',
@@ -152,8 +153,10 @@ var produk = new function ()
 				url: 'https://development.autopilotstore.co.id/api_all.php',
 				data: JSON.stringify(args),
 				success: function(data){
+					console.log(data)
 					var ret = data;
 					alert(ret.message)
+					produk.initTable();
 				},
 				complete:function(){
 				},
@@ -178,6 +181,7 @@ var produk = new function ()
 				success: function(data){
 					var ret = data;
 					alert(ret.message)
+					produk.initTable();
 				},
 				complete:function(){
 				},
@@ -201,6 +205,7 @@ var produk = new function ()
 				success: function(data){
 					var ret = data;
 					alert(ret.message)
+					produk.initTable();
 				},
 				complete:function(){
 				},
@@ -241,20 +246,27 @@ var produk = new function ()
 					var data_produk = data.daftarproduk;
 					data_produk.forEach(function(item) {
 						var data_row = "";
+						var image = "";
+						if (item.isfavorit == "1" || item.isfavoritpelanggan == "1"){
+							image =  "<img src='daftar_produk/image/icon/icon-favorit.svg'>";
+						}
+						if ( item.ispromokonsinyasi == "1" ){
+							image = "<img src='daftar_produk/image/icon/icon-status-diskon.svg'>"
+						}
 						data_row =
 							"<tr id="+item.idproduk+" data-produk="+item+">" +
 								"<td class='check'>" +
 									"<input type='checkbox' class='form-check-input-switchery pilih-produk' data-fouc data-uk-uniform value="+item.idproduk+">" +
 								"</td>" +
 								"<td>" +
-									"<h6 class='mb-0 font-weight-semibold'>"+item.namaproduk+"</h6>" +
-									"<p class='mb-0 text-muted'>"+item.jumlahvarian+" varian - "+item.varian[0].jumlahsubvarian+" subvarian</p>" +
+									"<h6 class='mb-0 font-weight-semibold text_20'>"+item.namaproduk+"</h6>" +
+									"<p class='mb-0 text-muted text_13'>"+item.jumlahvarian+" varian - "+item.varian[0].jumlahsubvarian+" subvarian</p>" +
 								"</td>" +
 								"<td>" +
-									"<img src='daftar_produk/image/icon/icon-status-diskon.svg'>" +
+								image +
 								"</td>" +
-								"<td>"+item.namakategoriproduk+"</td>" +
-								"<td>"+item.jumlahstokproduk+"</td>" +
+								"<td class = 'text_13'>"+item.namakategoriproduk+"</td>" +
+								"<td class= 'text_20'>"+item.jumlahstokproduk+"</td>" +
 							"</tr>"
 							$("#t_product tbody").append(data_row)
 
