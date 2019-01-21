@@ -4,8 +4,8 @@
 				<h3 class="">PRODUK > DAFTAR PRODUK</h3>
 			</div>
 			<div class="btn-toolbar d-flex justify-content-center">
-				<button type="button" class="btn d-sm-block btn-primary btn-md mr-2 aps-add-product" data-uk-productpage_nav="template:add-product;refresh:true;"><i class="icon-plus22 mr-2"></i> Produk</button>
-				<button type="button" class="btn btn-primary btn-md mr-2 aps-export-product">Ekspor</button>
+				<button type="button" class="btn d-sm-block btn-primary btn_color_primary btn-md mr-2 aps-add-product" data-uk-productpage_nav="template:add-product;refresh:true;"><img src="daftar_produk2/image/icon/icon_tambah_putih.svg"> Produk</button>
+				<button type="button" class="btn btn-primary btn_color_primary btn-md mr-2 aps-export-product">Ekspor</button>
 				<button type="button" class="btn btn-success btn-md mr-2 aps-alokasi-outlet" data-uk-alokasi-outlet> Alokasi Outlet</button>
 				<button type="button" class="btn btn-danger btn-md mr-2 aps-hapus" data-uk-hapus_produk><i class="icon-trash mr-2"></i>Hapus</button>
 				<button type="button" class="btn btn-primary btn-md mr-2 aps-add-product-favorit" data-uk-add_favorit_produk> + Favorit</button>
@@ -17,7 +17,7 @@
 	<!-- /page header -->
 	
 	<!-- Content area -->
-	<div class="content">
+	<div class="content pt-0">
 		<!-- Dashboard content -->
 		<div class="row">
 			<div class="col-xl-12">
@@ -33,7 +33,6 @@
 										<option value="50">50</option>
 										<option value="75">75</option>
 										<option value="100">100</option>
-										<option value="-1">Tampilkan Semua</option>
 									</select>
 									<p class="font-size-lg d-block mb-0 ml-2"> Hasil</p>
 								</label>
@@ -47,17 +46,47 @@
 							<thead>
 								<tr>
 									<th width="5%"></th>
-									<th>
-										Nama Produk
+									<th>	
+										<div class="row">
+												<div class="col-sm-auto">Nama Produk</div>
+												<div class="col text-right">
+													<a class="up"><i class="icon-arrow-up5"></i></a>
+													<a class="down"><i class="icon-arrow-down5"></i></a>
+												</div>
+												
+										</div>
+										
 									</th>
 									<th>
-										Status Produk
+										<div class="row">
+											<div class="col-sm-auto">Status Produk</div>
+											<div class="col text-right">
+												<a class="up"><i class="icon-arrow-up5"></i></a>
+												<a class="down"><i class="icon-arrow-down5"></i></a>
+											</div>
+											
+									</div>
+										
 									</th>
 									<th>
-										Kategori
+										<div class="row">
+											<div class="col-sm-auto">Kategori</div>
+											<div class="col text-right">
+												<a class="up"><i class="icon-arrow-up5"></i></a>
+												<a class="down"><i class="icon-arrow-down5"></i></a>
+											</div>
+											
+									</div>
 									</th>
 									<th>
-										Stock
+										<div class="row">
+											<div class="col-sm-auto">Stock</div>
+											<div class="col text-right">
+												<a class="up"><i class="icon-arrow-up5"></i></a>
+												<a class="down"><i class="icon-arrow-down5"></i></a>
+											</div>
+											
+									</div>
 									</th>
 								</tr>
 								<tr>

@@ -124,3 +124,104 @@
 	cursor:pointer;
 }
 .page-content { max-height: calc(100vh - 48px); }
+.page-title h3 {
+  font-size: 13px;
+  font-weight: bold;
+}
+.btn-toolbar .btn {
+  min-width: 140px;
+}
+#t_product thead th {
+  font-size: 13px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.thead_totalproduk , .thead_totalstock {
+  font-size: 20px;
+  text-transform: none !important;
+}
+
+.param-search::placeholder{
+  font-size: 13px;
+}
+.text_13 {
+  font-size: 13px;
+}
+.text_20 {
+  font-size: 20px;
+}
+.btn-primary.btn_color_primary {
+  background-color: #01AFE4;
+  font-weight: bold;
+}
+a.page-link {
+  border: none !important;
+  background-color: transparent !important;
+}
+
+.text-right .up, .text-right .down {
+  display: block;
+  position: absolute;
+  right: 0;
+  z-index: 1;
+}
+
+.text-right .up {
+  top: 15px;
+}
+
+.text-right .down {
+  top: 30px;
+}
+
+#t_product thead tr:first-child th {
+  padding-bottom: 0;
+}
+
+
+
+#t_product thead tr:nth-child(2) th {
+  padding-top: 5px;
+  padding-bottom: 5px;
+}
+
+#t_product thead tr:last-child th {
+  padding-top: 0;
+}
+
+.form-control {
+width: 75%;
+}
+
+.uniform-checker span:after{
+  color: #808080 !important;
+}
+
+@media screen and (min-width: 1024px) {
+  tr:before {
+      content: '';
+  }
+  
+  .table--card > tbody > tr:before {
+      box-sizing: border-box;
+      position: absolute;
+      left: 0;
+      right: 2px;
+      display: block;
+      height: 75px;
+      box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.15);
+      -webkit-box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.15);
+  }
+  
+  .table--card > thead > tr:last-child:before {
+      box-sizing: border-box;
+      position: absolute;
+      left: 0;
+      right: 0px;
+      display: block;
+      height: 42px;
+      box-shadow: 0px 5px 10px 0px rgba(0, 0, 0, 0.15);
+      -webkit-box-shadow: 0px 10px 10px 0px rgba(0, 0, 0, 0.15);
+  }
+  }
