@@ -22,16 +22,22 @@ include(__DIR__."/main_header.php");
 <script src="global_assets/js/plugins/uploaders/fileinput/plugins/sortable.min.js"></script>
 <script src="global_assets/js/plugins/uploaders/fileinput/fileinput.min.js"></script>
 <script src="welcome/js/custom.js"></script>
+<script src="daftar_produk2/js/produk-form.js"></script>
 		<!-- /Custom Javascript -->
 		<?php include(__DIR__."/navbar_sidebar.php");?>
 			<!-- Main content -->
-			<div class="content-wrapper" data-uk-productpage="template:index-product;refresh:true;">
+			<div class="content-wrapper produk-page">
 				<!-- Page Container Selector-->
-				<?php
-					include(__DIR__."/daftar_produk2/views/table-pagination.html");
-					include(__DIR__."/daftar_produk2/views/table-product.html");
-					include(__DIR__."/daftar_produk2/views/index.html");
-				?>
+				<div class="aps-container" data-template="index-product">
+					<?php
+						include(__DIR__."/daftar_produk2/views/table-pagination.html");
+						include(__DIR__."/daftar_produk2/views/table-product.html");
+						include(__DIR__."/daftar_produk2/views/index.html");
+					?>
+				</div>
+				<div class="aps-container" data-template="add-product">
+				
+				</div>
 				<!-- /Page Container Selector-->
 			</div>
 			<!-- /main content -->
@@ -42,5 +48,7 @@ include(__DIR__."/main_header.php");
 	<?php include(__DIR__."/daftar_produk2/views/varian-input.html");?>
 	<?php include(__DIR__."/daftar_produk2/views/kombinasi.html");?>
 	<?php include(__DIR__."/daftar_produk2/views/varian-per-outlet.html");?>
+	<?php include(__DIR__."/daftar_produk2/views/modal-add-kategori.html");?>
+	<?php include(__DIR__."/daftar_produk2/views/modal-add-satuan.html");?>
 	</body>
 </html>

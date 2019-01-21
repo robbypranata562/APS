@@ -1,47 +1,23 @@
 <script type="text/template" id="tmpl-add-product">
-	<%
-		var args = {
-				step: ! _.isUndefined( data.step ) ? data.step : 1,
-				action: ! _.isUndefined( data.action ) ? data.action : "add",
-				dataProduk: ! _.isUndefined( data.dataProduk ) ? data.dataProduk : "",
-			},
-			dataProduk = args.dataProduk !== "" 
-					? 
-				JSON.parse( decodeURI( args.dataProduk ) ) 
-					: 
-				{
-					idproduk:"",
-					namaproduk:"",
-					tipe:0,
-					idkategoriproduk:1,
-					idsatuanproduk:2,
-					berat:"",
-					deskripsiproduk:"",
-				};
-	%>
 	<div class="page-header">
 		<div class="page-header-content header-elements-md-inline">
 			<div class="breadcrumb">
-				<a href="#" class="breadcrumb-item" data-uk-productpage_nav="template:index-product;refresh:false;">PRODUK</a>
+				<a href="#" class="breadcrumb-item produk-page-nav produk-page-nav__index">PRODUK</a>
 				<span class="breadcrumb-item active">
-					<% if( args.dataProduk !== "" ){%>
-						EDIT PRODUK
-					<% } else {%>
-						TAMBAH PRODUK
-					<% }%>
+					TAMBAH PRODUK
 				</span>
 			</div>
 		</div>
 	</div>
 	<!-- /page header -->
 	<!-- Content area -->
-	<form action="#" data-uk-productform="step:<%=args.step%>;action:<%=args.action%>;data-produk:<%=args.dataProduk%>;">
+	<form action="#" class="produk-form">
 		<div class="content pt-0">
 			<!-- Dashboard content -->
 			<div class="row">
 				<div class="col-xl-auto">
 					<div class="card card-body pb-sm-0 pt-sm-0">
-						<ul class="nav nav-tabs nav-tabs-bottom mb-sm-0" data-uk-producttab>
+						<ul class="nav nav-tabs nav-tabs-bottom mb-sm-0">
 							<li class="nav-item">
 								<a href="#produk-deskripsi" class="nav-link active text-left" data-toggle="tab" data-step="1">Deskripsi</a>
 							</li>
@@ -66,13 +42,13 @@
 							<div class="card card-body">
 								<div class="form-group">
 									<label>Nama Produk:</label>
-									<input type="hidden" class="form-control" placeholder="Nama Produk" name="idproduk" value="<%= dataProduk.idproduk %>">
-									<input data-uk-nama_produk type="text" class="form-control" placeholder="Nama Produk" name="namaproduk" value="<%= dataProduk.namaproduk %>">
+									<input type="hidden" class="form-control" placeholder="Nama Produk" name="idproduk" value="">
+									<input type="text" class="form-control" placeholder="Nama Produk" name="namaproduk" value="">
 								</div>
 								<div class="form-check form-check-switchery form-check-switchery-double">
 									<label class="form-check-label">
 										<p class="font-size-lg d-block">Kelola Stock <span class="font-size-sm d-block">Jumlah stock terupdate otomatis</span></p>
-										<input type="checkbox" class="form-check-input-switchery" data-fouc data-uk-switchery name="tipestok" <% if( dataProduk.tipe == 1 ){%> checked <% }%>>
+										<input type="checkbox" class="form-check-input-switchery" data-fouc name="tipestok">
 										<p class="font-size-lg d-block">Non Kelola Stock <span class="font-size-sm d-block">Contoh : Produk Jasa</span></p>
 									</label>
 								</div>
@@ -80,7 +56,7 @@
 									<label>Kategory:</label>
 									<div class="row">
 										<div class="col-md-6">
-											<select class="form-control select" data-uk-selectproductcategory="selected:<%= dataProduk.idkategoriproduk %>;" name="idkategoriproduk"></select>
+											<select class="form-control select produk-kategori" name="idkategoriproduk"></select>
 										</div>
 										<div class="col-md-6">
 											<button type="button" class="btn btn-primary btn-md mr-2 add-kategori"><i class="icon-plus22 mr-2"></i>Kategori</button>
@@ -91,20 +67,20 @@
 									<label>Satuan Produk:</label>
 									<div class="row">
 										<div class="col-md-6">
-											<select class="form-control select" data-uk-selectproductuom="selected:<%= dataProduk.idsatuanproduk %>;" name="idsatuanproduk"></select>
+											<select class="form-control select produk-uom" name="idsatuanproduk"></select>
 										</div>
 										<div class="col-md-6">
-											<button type="button" class="btn btn-primary btn-md mr-2 add-satuan"><i class="icon-plus22 mr-2"></i>Satuan</button>
+											<button type="button" class="btn btn-primary btn-md mr-2 add-uom"><i class="icon-plus22 mr-2"></i>Satuan</button>
 										</div>
 									</div>
 								</div>
 								<div class="form-group">
 									<label>Berat Produk (KG):</label>
-									<input type="text" class="form-control" placeholder="Berat Produk" name="berat" value="<%= dataProduk.berat %>">
+									<input type="text" class="form-control" placeholder="Berat Produk" name="berat" value="">
 								</div>
 								<div class="form-group">
 									<label>Deskripsi:</label>
-									<textarea rows="3" cols="3" class="form-control" placeholder="Deskripsi" name="deskripsiproduk"><%= dataProduk.deskripsiproduk %></textarea>
+									<textarea rows="3" cols="3" class="form-control" placeholder="Deskripsi" name="deskripsiproduk"></textarea>
 								</div>
 							</div>
 						</div>
@@ -115,7 +91,7 @@
 						<div class="col-md-3 d-none produk-varianitems-wrapper">
 							<div class="card card-body">
 								<h5>Varian</h5>
-								<div data-uk-varianitems="id-varian:varian1">
+								<div class="produk-varian produk-varian-1">
 									<div class="produk-varian-items"></div>
 									<button type="submit" class="form-control btn btn-primary add-varian"><i class="icon-plus22 mr-2"></i> Varian</button>
 								</div>
@@ -124,7 +100,7 @@
 						<div class="col-md-3 d-none produk-varianitems-wrapper">
 							<div class="card card-body">
 								<h5>Subvarian</h5>
-								<div data-uk-varianitems="id-varian:varian2">
+								<div class="produk-varian produk-varian-2">
 									<div class="produk-varian-items"></div>
 									<button type="submit" class="form-control btn btn-primary add-varian"><i class="icon-plus22 mr-2"></i> Subvarian</button>
 								</div>
@@ -171,7 +147,7 @@
 			</div>
 			<div class="text-right">
 				<button type="submit" class="btn btn-danger product-form-prev d-none">Previous</button>
-				<button type="submit" class="btn btn-danger product-form-cancel" data-uk-productpage_nav="template:index-product;refresh:false;">Cancel</button>
+				<a href="#" class="btn btn-danger product-form-cancel produk-page-nav produk-page-nav__index">Cancel</a>
 				<button type="submit" class="btn btn-primary product-form-next">
 					<span class="d-none title-simpan">Simpan</span> 
 					<span class="title-next">Next</span>
