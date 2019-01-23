@@ -1,3 +1,8 @@
+Array.prototype.unique = function( filter ) {
+  return this.filter(function (value, index, self) {
+	return self.findIndex( find => find.id === value.id ) === index;
+  });
+};
 (function($){
 	'use strict';
 	window.aps = window.aps||{};
@@ -66,7 +71,7 @@
 		data = data || {};
 		var	_this = this;
 		this.render( $( '#tmpl-' + _this.template ), data ).then(function( page ){
-			$( document ).trigger( _this.template + ':ready', [page] );
+			$( document ).trigger( _this.template + ':ready', [page, data] );
 		});
 	};
 	aps.ProdukPage.prototype.render = function( $template, data ){
@@ -106,6 +111,7 @@
 		this.DataProduk = options.DataProduk;
 		this.useVarian = options.useVarian;
 		this.useSubvarian = options.useSubvarian;
+		this.kombinasiUseSubvarian = options.kombinasiUseSubvarian;
 		this.varians = options.varians;
 		this.kombinasi = options.kombinasi;
 		this.postedKombinasi = options.postedKombinasi;
@@ -117,12 +123,20 @@
 		this.disabledKombinasi = options.disabledKombinasi;
 		this.init();
 	};
-	aps.ProdukForm.prototype.init = function(){
+	aps.ProdukForm.prototype.refreshData = function(){
 		var _this = this;
-		if( _this.action === 'edit' ){
-			$( '.nav-item a', this.$el ).attr( 'data-toggle', 'tab' );
-			$( '.nav-item a', this.$el ).removeClass( 'disabled' );
-		}
+		_this.DataProduk = {};
+		_this.useVarian = false;
+		_this.useSubvarian = false;
+		_this.varians = {};
+		_this.kombinasi = [];
+		_this.postedKombinasi = [];
+		_this.produkOutlets = [];
+		_this.stokhargaOutlets = {};
+		_this.enableOutlet = [];
+	};
+	aps.ProdukForm.prototype.initStatement = function(){
+		var _this = this;
 		_this.initSwitchery();
 		_this.addProdukKategori();
 		_this.initProdukKategori();
@@ -138,6 +152,152 @@
 			e.preventDefault();
 			_this.prev();
 		});
+	};
+	aps.ProdukForm.prototype.init = function(){
+		var _this = this;
+		if( _this.action === 'edit' ){
+			$( '.nav-item a', this.$el ).attr( 'data-toggle', 'tab' );
+			$( '.nav-item a', this.$el ).removeClass( 'disabled' );
+		}
+		_this.setDataProduk();
+	};
+	aps.ProdukForm.prototype.setDataProduk = function(){
+		var _this = this, count = 0, varian2 = [], varianItems;
+		if( _this.action == 'edit' ){
+			_this.varians.varian1 = [];
+			_this.getOutlets().then(function( outlets ){
+				
+				_this.getProdukOutlets( outlets ).then(function( produkOutlets ){
+					_this.initStatement();
+					_this.produkOutlets = $.grep( produkOutlets, function(produkOutlet){
+						if( produkOutlet.produk ){
+							_this.enableOutlet.push( produkOutlet.IDOUTLET );
+						}
+						return produkOutlet.produk;
+					} );
+					console.log(_this.enableOutlet)
+					if( _this.DataProduk.varian.length ===1 && _this.DataProduk.varian[0].varian1 === '' ){
+						_this.useVarian = false;
+					} else {
+						_this.useVarian = true;
+					}
+					$.map( _this.DataProduk.varian, function( _varian1 ){
+				
+						_this.varians.varian1.push( 
+							{ 
+								id:'varian1-' + _varian1.idvarian.split( '.' )[1], 
+								name:_varian1.varian1,
+							} 
+						);
+						
+						$.map( _varian1.subvarian, function( _varian2 ){
+							varian2.push( 
+								{
+									id:'varian2-' + _varian2.idproduk_var.split( '.' )[2], 
+									name:_varian2.varian2,
+								}
+							);
+							_this.postedKombinasi.push({
+								varian1:'varian1-' + _varian1.idvarian.split( '.' )[1],
+								varian2:'varian2-' + _varian2.idproduk_var.split( '.' )[2],
+								idVarian1:_varian1.idvarian,
+								idVarian2:_varian2.idproduk_var,
+								barcode:_varian2.barcode,
+							});
+							
+						} );
+						
+					} );
+					_this.varians.varian2 = varian2.unique( 'id' );
+					_this.generateKombinasi();
+					_this.$varian1.setVarian();
+					_this.$varian2.setVarian();
+					_this.$varian1.changeKombinasi();
+					_this.$varian1.changeKombinasi();
+				},aps.noop);
+				
+			}, aps.noop);
+			
+		} else {
+			_this.initStatement();
+		}
+	};
+	aps.ProdukForm.prototype.getProdukOutlets = function( outlets ){
+		var _this = this, deferred = new $.Deferred(), count = outlets.length, produkOutlets = [], params = {};
+
+		$.map( outlets, function( outlet ){
+			params = {
+				tipe			: 'GET_MASTERPRODUK',
+				idoutlet 		: outlet.IDOUTLET, 
+				search 			: _this.DataProduk.idproduk, 
+				limit			: 1, 
+				page			: 0,
+				idkategori		: '' , 
+				statusproduk 	: '',
+				stokoption 		: '',
+			};
+
+			$.ajax({
+				type: "POST",
+				url: aps.apiURL,
+				data: JSON.stringify( params ),
+				beforeSend:function(){
+					$.blockUI({ 
+						message: '<i class="icon-spinner4 spinner"></i>',
+						//timeout: 2000, //unblock after 2 seconds
+						overlayCSS: {
+							backgroundColor: '#1b2024',
+							opacity: 0.8,
+							zIndex: 1200,
+							cursor: 'wait'
+						},
+						css: {
+							border: 0,
+							color: '#fff',
+							padding: 0,
+							zIndex: 1201,
+							backgroundColor: 'transparent'
+						}
+					});
+				},
+				success: function( data ){
+					$.unblockUI();
+					if( data.errcode == "OK" ){
+						if( typeof data.daftarproduk[0] !== 'undefined' ){
+							produkOutlets.push( { IDOUTLET:outlet.IDOUTLET, produk: data.daftarproduk[0] } );
+						} else {
+							produkOutlets.push( { IDOUTLET:outlet.IDOUTLET, produk: false } );
+						}
+					}
+					
+				},
+				complete: function(){
+					count--;
+					if( count <= 0 ){
+						deferred.resolve( produkOutlets );
+					}
+				},
+				dataType: 'json',
+			});
+		} );
+		return deferred.promise();
+	};
+	aps.ProdukForm.prototype.getOutlets = function(){
+		var _this = this, deferred = new $.Deferred();
+		aps.req( 
+			{
+				tipe:'GET_USEROUTLET',
+				idoutlet:'',
+			} 
+		).then(
+			function(data){
+				deferred.resolve( data.listuseroutlet );
+			},
+			function(){
+				deferred.reject();
+			}
+		);
+		return deferred.promise();
 	};
 	aps.ProdukForm.prototype.tabShow = function( step ){
 		var _this = this;
@@ -278,38 +438,36 @@
 	};
 	aps.ProdukForm.prototype.next = function(){
 		var _this = this, index, $produkPage, ProdukPage;
-		// if( _this.step >= 4 ){
+		if( _this.step === 3 ){
 			
-			// _.map( _this.disabledKombinasi, function( kombinasi ){
-				// index = _.findIndex( _this.kombinasi, {kombinasiIds:kombinasi} );
-				// if( index !== -1 ){
-					// _this.kombinasi.splice( index, 1 );
-				// }
-			// } );
-			// aps.req({
-				// tipe:'POST_MASTERPRODUK',
-				// idproduk:$('[name="idproduk"]').val(),
-				// tipestok:$('[name="tipestok"]').prop('checked') ? 1 : 0,
-				// idkategoriproduk: $('[name="idkategoriproduk"]').val(),
-				// namaproduk:$('[name="namaproduk"]').val(),
-				// idsatuanproduk:$('[name="idsatuanproduk"]').val(),
-				// berat: $('[name="berat"]').val(),
-				// deskripsiproduk:$('[name="deskripsiproduk"]').val(),
-				// fotoprodukutama:_this.fotoProdukUtama,
-				// listvarian:_this.kombinasi,
-				// listfoto:_this.listFoto,
-			// })
-				// .then(
-					// function(data){
-						// util.trigger( $( '.table-product-wrapper' ), 'redraw', []  );
-						// $produkPage = $u( util.parents( _this.$el, '.uk-productpage' ) );
-						// ProdukPage = apsCore.getComponent( $produkPage, 'productpage' );
-						// ProdukPage.redirect ( 'index-product', {}, false );
-					// },
-					// aps.noop
-				// );
-			// return;
-		// }
+			$.map( _this.disabledKombinasi, function( kombinasi ){
+				index = _this.kombinasi.findIndex( find => find.kombinasiIds == kombinasi );
+				if( index !== -1 ){
+					_this.kombinasi.splice( index, 1 );
+				}
+			} );
+			aps.req({
+				tipe:'POST_MASTERPRODUK',
+				idproduk:$('[name="idproduk"]').val(),
+				tipestok:$('[name="tipestok"]').prop('checked') ? 1 : 0,
+				idkategoriproduk: $('[name="idkategoriproduk"]').val(),
+				namaproduk:$('[name="namaproduk"]').val(),
+				idsatuanproduk:$('[name="idsatuanproduk"]').val(),
+				berat: $('[name="berat"]').val(),
+				deskripsiproduk:$('[name="deskripsiproduk"]').val(),
+				listvarian:_this.kombinasi,
+			})
+				.then(
+					function(data){
+						//util.trigger( $( '.table-product-wrapper' ), 'redraw', []  );
+						//$produkPage = $u( util.parents( _this.$el, '.uk-productpage' ) );
+						//ProdukPage = apsCore.getComponent( $produkPage, 'productpage' );
+						_this.redirect( 'index-product', {}, false );
+					},
+					aps.noop
+				);
+			return;
+		}
 		_this.step++;
 		$( '.nav-item a[data-step="' + _this.step + '"]' ).attr( 'data-toggle', 'tab' );
 		$( '.nav-item a[data-step="' + _this.step + '"]' ).removeClass( 'disabled' );
@@ -414,46 +572,261 @@
 	};
 	aps.ProdukForm.prototype.step3 = function(){
 		var outlets = [],
-			tmp = _.template( $( '#tmpl-varian-per-outlet' ).html() ),
+			//tmp = _.template( $( '#tmpl-varian-per-outlet' ).html() ),
+			$outlets_html = '',
+			$listHarga = '',
+			currentOutlet = $(".listoutlet_index").val(),
+			checkedOutlet = '',
 			_this = this;
 		_this.titleNext( true );
 		
-		util.removeClass( $u( '.product-form-next', _this.$el ), 'd-none' );
-		util.removeClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
+		$( '.product-form-next', _this.$el ).removeClass( 'd-none' );
+		$( '.product-form-prev', _this.$el ).removeClass( 'd-none' );
 		aps.req( 
 			{
-				tipe:'GET_OUTLET',
+				tipe:'GET_USEROUTLET',
 				idoutlet:'',
 			} 
 		)
 			.then(
 				function(data){
-					outlets = data.daftaroutlet
+					outlets = data.listuseroutlet;
+					if( typeof outlets == 'object' ){
+						$.map( outlets, function( outlet ){
+							checkedOutlet = ( /*currentOutlet === outlet.IDOUTLET ||*/ $.inArray( outlet.IDOUTLET, _this.enableOutlet ) !== -1 ) ? 'checked' : '';
+							$listHarga = '';
+							$.map( _this.kombinasi, function( kombinasi ){
+								var stokHargaOutlet = typeof _this.stokhargaOutlets[ outlet.IDOUTLET ] !== 'undefined'
+										&& 
+									typeof _this.stokhargaOutlets[ outlet.IDOUTLET ][ kombinasi.kombinasiIds ] !== 'undefined' 
+										? 
+									_this.stokhargaOutlets[ outlet.IDOUTLET ][ kombinasi.kombinasiIds ] 
+										: 
+									{
+										jumlahstok:"",
+										hpp: "",
+										hargajual:"",
+										notifikasiminimalstok:"",
+										notifikasimaksimalstok:"",
+									}
+								if( $.inArray( kombinasi.kombinasiIds, _this.disabledKombinasi ) == -1 ){
+									$listHarga += `<tr class="produkstokharga-outlet" data-kombinasi="` + kombinasi.kombinasiIds + `" data-outlet="`+ outlet.IDOUTLET +`">
+										<td>`+ kombinasi.produkKombinasi +`</td>
+										<td><input value="`+ stokHargaOutlet.jumlahstok +`" type="text" class="form-control produkstokharga_outlets-input" placeholder="Stok" name="jumlahstok" data-produk-prop="jumlahstok"></td>
+										<td><input value="`+ stokHargaOutlet.hargajual +`" type="text" class="form-control produkstokharga_outlets-input" placeholder="Harga Jual" name="hargajual" data-produk-prop="hargajual"></td>
+										<td><input value="`+ stokHargaOutlet.hpp +`" type="text" class="form-control produkstokharga_outlets-input" placeholder="Harga HPP" name="hpp" data-produk-prop="hpp"></td>
+										<td><input value="`+ stokHargaOutlet.notifikasiminimalstok +`" type="text" class="form-control produkstokharga_outlets-input" placeholder="Notifikasi Minimal Stok" name="notifikasiminimalstok" data-produk-prop="minstok"></td>
+										<td><input value="`+ stokHargaOutlet.notifikasimaksimalstok +`" type="text" class="form-control produkstokharga_outlets-input" placeholder="Notifikasi Maksimal Stok" name="notifikasimaksimalstok" data-produk-prop="maxstok"></td>
+									</tr>`;
+								}
+							} );
+							$outlets_html += `
+							<div class="card produkstokharga-outlet-item">
+								<div class="card-header">
+									<h6 class="card-title">
+										<div class="form-check">
+											<label class="form-check-label">
+												<input type="checkbox" name="enableOutlet" value="`+ outlet.IDOUTLET + `" class="form-check-input-styled enable-outlet" data-fouc="" `+ checkedOutlet +` data-uk-uniform>
+												<a data-toggle="collapse" class="text-default" href="#produkstokharga-outlets-wrapper-outlet`+ outlet.IDOUTLET + `">`+ outlet.NAMAOUTLET + `</a>
+											</label>
+										</div>
+									</h6>
+								</div>
+
+								<div id="produkstokharga-outlets-wrapper-outlet`+ outlet.IDOUTLET + `" class="collapse" data-parent="#produkstokharga-outlets-wrapper">
+									<div class="card-body">
+										<div class="table-responsive">
+											<table class="table table-produkstokharga_outlet" data-uk-produkstokharga_outlet>
+												<thead>
+													<tr>
+														<th>Nama Produk</th>
+														<th>Stok</th>
+														<th>Harga Jual</th>
+														<th>Harga HPP</th>
+														<th>Notifikasi Minimal Stok</th>
+														<th>Notifikasi Maksimal Stok</th>
+													</tr>
+												</thead>
+												<tbody>
+													<tr>
+														<td></td>
+														<td>
+															<div class="form-check">
+																<label class="form-check-label">
+																	<input type="checkbox" data-field="jumlahstok" class="form-check-input-styled all-varian jumlahstok-all" data-fouc="" data-uk-uniform>
+																	Berlaku di semua varian
+																</label>
+															</div>
+														</td>
+														<td>
+															<div class="form-check">
+																<label class="form-check-label">
+																	<input type="checkbox" data-field="hargajual" class="form-check-input-styled all-varian hargajual-all" data-fouc="" data-uk-uniform>
+																	Berlaku di semua varian
+																</label>
+															</div>
+														</td>
+														<td>
+															<div class="form-check">
+																<label class="form-check-label">
+																	<input type="checkbox" data-field="hpp" class="form-check-input-styled all-varian hpp-all" data-fouc="" data-uk-uniform>
+																	Berlaku di semua varian
+																</label>
+															</div>
+														</td>
+														<td>
+															<div class="form-check">
+																<label class="form-check-label">
+																	<input type="checkbox" data-field="notifikasiminimalstok" class="form-check-input-styled all-varian notifikasiminimalstok-all" data-fouc="" data-uk-uniform>
+																	Berlaku di semua varian
+																</label>
+															</div>
+														</td>
+														<td>
+															<div class="form-check">
+																<label class="form-check-label">
+																	<input data-field="notifikasimaksimalstok" type="checkbox" class="form-check-input-styled all-varian notifikasimaksimalstok-all" data-fouc="" data-uk-uniform>
+																	Berlaku di semua varian
+																</label>
+															</div>
+														</td>
+													</tr>
+													`+ $listHarga +`
+												</tbody>
+											</table>
+										</div>
+									</div>
+								</div>
+							</div>
+							`;
+						} );
 						
-					$( '.produkstokharga-outlets', _this.$el ).html( 
-						tmp( 
-							{
-								outlets:outlets,
-								kombinasi:_this.kombinasi,
-								stokHarga:_this.stokhargaOutlets,
-								currentOutlet: $(".listoutlet_index").val(),
-								enableOutlet:_this.enableOutlet,
-								disabledKombinasi:_this.disabledKombinasi,
-							} 
-						) 
-					);
+					}
+					$( '#produkstokharga-outlets-wrapper', _this.$el ).html( 
+						$outlets_html 
+					).promise().done(function(){
+						_this.initListHarga();
+					});
 				},
 				aps.noop
 			);
 	};
 	aps.ProdukForm.prototype.step4 = function(){
 		var _this = this;
-		util.removeClass( $u( '.product-form-prev', _this.$el ), 'd-none' );
-		//util.addClass( $u( '.product-form-next', _this.$el ), 'd-none' );
+		$( '.product-form-prev', _this.$el ).removeClass( 'd-none' );
+		$( '.product-form-next', _this.$el ).addClass( 'd-none' );
+	};
+	aps.ProdukForm.prototype.initListHarga = function(){
+		var _this = this;
+		$( '#produkstokharga-outlets-wrapper [data-uk-uniform]', _this.$el ).uniform();
+		$( '#produkstokharga-outlets-wrapper .all-varian',  _this.$el ).on( 'change', function(){
+			var _that = this,
+				field = $( _that ).data( 'field' ),
+				table = $( _that ).parents( '.table-produkstokharga_outlet' ),
+				$primaryField = $( '.produkstokharga_outlets-input[name="' + field + '"]:eq(0)', table ),
+				$secondaryField = $( '.produkstokharga_outlets-input[name="' + field + '"]:not(:eq(0))', table );
+			if( $( _that ).prop('checked') ){
+				$secondaryField.prop( 'disabled', true );
+				$secondaryField.val( $primaryField.val() );
+				$( '.produkstokharga_outlets-input[name="' + field + '"]', table ).trigger( 'change' );
+			} else {
+				$secondaryField.prop( 'disabled', false );
+			}
+		} );
+		$( '#produkstokharga-outlets-wrapper .produkstokharga_outlets-input',  _this.$el ).on( 'change', function(){
+			var _that = this,
+				table = $( _that ).parents( '.table-produkstokharga_outlet' ),
+				field = $( _that ).attr( 'name' ),
+				$allVarianCheck = $( '.all-varian[data-field="' + field + '"]', table ),
+				$secondaryField = $( '.produkstokharga_outlets-input[name="' + field + '"]:not(:eq(0))', table );
+			if( $allVarianCheck.prop('checked') ){
+				$secondaryField.val( $( _that ).val() );
+			}
+		} );
+		$( '#produkstokharga-outlets-wrapper .enable-outlet', _this.$el ).on( 'change', function(){
+			var inputs = $( 'input.enable-outlet', _this.$el );
+			_this.enableOutlet = [];
+			inputs.each( function(i,input){
+				if( $( input ).prop( 'checked' ) ){
+					_this.enableOutlet.push( $( input ).val() );
+				}
+			});
+			//_this.syncHarga();
+		} );
+		$( '#produkstokharga-outlets-wrapper .produkstokharga_outlets-input', _this.$el ).on( 'change', function(){
+			var _that = this,
+				parentForm = _this,
+				indexPosted,
+				postedKombinasi,
+				indexOutlet,
+				index1,
+				index2,
+				$wrapper = $( _that ).parents( '.produkstokharga-outlet' ),
+				dataKombinasi = $wrapper.data( 'kombinasi' ),
+				kombinasiIds = JSON.parse( decodeURI( dataKombinasi ) );
+				
+			indexPosted = parentForm.postedKombinasi.findIndex( 
+				find => find.varian1 == typeof kombinasiIds[0] !== 'undefined' ? kombinasiIds[0] : '' && find.varian2 == typeof kombinasiIds[1] !== 'undefined' ? kombinasiIds[1] : ''
+			);
+			postedKombinasi = indexPosted !== -1 ? parentForm.postedKombinasi[ indexPosted ] : {};
+			
+			indexOutlet = parentForm.produkOutlets.findIndex( find => find.IDOUTLET == $wrapper.data( 'outlet' ).toString() );
+
+			index1 = indexOutlet !== -1 ? parentForm.produkOutlets[ indexOutlet ].produk.varian.findIndex( find => find.idvarian == typeof postedKombinasi.idVarian1 !== 'undefined' ? postedKombinasi.idVarian1: '' ) : -1;
+			index2 = index1 !== -1 ? parentForm.produkOutlets[ indexOutlet ].produk.varian[ index1 ].subvarian.findIndex( find => find.idproduk_var == typeof postedKombinasi.idVarian2 !== 'undefined' ? postedKombinasi.idVarian2 : '' ) : -1;
+			
+			if(  index1 !== -1 && index2 !== -1 ){
+				parentForm.produkOutlets[ indexOutlet ].produk.varian[ index1 ].subvarian[ index2 ][ $( _that ).data( 'produk-prop' ) ] = $( _that ).val();
+				
+			}
+			_this.syncHarga();
+		} );
+	};
+	aps.ProdukForm.prototype.syncHarga = function(){
+		var _this = this,
+			outlets = $( '#produkstokharga-outlets-wrapper .produkstokharga-outlet', _this.$el ),
+			inputs = [],
+			parentForm = _this,
+			liststokharga = {},
+			inputValue = {},
+			index,
+			stringKombinasiIds,
+			idoutlet;
+		
+		
+		outlets.each( function(i, outlet){
+			
+			idoutlet = $( outlet ).data( 'outlet' );
+			stringKombinasiIds = $( outlet ).data( 'kombinasi' );
+			inputValue = {};
+			
+			liststokharga[ stringKombinasiIds ] = liststokharga[ stringKombinasiIds ] || [];
+			
+			inputs = $( '.produkstokharga_outlets-input', outlet );
+			inputs.each( function(j, input){
+				inputValue[ $( input ).attr( 'name' ) ] = $( input ).val();
+			});
+			inputValue.idoutlet = idoutlet;
+			
+			if( $( 'input[name="enableOutlet"][value="' + idoutlet + '"]', $( outlet ).parents( '' ) ).prop( 'checked' ) ){
+				
+				liststokharga[ stringKombinasiIds ].push( inputValue );
+			}
+
+			_this.stokhargaOutlets[ idoutlet ] = _this.stokhargaOutlets[ idoutlet ] || {};
+			_this.stokhargaOutlets[ idoutlet ][ stringKombinasiIds ] = inputValue;
+		});
+		
+		$.map( liststokharga, function( value, key ){
+			index = _this.kombinasi.findIndex( find => find.kombinasiIds == key );
+			_this.kombinasi[ index ].liststokharga = value;
+		} );
+		
 	};
 	aps.ProdukForm.prototype.initVarian = function(){
-		$( '.produk-varian.produk-varian-1' ).produkVarian({idVarian:'varian1'});
-		$( '.produk-varian.produk-varian-2' ).produkVarian({idVarian:'varian2'});
+		var _this = this;
+		_this.$varian1 = $( '.produk-varian.produk-varian-1' ).produkVarian({idVarian:'varian1'});
+		_this.$varian2 = $( '.produk-varian.produk-varian-2' ).produkVarian({idVarian:'varian2'});
 	};
 	aps.ProdukForm.prototype.getKombinasi = function(){
 		var _this = this, cartesians = [], kombinasi = [], useSubvarian = false;
@@ -495,76 +868,79 @@
 			
 			stringKombinasiIds = encodeURI( JSON.stringify( kombinasiIds ) );
 
-			indexPosted = _this.postedKombinasi.findindex( find => find.varian1 == ( typeof kombinasiIds[0] !== 'undefined' ? kombinasiIds[0] : '' ) && find.varian2 == ( typeof kombinasiIds[1] !== 'undefined' ? kombinasiIds[1] : '' ) );
+			indexPosted = _this.postedKombinasi.findIndex( find => find.varian1 == ( typeof kombinasiIds[0] !== 'undefined' ? kombinasiIds[0] : '' ) && find.varian2 == ( typeof kombinasiIds[1] !== 'undefined' ? kombinasiIds[1] : '' ) );
 			
 			postedKombinasi = indexPosted !== -1 ? _this.postedKombinasi[ indexPosted ] : {};
-			index1 = _this.DataProduk.varian.findIndex( find => find.idvarian == typeof postedKombinasi.idVarian1 !== 'undefined' ? postedKombinasi.idVarian1: '' );
+			index1 = typeof _this.DataProduk.varian !== 'undefined' ? _this.DataProduk.varian.findIndex( find => find.idvarian == typeof postedKombinasi.idVarian1 !== 'undefined' ? postedKombinasi.idVarian1: '' ) : -1;
 			index2 = index1 !== -1 ? _this.DataProduk.varian[ index1 ].subvarian.findIndex( find => find.idproduk_var == typeof postedKombinasi.idVarian2 !== 'undefined' ? postedKombinasi.idVarian2 : '' ) : -1;
-			// _.map( _this.produkOutlets, function( produkOutlet ){
+			$.map( _this.produkOutlets, function( produkOutlet ){
+				indexOutlet1 = produkOutlet.produk.varian.findIndex( find => find.idvarian == typeof postedKombinasi.idVarian1 !== 'undefined' ? postedKombinasi.idVarian1: '' );
+				indexOutlet2 = indexOutlet1 !== -1 ? produkOutlet.produk.varian[ indexOutlet1 ].subvarian.findIndex(find => find.idproduk_var == ! typeof postedKombinasi.idVarian2 !== 'undefined' ? postedKombinasi.idVarian2 : '' ) : -1;
+				dataProdukOutlet = indexOutlet1 !== -1 && indexOutlet2 !== -1 ? produkOutlet.produk.varian[ indexOutlet1 ].subvarian[ indexOutlet2 ] : {};
 				
-				// indexOutlet1 = _.findIndex( produkOutlet.produk.varian, { idvarian: ! _.isUndefined( postedKombinasi.idVarian1 ) ? postedKombinasi.idVarian1: '' });
-				// indexOutlet2 = indexOutlet1 !== -1 ? _.findIndex(produkOutlet.produk.varian[ indexOutlet1 ].subvarian, { idproduk_var: ! _.isUndefined( postedKombinasi.idVarian2 ) ? postedKombinasi.idVarian2 : '' }) : -1;
-				// dataProdukOutlet = indexOutlet1 !== -1 && indexOutlet2 !== -1 ? produkOutlet.produk.varian[ indexOutlet1 ].subvarian[ indexOutlet2 ] : {};
-				
-				// stokHargaOutlet = {
-					// idoutlet:produkOutlet.IDOUTLET,
-					// jumlahstok:dataProdukOutlet.jumlahstok,
-					// hpp: ! _.isUndefined( dataProdukOutlet.hpp ) ? dataProdukOutlet.hpp : '',
-					// hargajual:dataProdukOutlet.hargajual,
-					// notifikasiminimalstok:dataProdukOutlet.minstok,
-					// notifikasimaksimalstok:! _.isUndefined( dataProdukOutlet.maxstok ) ? dataProdukOutlet.maxstok : '',
-				// };
-				// liststokharga.push( stokHargaOutlet );
-				// _this.stokhargaOutlets[ produkOutlet.IDOUTLET ] = _this.stokhargaOutlets[ produkOutlet.IDOUTLET ] || {};
-				// _this.stokhargaOutlets[ produkOutlet.IDOUTLET ][ stringKombinasiIds ] = stokHargaOutlet;
-			// } );
+				stokHargaOutlet = {
+					idoutlet:produkOutlet.IDOUTLET,
+					jumlahstok:dataProdukOutlet.jumlahstok,
+					hpp: typeof dataProdukOutlet.hpp !== 'undefined' ? dataProdukOutlet.hpp : '',
+					hargajual:dataProdukOutlet.hargajual,
+					notifikasiminimalstok:dataProdukOutlet.minstok,
+					notifikasimaksimalstok: typeof dataProdukOutlet.maxstok !== 'undefined' ? dataProdukOutlet.maxstok : '',
+				};
+				liststokharga.push( stokHargaOutlet );
+				_this.stokhargaOutlets[ produkOutlet.IDOUTLET ] = _this.stokhargaOutlets[ produkOutlet.IDOUTLET ] || {};
+				_this.stokhargaOutlets[ produkOutlet.IDOUTLET ][ stringKombinasiIds ] = stokHargaOutlet;
+			} );
 			
-			// _this.kombinasi[i].barcode = index1 !== -1 && index2 !== -1 ? _this.DataProduk.varian[ index1 ].subvarian[ index2 ].barcode : '';
-			// _this.kombinasi[i].liststokharga = liststokharga;
-			// _this.kombinasi[i].dataKombinasiIds = kombinasiIds;
-			// _this.kombinasi[i].dataProdukKombinasi = produkKombinasi;
-			// _this.kombinasi[i].kombinasiIds = stringKombinasiIds;
-			// if( produkKombinasi.length === 2 && produkKombinasi[1] === '' && produkKombinasi[0] !== '' ){
-				// _this.kombinasi[i].produkKombinasi = produkKombinasi[0];
-			// } else if( produkKombinasi.length === 2 && produkKombinasi[1] === '' && produkKombinasi[0] === '' ){
-				// _this.kombinasi[i].produkKombinasi = $('[name="namaproduk"]').val();
-			// } else {
-				// _this.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
-			// }
+			_this.kombinasi[i].barcode = index1 !== -1 && index2 !== -1 ? _this.DataProduk.varian[ index1 ].subvarian[ index2 ].barcode : '';
+			_this.kombinasi[i].liststokharga = liststokharga;
+			_this.kombinasi[i].dataKombinasiIds = kombinasiIds;
+			_this.kombinasi[i].dataProdukKombinasi = produkKombinasi;
+			_this.kombinasi[i].kombinasiIds = stringKombinasiIds;
+			if( produkKombinasi.length === 2 && produkKombinasi[1] === '' && produkKombinasi[0] !== '' ){
+				_this.kombinasi[i].produkKombinasi = produkKombinasi[0];
+			} else if( produkKombinasi.length === 2 && produkKombinasi[1] === '' && produkKombinasi[0] === '' ){
+				_this.kombinasi[i].produkKombinasi = $('[name="namaproduk"]').val();
+			} else {
+				_this.kombinasi[i].produkKombinasi = produkKombinasi.join( ' - ' );
+			}
 			
 		} );
-		console.log(_this.kombinasi);
 	};
 	aps.ProdukForm.prototype.combine = function(){
 		var _this			= this,
-			$produkKombinasi= $( '.produk-kombinasi-varian', _this.$el );
+			$produkKombinasi= $( '.produk-kombinasi-varian', _this.$el ),
+			dataVarianAttr = '';
 			//tmp 			= _.template( $( '#tmpl-varian-kombinasi' ).html() );
 			
 		_this.generateKombinasi();
 			
-		// if( _this.useSubvarian !==  _this.$parentForm.useSubvarian ){
-			// $produkKombinasi.empty();
-		// }
-		// _.map( _this.$parentForm.kombinasi, function( combination ){
-			// var $varianKombinasiItem = $( '.varian-kombinasi-item[data-kombinasi="' + combination.kombinasiIds + '"]', $produkKombinasi );
-			// if( ! $varianKombinasiItem.length ){
-				// $produkKombinasi.append(
-					// tmp( 
-						// {
-							// produk:combination.produkKombinasi,
-							// kombinasi:combination.kombinasiIds,
-							// barcode:combination.barcode,
-							// dataProduk:combination.dataProdukKombinasi,
-							// dataKombinasi:combination.dataKombinasiIds,
-						// } 
-					// ) 
-				// );
-			// } else {
-				// $( '.varian-kombinasi-item-nama', $varianKombinasiItem ).html( combination.produkKombinasi );
-			// }
+		if( _this.kombinasiUseSubvarian !==  _this.useSubvarian ){
+			$produkKombinasi.empty();
+		}
+		$.map( _this.kombinasi, function( combination ){
+			dataVarianAttr = '';
+			var $varianKombinasiItem = $( '.varian-kombinasi-item[data-kombinasi="' + combination.kombinasiIds + '"]', $produkKombinasi );
+			if( ! $varianKombinasiItem.length ){
+				for( var i in combination.dataKombinasiIds ){
+					dataVarianAttr += 'data-varian'+( parseInt( i ) + 1 ) + '="'+ combination.dataKombinasiIds[i] +'" ';
+				}
+				$produkKombinasi.append( 
+					`
+					<tr class="varian-kombinasi-item" data-kombinasi="`+ combination.kombinasiIds +`" `+ dataVarianAttr +`>
+						<td class="text-center">
+							<a href="#" class="disabled-kombinasi" data-action="disabled"><i class="icon-cross2 text-danger-400"></i></a>
+						</td>
+						<td class="varian-kombinasi-item-nama">`+ combination.produkKombinasi +`</td>
+						<td class="varian-kombinasi-item-barcode"><input type="text" class="form-control" value="`+ combination.barcode +`" placeholder="Barcode" name="barcode"></td>
+					</tr>
+					`
+				);
+			} else {
+				$( '.varian-kombinasi-item-nama', $varianKombinasiItem ).html( combination.produkKombinasi );
+			}
 								
-		// } );
-		// _this.useSubvarian =  _this.$parentForm.useSubvarian;
+		} );
+		_this.kombinasiUseSubvarian =  _this.useSubvarian;
 	};
 	aps.ProdukVarian = function( $el, options ){
 		this.$el = $el;
@@ -582,6 +958,16 @@
 		$( _this.$el ).on( 'change', '.produk-varian-item-value', function(){
 			_this.changeKombinasi();
 		} );
+	};
+	aps.ProdukVarian.prototype.setVarian = function(){
+		var _this = this,
+			varians = typeof aps.produkForm.varians[ _this.idVarian ] !== 'undefined' ? aps.produkForm.varians[ _this.idVarian ] : [];
+		if( varians.length === 1 && varians[0].name === '' ){
+			varians = [];
+		}
+		$.map( varians, function( varian ){
+			return _this.addVarian( varian.id, varian.name );
+		});
 	};
 	aps.ProdukVarian.prototype.addVarian = function( id, name ){
 		var _this = this, deferred = new $.Deferred();
@@ -646,6 +1032,7 @@
 	
 	$.fn.produkForm = function( options ){
 		options = options || {};
+		
 		options = Object.assign( 
 			{
 				step:1,
@@ -654,6 +1041,7 @@
 				DataProduk:{},
 				useVarian:false,
 				useSubvarian:false,
+				kombinasiUseSubvarian:false,
 				varians:{},
 				kombinasi:[],
 				postedKombinasi:[],
@@ -672,14 +1060,14 @@
 		aps.produkPage = new aps.ProdukPage();
 		$( '.aps-add-product' ).ProdukPageNav({template:'add-product', refresh:true});
 	};
-	aps.addProductInit = function( page ){
+	aps.addProductInit = function( page, dataProduk ){
 		$( '.produk-page-nav.produk-page-nav__index', page.$el ).ProdukPageNav({template:'index-product', refresh:false});
-		aps.produkForm = $( '.produk-form', page.$el ).produkForm();
+		aps.produkForm = $( '.produk-form', page.$el ).produkForm(dataProduk);
 	};
 	$( document ).ready(function(){
 		aps.init();	
 	});
-	$( document ).on( 'add-product:ready', function(e, page){
-		aps.addProductInit( page );
+	$( document ).on( 'add-product:ready', function(e, page, dataProduk){
+		aps.addProductInit( page, dataProduk );
 	} );
 })(jQuery)

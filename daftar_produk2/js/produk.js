@@ -223,10 +223,10 @@ var produk = new function ()
 		var limit = $('td[name=t_product_length]').val();
 		this.initialize = true;
 		$("#t_product tbody").empty();
-		$(".aps-alokasi-outlet").hide()
-		$(".aps-hapus").hide()
-		$(".aps-add-product-favorit").hide()
-		$(".aps-delete-product-favorit").hide()
+		$(".aps-alokasi-outlet").hide();
+		$(".aps-hapus").hide();
+		$(".aps-add-product-favorit").hide();
+		$(".aps-delete-product-favorit").hide();
 		var args =
 		{
 			tipe			: 'GET_MASTERPRODUK',
@@ -254,7 +254,7 @@ var produk = new function ()
 							image = "<img src='daftar_produk/image/icon/icon-status-diskon.svg'>"
 						}
 						data_row =
-							"<tr id="+item.idproduk+" data-produk="+item+">" +
+							"<tr id="+item.idproduk+" data-produk=" + btoa( JSON.stringify( item ) ) + ">" +
 								"<td class='check'>" +
 									"<input type='checkbox' class='form-check-input-switchery pilih-produk' data-fouc data-uk-uniform value="+item.idproduk+">" +
 								"</td>" +
@@ -268,7 +268,9 @@ var produk = new function ()
 								"<td class = 'text_13'>"+item.namakategoriproduk+"</td>" +
 								"<td class= 'text_20'>"+item.jumlahstokproduk+"</td>" +
 							"</tr>"
-							$("#t_product tbody").append(data_row)
+							$("#t_product tbody").append(data_row).promise().done(function(){
+								
+							});
 
 					});
 					$( '.thead_totalproduk' ).html( data.jumlahproduk );
@@ -310,6 +312,12 @@ var produk = new function ()
 				},
 			dataType: 'json',
 		});
+		
+		$("#t_product tbody").on( 'click', 'tr', function(e){
+			if( ! $( e.target ).is( 'tr' ) ){return;}
+			var dataProduk = JSON.parse( atob( $( this ).data( 'produk' ) ) );
+			aps.produkPage.redirect( 'add-product', {DataProduk:dataProduk, action:'edit'}, true );
+		} );
 
 	}
 	this.pagination =  function(c, m){
