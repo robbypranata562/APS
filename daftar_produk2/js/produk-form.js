@@ -136,6 +136,7 @@ Array.prototype.unique = function( filter ) {
 		_this.enableOutlet = [];
 	};
 	aps.ProdukForm.prototype.initStatement = function(){
+		
 		var _this = this;
 		_this.initSwitchery();
 		_this.addProdukKategori();
@@ -165,10 +166,18 @@ Array.prototype.unique = function( filter ) {
 		var _this = this, count = 0, varian2 = [], varianItems;
 		if( _this.action == 'edit' ){
 			_this.varians.varian1 = [];
+			console.log(_this.DataProduk)
+			$( 'input[name="namaproduk"]' ).val( _this.DataProduk.namaproduk );
+			$( 'input[name="berat"]' ).val( _this.DataProduk.berat );
+			$( 'textarea[name="deskripsiproduk"]' ).val( _this.DataProduk.deskripsiproduk );
+			if( _this.DataProduk.tipe === '1' ){
+				$( 'input[name="tipestok"]' ).prop( 'checked', true );
+			}
 			_this.getOutlets().then(function( outlets ){
 				
 				_this.getProdukOutlets( outlets ).then(function( produkOutlets ){
 					_this.initStatement();
+					
 					_this.produkOutlets = $.grep( produkOutlets, function(produkOutlet){
 						if( produkOutlet.produk ){
 							_this.enableOutlet.push( produkOutlet.IDOUTLET );
@@ -325,7 +334,7 @@ Array.prototype.unique = function( filter ) {
 		} );
 	};
 	aps.ProdukForm.prototype.initSwitchery = function(){
-		var elems = Array.prototype.slice.call( document.querySelectorAll( '.form-check-input-switchery' ) );
+		var elems = Array.prototype.slice.call( document.querySelectorAll( '.aps-container[data-template="add-product"] .form-check-input-switchery' ) );
 		elems.forEach( function( html ) {
 			var switchery = new Switchery( html );
 		});
@@ -377,7 +386,10 @@ Array.prototype.unique = function( filter ) {
 					  data: dataSelect
 					});
 					deferred.resolve();
-					//$( '.produk-kategori', _this.$el ).val( _this.selected ).trigger( 'change' );
+					if( typeof _this.DataProduk.idkategoriproduk !== 'undefined' ){
+						$( '.produk-kategori', _this.$el ).val( _this.DataProduk.idkategoriproduk ).trigger( 'change' );
+					}
+					
 				},
 				aps.noop
 			);
@@ -430,7 +442,10 @@ Array.prototype.unique = function( filter ) {
 					  data: dataSelect
 					});
 					deferred.resolve();
-					//$( '.produk-uom', _this.$el ).val( _this.selected ).trigger( 'change' );
+					if( typeof _this.DataProduk.idsatuanproduk !== 'undefined' ){
+						$( '.produk-uom', _this.$el ).val( _this.DataProduk.idsatuanproduk ).trigger( 'change' );
+					}
+					
 				},
 				aps.noop
 			);
@@ -837,9 +852,9 @@ Array.prototype.unique = function( filter ) {
 			kombinasi = aps.cartesian( cartesians );
 			useSubvarian = true;
 		} else if( cartesians.length === 1 ) {
-			for( var i in cartesians[0] ){
-				kombinasi.push( cartesians[0][i] );
-			}
+			$.map( cartesians[0], function( cartesian ){
+				kombinasi.push( cartesian );
+			});
 		}
 		return { kombinasi:kombinasi, useSubvarian:useSubvarian };
 	};
@@ -921,9 +936,9 @@ Array.prototype.unique = function( filter ) {
 			dataVarianAttr = '';
 			var $varianKombinasiItem = $( '.varian-kombinasi-item[data-kombinasi="' + combination.kombinasiIds + '"]', $produkKombinasi );
 			if( ! $varianKombinasiItem.length ){
-				for( var i in combination.dataKombinasiIds ){
-					dataVarianAttr += 'data-varian'+( parseInt( i ) + 1 ) + '="'+ combination.dataKombinasiIds[i] +'" ';
-				}
+				$.map( combination.dataKombinasiIds, function( cmb, i ){
+					dataVarianAttr += 'data-varian'+( parseInt( i ) + 1 ) + '="'+ cmb +'" ';
+				});
 				$produkKombinasi.append( 
 					`
 					<tr class="varian-kombinasi-item" data-kombinasi="`+ combination.kombinasiIds +`" `+ dataVarianAttr +`>
@@ -1067,6 +1082,7 @@ Array.prototype.unique = function( filter ) {
 	$( document ).ready(function(){
 		aps.init();	
 	});
+	$( document ).off( 'add-product:ready' );
 	$( document ).on( 'add-product:ready', function(e, page, dataProduk){
 		aps.addProductInit( page, dataProduk );
 	} );

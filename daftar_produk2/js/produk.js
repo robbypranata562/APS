@@ -18,6 +18,7 @@ var produk = new function ()
 			produk.initializeTable = true;
 			produk.initTable();
 		}
+		$(".table-length").unbind('change');
 		$(".table-length").change(function(e){
 			var _this = this;
 			produk.limit = this.value;
@@ -29,6 +30,7 @@ var produk = new function ()
 		$(".param-status_produk").append('<option value="NONKONSINYASI">produk non kosinyasi</option>');
 		$(".param-status_produk").append('<option value="FAVORIT">produk favorit, favoritpelanggan</option>');
 		$(".param-status_produk").append('<option value="PAKET">lom aktif</option>');
+		$(".param-status_produk").unbind('change');
 		$(".param-status_produk").change(function(e){
 			var _this = this;
 			produk.statusproduk = this.value;
@@ -53,6 +55,7 @@ var produk = new function ()
 		},
 			dataType: 'json',
 		});
+		$(".param-kategori").unbind('change');
 		$(".param-kategori").change(function(e){
 			var _this = this;
 			produk.idkategori = this.value;
@@ -61,12 +64,13 @@ var produk = new function ()
 		$(".param-stock").append('<option value="">Semua</option>');
 		$(".param-stock").append('<option value="MINIMALSTOCK">Jumlah Stock < Minimal Stock</option>');
 		$(".param-stock").append('<option value="MAKSIMALSTOCK">Jumlah Stock > Maksimal Stock</option>');
+		$(".param-stock").unbind( 'change' );
 		$(".param-stock").change(function(e){
 			var _this = this;
 			produk.stokoption = this.value;
 			produk.initTable();
 		});
-
+		$(".param-search").off( 'keyup' );
 		$(".param-search").on("keyup",function(e){
 			var _this = this;
 			produk.search = this.value;
@@ -253,7 +257,7 @@ var produk = new function ()
 						if ( item.ispromokonsinyasi == "1" ){
 							image = "<img src='daftar_produk/image/icon/icon-status-diskon.svg'>"
 						}
-						data_row =
+						data_row = $(
 							"<tr id="+item.idproduk+" data-produk=" + btoa( JSON.stringify( item ) ) + ">" +
 								"<td class='check'>" +
 									"<input type='checkbox' class='form-check-input-switchery pilih-produk' data-fouc data-uk-uniform value="+item.idproduk+">" +
@@ -267,42 +271,46 @@ var produk = new function ()
 								"</td>" +
 								"<td class = 'text_13'>"+item.namakategoriproduk+"</td>" +
 								"<td class= 'text_20'>"+item.jumlahstokproduk+"</td>" +
-							"</tr>"
-							$("#t_product tbody").append(data_row).promise().done(function(){
-								
-							});
+							"</tr>" 
+						);
+						$("#t_product tbody").append(data_row).promise().done(function(){
+							
+							$( ".pilih-produk", data_row ).uniform();
+						});
 
 					});
 					$( '.thead_totalproduk' ).html( data.jumlahproduk );
 					$( '.thead_totalstock' ).html( data.jumlahstoktotal );
 					produk.renderPagination((parseInt( args.page ) + 1 ), data.jumlahproduk, data.daftarproduk);
-					$(".pilih-produk").uniform();
+					
+					$(".pilih-produk").unbind( 'change' );
 					$(".pilih-produk").change(function (e) {
-					e.preventDefault();
-					var _this = $( this ).parents( 'tr' );
-					if ( $( this ).prop('checked') ){
-						$(_this).addClass("selected");
-					} else {
-						$(_this).removeClass("selected")
-					}
+						e.preventDefault();
+						var _this = $( this ).parents( 'tr' );
+						if ( $( this ).prop('checked') ){
+							$(_this).addClass("selected");
+						} else {
+							$(_this).removeClass("selected")
+						}
 
-					if ($("#t_product tbody tr.selected").length){
-						$(".aps-add-product").hide()
-						$(".aps-export-product").hide()
-						$(".aps-alokasi-outlet").show()
-						$(".aps-hapus").show()
-						$(".aps-add-product-favorit").show()
-						$(".aps-delete-product-favorit").show()
+						if ($("#t_product tbody tr.selected").length){
+							$(".aps-add-product").hide()
+							$(".aps-export-product").hide()
+							$(".aps-alokasi-outlet").show()
+							$(".aps-hapus").show()
+							$(".aps-add-product-favorit").show()
+							$(".aps-delete-product-favorit").show()
 
-					} else {
-						$(".aps-add-product").show()
-						$(".aps-export-product").show()
-						$(".aps-alokasi-outlet").hide()
-						$(".aps-hapus").hide()
-						$(".aps-add-product-favorit").hide()
-						$(".aps-delete-product-favorit").hide()
-					}
+						} else {
+							$(".aps-add-product").show()
+							$(".aps-export-product").show()
+							$(".aps-alokasi-outlet").hide()
+							$(".aps-hapus").hide()
+							$(".aps-add-product-favorit").hide()
+							$(".aps-delete-product-favorit").hide()
+						}
 					});
+					$(".table-pagination .page-link").unbind('click');
 					$(".table-pagination .page-link").click(function(e){
 						produk.page = $(this).attr("data-page");
 						produk.initTable();
@@ -312,7 +320,7 @@ var produk = new function ()
 				},
 			dataType: 'json',
 		});
-		
+		$("#t_product tbody").off( 'click' );
 		$("#t_product tbody").on( 'click', 'tr', function(e){
 			if( ! $( e.target ).is( 'tr' ) ){return;}
 			var dataProduk = JSON.parse( atob( $( this ).data( 'produk' ) ) );
